@@ -8,11 +8,9 @@ use Illuminate\Notifications\Notifiable;
 class Customer extends Authenticatable
 {
     use Notifiable;
-
     protected $table = 'customer';
-
     protected $primaryKey = 'customer_id';
-
+    public $timestamps = false;
     protected $guard_name = 'customer';
 
     protected $fillable = [

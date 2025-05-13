@@ -18,7 +18,7 @@
     <div class="container">
         <div class="login-container-wrapper clearfix">
             <div class="logo">
-                 <img src="{{ asset('images/hacker.png') }}">
+                <img src="{{ asset('images/hacker.png') }}">
             </div>
             <div class="welcome"><strong>Welcome,</strong> please login</div>
 
@@ -40,6 +40,17 @@
 
             <form class="form-horizontal login-form" method="POST" action="{{ route('admin.login.submit') }}">
                 @csrf
+
+                <!-- Role selection -->
+                <div class="form-group relative mb-4">
+                    <select name="role" class="form-control input-lg" required>
+                        <option value="">-- Chọn vai trò --</option>
+                        <option value="owner" {{ old('role') == 'owner' ? 'selected' : '' }}>Chủ cửa hàng</option>
+                        <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>Nhân viên</option>
+                    </select>
+                    <i class="fa fa-users"></i>
+                </div>
+
                 <div class="form-group relative">
                     <input id="email" name="email" class="form-control input-lg" type="email"
                         placeholder="Email" required value="{{ old('email') }}">
@@ -99,7 +110,7 @@
     }
 
     .logo img {
-        width: 52px ;
+        width: 52px;
     }
 
     .checkbox-inline+.checkbox-inline,
@@ -246,7 +257,6 @@
     .pull-right {
         padding-top: 18px;
     }
-
 </style>
 
 <script>

@@ -11,7 +11,7 @@ class Owner extends Authenticatable
 
     protected $table = 'owner';
     protected $primaryKey = 'owner_id';
-
+    public $timestamps = false;
     protected $fillable = ['owner_name', 'email', 'password', 'phone_number'];
 
     protected $hidden = ['password', 'remember_token'];

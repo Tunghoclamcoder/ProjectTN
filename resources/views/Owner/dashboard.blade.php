@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/x-icon" />
-    <title>PlainAdmin Demo | Bootstrap 5 Admin Template</title>
+    <title>Admin Dashboard</title>
 
     <!-- ========== All CSS files linkup ========= -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
@@ -68,14 +68,38 @@
                                     d="M13.125 2.29167L16.0417 5.20834H14.1667C13.5913 5.20834 13.125 4.74197 13.125 4.16667V2.29167Z" />
                             </svg>
                         </span>
-                        <span class="text">Pages</span>
+                        <span class="text">Quản lý</span>
                     </a>
                     <ul id="ddmenu_2" class="collapse dropdown-nav">
                         <li>
-                            <a href="settings.html"> Settings </a>
+                            <a href="{{ route('admin.employee') }}"
+                                class="{{ request()->routeIs('admin.employee') ? 'active' : '' }}">
+                                <i class="lni lni-users"></i> Quản lý Nhân viên
+                            </a>
                         </li>
                         <li>
-                            <a href="blank-page.html"> Blank Page </a>
+                            <a href="#">
+                                {{-- <a href="{{ route('admin.customer') }}"> --}}
+                                <i class="lni lni-user"></i> Quản lý Khách hàng
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                {{-- <a href="{{ route('admin.product') }}"> --}}
+                                <i class="lni lni-package"></i> Quản lý Sản phẩm
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                {{-- <a href="{{ route('admin.voucher') }}"> --}}
+                                <i class="lni lni-ticket"></i> Quản lý Voucher
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                {{-- <a href="{{ route('admin.order') }}"> --}}
+                                <i class="lni lni-shopping-basket"></i> Quản lý Đơn hàng
+                            </a>
                         </li>
                     </ul>
                 </li>
@@ -391,11 +415,11 @@
                                                 @if (Auth::guard('owner')->check())
                                                     <h6 class="fw-500">{{ Auth::guard('owner')->user()->owner_name }}
                                                     </h6>
-                                                    <p>Owner</p>
+                                                    <p>Chủ cửa hàng</p>
                                                 @elseif(Auth::guard('employee')->check())
                                                     <h6 class="fw-500">
                                                         {{ Auth::guard('employee')->user()->employee_name }}</h6>
-                                                    <p>Employee</p>
+                                                    <p>Nhân viên cửa hàng</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -405,35 +429,49 @@
                                     <li>
                                         <div class="author-info flex items-center !p-1">
                                             <div class="image">
-                                                <img src="assets/images/profile/profile-image.png" alt="image">
+                                                <img src="{{ asset('images/GloryMU.jpg') }}" alt="" />
                                             </div>
                                             <div class="content">
-                                                <h4 class="text-sm">Adam Joe</h4>
-                                                <a class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white text-xs"
-                                                    href="#">Email@gmail.com</a>
+                                                @if (Auth::guard('owner')->check())
+                                                    <h4 class="text-sm">{{ Auth::guard('owner')->user()->owner_name }}
+                                                    </h4>
+                                                    <a class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white text-xs"
+                                                        href="#">{{ Auth::guard('owner')->user()->email }}</a>
+                                                @elseif(Auth::guard('employee')->check())
+                                                    <h4 class="text-sm">
+                                                        {{ Auth::guard('employee')->user()->employee_name }}</h4>
+                                                    <a class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white text-xs"
+                                                        href="#">{{ Auth::guard('employee')->user()->email }}</a>
+                                                @endif
                                             </div>
                                         </div>
                                     </li>
                                     <li class="divider"></li>
                                     <li>
                                         <a href="#0">
-                                            <i class="lni lni-user"></i> View Profile
+                                            <i class="lni lni-user"></i> Xem Profile
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#0">
-                                            <i class="lni lni-alarm"></i> Notifications
+                                            <i class="lni lni-alarm"></i> Thông báo
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#0"> <i class="lni lni-inbox"></i> Messages </a>
+                                        <a href="#0"> <i class="lni lni-inbox"></i> Tin nhắn </a>
                                     </li>
                                     <li>
-                                        <a href="#0"> <i class="lni lni-cog"></i> Settings </a>
+                                        <a href="#0"> <i class="lni lni-cog"></i> Cài đặt </a>
                                     </li>
                                     <li class="divider"></li>
                                     <li>
-                                        <a href="#0"> <i class="lni lni-exit"></i> Sign Out </a>
+                                        <form action="{{ route('admin.logout') }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            <button type="submit" style=" width: 125px; gap: 10px;">
+                                                <i class="lni lni-exit"></i> Đăng xuất
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </div>
