@@ -12,16 +12,19 @@ Route::get('/', function () {
 });
 Route::get('/homepage', [ShopController::class, 'index'])->name('shop.home');
 
-// 2) Trang login/registration cho Customer
+// 2) Trang đăng ký, đăng nhập, đăng xuất cho Customer
 Route::middleware('guest:customer')->group(function () {
-    Route::get('/login', [CustomerController::class, 'showLoginForm'])->name('customer.login');
-    Route::post('/login', [CustomerController::class, 'login'])->name('customer.login.submit');
+    Route::get('/customer/register', [CustomerController::class, 'showRegisterForm'])->name('customer.register');
+    Route::post('/customer/register', [CustomerController::class, 'register'])->name('customer.register.submit');
+    Route::get('/customer/login', [CustomerController::class, 'showLoginForm'])->name('customer.login');
+    Route::post('/customer/login', [CustomerController::class, 'login'])->name('customer.login.submit');
 });
 
 Route::middleware('auth:customer')->group(function () {
-    Route::get('/home', [CustomerController::class, 'home'])->name('customer.home');
-    Route::post('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
+    Route::get('/customer/home', [CustomerController::class, 'home'])->name('customer.home');
+    Route::post('/customer/logout', [CustomerController::class, 'logout'])->name('customer.logout');
 });
+
 
 //Login route mặc định của Admin
 Route::get('login', function () {
