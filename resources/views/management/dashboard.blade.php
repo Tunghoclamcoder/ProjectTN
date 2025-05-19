@@ -78,26 +78,57 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                {{-- <a href="{{ route('admin.customer') }}"> --}}
+                            <a href="{{ route('admin.customer') }}">
                                 <i class="lni lni-user"></i> Quản lý Khách hàng
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                {{-- <a href="{{ route('admin.product') }}"> --}}
+                            <a href="{{ route('admin.product') }}">
                                 <i class="lni lni-package"></i> Quản lý Sản phẩm
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                {{-- <a href="{{ route('admin.voucher') }}"> --}}
+                            <a href="{{ route('admin.category') }}">
+                               <i class="lni lni-grid-alt"></i>  Quản lý Loại Sản phẩm
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.image') }}">
+                                <i class="lni lni-image"></i> Quản lý Hình ảnh Sản phẩm
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.size') }}">
+                                <i class="lni lni-ruler-alt"></i> Quản lý Size Sản phẩm
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route(name: 'admin.brand') }}">
+                                <i class="lni lni-flag"></i> Quản lý Thương hiệu
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.material') }}">
+                                <i class="lni lni-layers"></i> Quản lý Chất liệu
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.payment') }}">
+                                <i class="lni lni-credit-cards"></i> Quản lý Phương thức thanh toán
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.shipping') }}">
+                                <i class="lni lni-delivery"></i> Quản lý Phương thức vận chuyển
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.voucher') }}">
                                 <i class="lni lni-ticket"></i> Quản lý Voucher
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                {{-- <a href="{{ route('admin.order') }}"> --}}
+                            <a href="{{ route('admin.order') }}">
                                 <i class="lni lni-shopping-basket"></i> Quản lý Đơn hàng
                             </a>
                         </li>

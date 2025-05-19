@@ -76,11 +76,6 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model'  => App\Models\User::class,
-        ],
-
         'owner' => [
             'driver' => 'eloquent',
             'model'  => App\Models\Owner::class,

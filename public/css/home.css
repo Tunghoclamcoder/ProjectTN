@@ -1,29 +1,29 @@
 * {
-	font-family: sans-serif, arial;
-	margin:0px;
-	padding:0px;
-	box-sizing:border-box;
-	color:white;
+    font-family: sans-serif, arial;
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    color: white;
 }
 a {
-	text-decoration:none;
+    text-decoration: none;
 }
 :target {
-	display:block!important;
+    display: block !important;
 }
 .container {
-	width:100%;
-	max-width: 1300px;
-	margin: 0px auto;
-	padding:0px 10px;
+    width: 100%;
+    max-width: 1300px;
+    margin: 0px auto;
+    padding: 0px 10px;
 }
 /**********START HEADER SECTION**********/
-header{
-	background:black;
+header {
+    background: black;
 }
 .header {
-	padding:6px 0px 16px 0px;
-	display:flex;
+    padding: 6px 0px 16px 0px;
+    display: flex;
 }
 
 .logo img {
@@ -34,89 +34,148 @@ header{
 }
 
 .menu {
-	margin-left: auto;
+    margin-left: auto;
     display: flex;
     align-items: center;
 }
 .menu ul {
-	display: flex;
-	gap: 25px;
-	list-style: none;
-	margin-top:14px;
+    display: flex;
+    gap: 25px;
+    list-style: none;
+    margin-top: 14px;
 }
 .menu li {
-	font-weight:bold;
-	}
-.openicon, .closeicon {
- 	display:none;
+    font-weight: bold;
+}
+.openicon,
+.closeicon {
+    display: none;
 }
 /* For Mobile Version */
 @media screen and (max-width: 480px) {
-	#menu {
-		display: none;
-		position: fixed;
-		left: 0px;
-		background: black;
-		height: 100%;
-		width: 80%;
-		padding: 30px;
-	}
-	.openicon {
-		display:block;
-		position: relative;
-		float: right;
-		font-size: 34px;
-		right: 8px;
-		font-weight: bold;
-	}
-	.closeicon {
-		display:block;
-		float:right;
-		font-size: 30px;
-	}
-	#menu ul {
-		 display: block;
-		 margin-top: 80px;
-	}
-	#menu ul li {
-		 margin-bottom:35px;
-	}
+    #menu {
+        display: none;
+        position: fixed;
+        left: 0px;
+        background: black;
+        height: 100%;
+        width: 80%;
+        padding: 30px;
+    }
+    .openicon {
+        display: block;
+        position: relative;
+        float: right;
+        font-size: 34px;
+        right: 8px;
+        font-weight: bold;
+    }
+    .closeicon {
+        display: block;
+        float: right;
+        font-size: 30px;
+    }
+    #menu ul {
+        display: block;
+        margin-top: 80px;
+    }
+    #menu ul li {
+        margin-bottom: 35px;
+    }
 }
+
+.nav-item.dropdown {
+    position: relative;
+}
+
+.nav-link.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: none;
+    min-width: 200px;
+    background-color: #000;
+    border-radius: 4px;
+    padding: 8px 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #333;
+}
+
+.dropdown-item i {
+    font-size: 16px;
+    width: 20px;
+}
+
+form {
+    margin: 0;
+    padding: 0;
+}
+
 /**********END HEADER SECTION**********/
 
 .w-100 {
-	width:100%;
+    width: 100%;
 }
 
 .banner {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-	gap: 20px;
-	margin:40px 0px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin: 40px 0px;
 }
 
 /**********START PRODUCT SECTION**********/
 
 .product {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-	gap: 20px 30px;
-	margin:100px 0px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px 30px;
+    margin: 100px 0px;
 }
 .pro {
-	border: 1px solid lightgrey;
-	padding: 0px 0px 30px 0px;
-	text-align: center;
-	margin-bottom:20px;
+    border: 1px solid lightgrey;
+    padding: 0px 0px 30px 0px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 .pro p {
-	color: black;
-	font-size:18px;
-    margin:5px 0px;
+    color: black;
+    font-size: 18px;
+    margin: 5px 0px;
 }
 .pro b {
-	color: red;
-	font-size: 26px;
+    color: red;
+    font-size: 26px;
 }
 .pro strike {
     color: red;
@@ -134,29 +193,29 @@ header{
 
 /**********START FOOTER SECTION**********/
 
-footer{
-	background:black;
-	padding:40px 0px;
+footer {
+    background: black;
+    padding: 40px 0px;
 }
 .foot {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-	gap: 60px;
-	padding:20px 0px 20px 20px;
-	margin:0px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 60px;
+    padding: 20px 0px 20px 20px;
+    margin: 0px auto;
 }
 .column h3 {
-	margin-bottom:25px;
+    margin-bottom: 25px;
 }
-.column p{
-	line-height:28px;
+.column p {
+    line-height: 28px;
 }
-.column table td{
-	padding:10px 0px;
+.column table td {
+    padding: 10px 0px;
 }
 .column li {
-	margin-bottom:15px;
-	list-style-type: disclosure-closed;
+    margin-bottom: 15px;
+    list-style-type: disclosure-closed;
 }
 
 /**********END FOOTER SECTION**********/

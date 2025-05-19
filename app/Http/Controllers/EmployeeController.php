@@ -69,14 +69,14 @@ class EmployeeController extends Controller
                 ->orderBy('employee_name', 'asc')
                 ->paginate(10);
 
-            return view('Owner.employee_management.index', compact('employees'));
+            return view('Owner.employee_mana.index', compact('employees'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Có lỗi xảy ra khi tải danh sách nhân viên: ' . $e->getMessage());
         }
     }
     public function create()
     {
-        return view('Owner.employee_management.create');
+        return view('Owner.employee_mana.create');
     }
 
     public function store(Request $request)
@@ -123,7 +123,7 @@ class EmployeeController extends Controller
                 ->with('error', 'Bạn không có quyền chỉnh sửa nhân viên này');
         }
 
-        return view('Owner.employee_management.edit', compact('employee'));
+        return view('Owner.employee_mana.edit', compact('employee'));
     }
 
     public function update(Request $request, Employee $employee)

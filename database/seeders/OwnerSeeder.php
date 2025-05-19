@@ -16,7 +16,7 @@ class OwnerSeeder extends Seeder
                 'owner_name' => 'Store Owner',
                 'email' => 'owner@gmail.com',
                 'phone_number' => '0123456789',
-                'password' => Hash::make('owner123'),
+                'password' => Hash::make('admin123'),
             ]);
         }
     }

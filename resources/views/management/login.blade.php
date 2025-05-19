@@ -67,11 +67,8 @@
                     <button type="submit" class="btn btn-success btn-lg w-100">Login</button>
                 </div>
 
-                <div class="checkbox pull-left">
-                    <label><input type="checkbox"> Remember</label>
-                </div>
-                <div class="checkbox pull-right">
-                    <label> <a class="forget" href="" title="forget">Forgot your password</a> </label>
+                <div class="forgot-password-container">
+                    <a class="forget" href="" title="forget">Forgot your password?</a>
                 </div>
             </form>
         </div>
@@ -250,12 +247,19 @@
         z-index: -1;
     }
 
-    .pull-left {
-        padding-top: 18px;
+    .forgot-password-container {
+        text-align: center;
+        margin-top: 20px;
     }
 
-    .pull-right {
-        padding-top: 18px;
+    .forgot-password-container .forget {
+        color: #ddd;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .forgot-password-container .forget:hover {
+        color: #fff;
     }
 </style>
 

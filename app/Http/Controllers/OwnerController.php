@@ -44,7 +44,7 @@ class OwnerController extends Controller
         if (Auth::guard('owner')->check() || Auth::guard('employee')->check()) {
             return redirect()->route('admin.dashboard');
         }
-        return view('Owner.login');
+        return view('management.login');
     }
 
     public function logout(Request $request)
@@ -69,6 +69,6 @@ class OwnerController extends Controller
             $user = Auth::guard('employee')->user();
         }
 
-        return view('Owner.dashboard', compact('user'));
+        return view('management.dashboard', compact('user'));
     }
 }
