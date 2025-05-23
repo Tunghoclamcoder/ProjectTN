@@ -16,10 +16,26 @@
 </head>
 
 <body>
-
-
     <!-- Include sidebar và header của dashboard -->
     @include('components.admin-header')
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
 
     <div class="container">
         <div class="table-responsive">
@@ -32,17 +48,21 @@
                                 <span style="font-size: 12px; font-weight: 500;"> Quay lại</span>
                             </a>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h2>Danh sách <b>Khách hàng</b></h2>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="search-box">
-                                    <i class="material-icons">&#xE8B6;</i>
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
-                                </div>
+                        <div class="row mt-3">
+                        <div class="col-sm-6">
+                            <h2>Quản lý <b>Nhân viên</b></h2>
+                            <a href="{{ route(name: 'admin.employee.create') }}" class="btn btn-success mt-2 mb-4">
+                                <i class="material-icons">&#xE147;</i>
+                                <span>Thêm mới</span>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="search-box">
+                                <i class="material-icons">&#xE8B6;</i>
+                                <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>
+                    </div>
                     </div>
                     <table class="table table-striped table-hover table-bordered">
                         <thead>

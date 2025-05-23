@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    @include('Customer.components.header')
+
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -32,50 +34,6 @@
         </div>
     @endif
 
-    <header>
-        <div class="container">
-            <div class="header">
-                <div class="logo">
-                    <img src="{{ asset('images/logo.png') }}">
-                </div>
-
-                <div class="menu"><a href="#menu" class="openicon">☰</a>
-                    <nav id="menu">
-                        <ul>
-                            <li><a href="{{ route('shop.home') }}">Trang chủ</a></li>
-                            <li><a href="#">Giới thiệu</a></li>
-                            <li><a href="#">Mua ngay</a></li>
-                            <li><a href="#">Danh mục</a></li>
-                            @guest('customer')
-                                <li><a href="{{ route('customer.login') }}">Đăng nhập</a></li>
-                                <li><a href="{{ route('customer.register') }}">Đăng ký</a></li>
-                            @else
-                                <li class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle">
-                                        <i class="lni lni-user"></i> Tài khoản của tôi
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        <a href="{{ route('customer.profile') }}" class="dropdown-item">
-                                            <i class="lni lni-user"></i> Thông tin tài khoản
-                                        </a>
-                                        <a href="{{ route('customer.orders') }}" class="dropdown-item">
-                                            <i class="lni lni-shopping-basket"></i> Đơn hàng của tôi
-                                        </a>
-                                        <form action="{{ route('customer.logout') }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="lni lni-exit"></i> Đăng xuất
-                                            </button>
-                                        </form>
-                                    </div>
-                                </li>
-                            @endguest
-                            <li><a href="#">Liên hệ với chúng tôi</a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-    </header>
     <img src="{{ asset('images/slider.png') }}" class="w-100" alt="Slider">
     <div class="container">
         <div class="banner">
@@ -87,136 +45,61 @@
 
     <div class="container">
         <div class="product">
+            @forelse($products as $product)
+                <div class="pro">
+                    @if ($mainImage = $product->getMainImage())
+                        <img src="{{ Storage::url($mainImage->image_url) }}" class="w-100"
+                            alt="{{ $product->product_name }}">
+                    @else
+                        <img src="{{ asset('images/no-image.png') }}" class="w-100" alt="No image available">
+                    @endif
 
-            <div class="pro">
-                <img src="images/p-1.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
+                    <p class="prd-name">{{ $product->product_name }}</p>
+                    <p>
+                        @if ($product->discount > 0)
+                            <b>{{ number_format($product->getDiscountedPrice()) }} VNĐ</b>
+                            <strike>{{ number_format($product->price) }} VNĐ</strike>
+                        @else
+                            <b>{{ number_format($product->price) }} VNĐ</b>
+                        @endif
+                    </p>
 
-            <div class="pro">
-                <img src="images/p-2.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
+                    <div class="product-actions">
+                        <a href="{{ route('shop.product.show', $product->product_id) }}" class="btn-view">
+                            Xem chi tiết
+                        </a>
 
-            <div class="pro">
-                <img src="images/p-3.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
+                        {{-- Nút add to cart --}}
+                        @auth('customer')
+                            <form action="{{-- {{ route('cart.add-to-cart') }} --}} #" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->product_id }}">
 
-            <div class="pro">
-                <img src="images/p-4.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
+                                <button class="cart-button">
+                                    <span class="add-to-cart">Add to cart</span>
+                                    <span class="added">Added</span>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <i class="fas fa-box"></i>
+                                </button>
 
-            <div class="pro">
-                <img src="images/p-5.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
+                            </form>
+                        @endauth
+                    </div>
+                </div>
+            @empty
+                <div class="no-products">
+                    <p>Không có sản phẩm nào.</p>
+                </div>
+            @endforelse
+        </div>
 
-            <div class="pro">
-                <img src="images/p-6.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-7.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-8.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-9.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-10.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-11.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
-            <div class="pro">
-                <img src="images/p-12.jpg" class="w-100">
-                <p>Laced Stylish Jooger For Men's</p>
-                <p><b>$20.99</b> <strike>$30.99</strike> </p>
-                <a href="#">Show Now</a>
-            </div>
-
+        {{-- Phân trang --}}
+        <div class="pagination-container">
+            {{ $products->links() }}
         </div>
     </div>
-    <!----------PRODUCT HTML ENDS----->
-    <!----------FOOTER HTML STARTS----->
-
-    <footer>
-        <div class="container">
-            <div class="foot">
-                <div class="column">
-                    <h3>About Us</h3>
-                    <p>If you are going to use of Lorem Ipsum need to be sure there isn't hidden of text. If you are
-                        going to use of Lorem Ipsum need to be sure there isn't hidden of text If you are going to use
-                        of Lorem Ipsum need to be sure there isn't hidden of text. </p>
-                </div>
-                <div class="column">
-                    <h3>Opening Timing</h3>
-                    <table>
-                        <tr>
-                            <td>Mon-Fri...................</td>
-                            <td>10:00 AM - 08:00 PM</td>
-                        </tr>
-                        <tr>
-                            <td>Saturday.................</td>
-                            <td>8:00 AM - 02:00 PM</td>
-                        </tr>
-                        <tr>
-                            <td>Sunday....................</td>
-                            <td>Closed</td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="column">
-                    <h3>Contact Us</h3>
-                    <ul class="contactus">
-                        <li>3A-25 Ring road North-east, <br>
-                            Delhi, India, 462001</li>
-                        <li>info@ecommerce.com</li>
-                        <li>+0 123 456 7890</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!----------FOOTER HTML ENDS----->
+    ư
+    @include('Customer.components.footer')
 </body>
 <script>
     $(document).ready(function() {
@@ -233,6 +116,18 @@
         });
 
     });
+
+    // JS nút Add to cart
+    const cartButtons = document.querySelectorAll('.cart-button');
+
+    cartButtons.forEach(button => {
+        button.addEventListener('click', cartClick);
+    });
+
+    function cartClick() {
+        let button = this;
+        button.classList.add('clicked');
+    }
 </script>
 
 </html>

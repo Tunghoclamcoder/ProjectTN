@@ -10,7 +10,7 @@ class SizeController extends Controller
 {
     public function index()
     {
-        $sizes = Size::paginate(8);
+        $sizes = Size::withCount('products')->paginate(10);
         return view('management.size_mana.index', compact('sizes'));
     }
 
@@ -22,47 +22,57 @@ class SizeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'size_name' => 'required|string|max:255|unique:sizes,size_name'
+            'size_name' => 'required|string|max:100|unique:sizes'
         ]);
 
-        Size::create($validated);
-
-        return redirect()
-            ->route('admin.size')
-            ->with('success', 'Thêm size mới thành công!');
+        try {
+            size::create($validated);
+            return redirect()
+                ->route('admin.size')
+                ->with('success', 'Danh mục đã được tạo thành công.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi tạo danh mục.');
+        }
     }
 
-    public function edit(Size $size)
+    public function edit(size $size)
     {
         return view('management.size_mana.edit', compact('size'));
     }
 
-    public function update(Request $request, Size $size)
+    public function update(Request $request, size $size)
     {
         $validated = $request->validate([
-            'size_name' => 'required|string|max:255|unique:sizes,size_name,' . $size->size_id . ',size_id'
+            'size_name' => 'required|string|max:255|unique:sizes,size_name,' . $size->size_id . ',size_id',
         ]);
 
-        $size->update($validated);
-
-        return redirect()
-            ->route('admin.size')
-            ->with('success', 'Cập nhật size thành công!');
+        try {
+            $size->update($validated);
+            return redirect()
+                ->route('admin.size')
+                ->with('success', 'Danh mục đã được cập nhật thành công.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi cập nhật danh mục.');
+        }
     }
 
-    public function destroy(Size $size)
+    public function destroy(size $size)
     {
         try {
-            $sizeName = $size->size_name;
-            $size->delete();
+            if ($size->products()->exists()) {
+                return back()->with('error', 'Không thể xóa danh mục này vì đang có sản phẩm liên kết.');
+            }
 
+            $size->delete();
             return redirect()
                 ->route('admin.size')
-                ->with('success', "Đã xóa thành công size '$sizeName'");
+                ->with('success', 'Danh mục đã được xóa thành công.');
         } catch (\Exception $e) {
-            return redirect()
-                ->route('admin.size')
-                ->with('error', 'Không thể xóa size này. Có thể có sản phẩm đang sử dụng!');
+            return back()->with('error', 'Có lỗi xảy ra khi xóa danh mục.');
         }
     }
 }

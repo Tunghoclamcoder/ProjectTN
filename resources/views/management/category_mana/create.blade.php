@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chỉnh sửa size sản phẩm</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Thêm Danh mục mới</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -40,27 +39,25 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Chỉnh sửa size sản phẩm</h4>
+                        <h4>Thêm Danh mục mới</h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('admin.size.update', ['size' => $size->size_id]) }}"
-                            method="POST">
-                            @csrf
-                            @method('PUT')
+                        <form action="{{ route('admin.category.store') }}" method="POST">
 
+                            @csrf
                             <div class="form-group mb-3">
-                                <label>Tên Size sản phẩm</label>
-                                <input type="text" name="size_name"
-                                    class="form-control @error('size_name') is-invalid @enderror" required
-                                    value="{{ old('size_name', $size->size_name) }}">
-                                @error('size_name')
+                                <label>Tên danh mục</label>
+                                <input type="text" name="category_name"
+                                    class="form-control @error('category_name') is-invalid @enderror"
+                                    value="{{ old('category_name') }}" required>
+                                @error('category_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('admin.size') }}" class="btn btn-secondary">Quay lại</a>
-                                <button type="submit" class="btn btn-primary">Cập nhật Size sản phẩm</button>
+                                <a href="{{ route('admin.category') }}" class="btn btn-secondary">Quay lại</a>
+                                <button type="submit" class="btn btn-primary">Thêm danh mục</button>
                             </div>
                         </form>
                     </div>
@@ -69,6 +66,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 <script>
     function previewImage(input) {
@@ -83,6 +81,9 @@
             }
 
             reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
         }
     }
 </script>

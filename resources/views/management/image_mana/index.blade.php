@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-@php
-    use Illuminate\Support\Facades\Storage;
-@endphp
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý Thương hiệu</title>
+    <title>Quản lý Ảnh sản phẩm</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -20,23 +17,25 @@
 
 <body>
 
+
+    <!-- Include sidebar và header của dashboard -->
     @include('components.admin-header')
 
     @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
+            <strong>Thành công!</strong> {{ session('success') }}
         </div>
     @endif
 
     @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
+        <div class="alert alert-danger alert-dismissible" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
+            <strong>Lỗi!</strong> {{ session('error') }}
         </div>
     @endif
 
@@ -54,8 +53,8 @@
                     </div>
                     <div class="row mt-3">
                         <div class="col-sm-6">
-                            <h2>Quản lý <b>Thương hiệu</b></h2>
-                            <a href="{{ route(name: 'admin.brand.create') }}" class="btn btn-success mt-2 mb-4">
+                            <h2>Quản lý <b>Ảnh sản phẩm</b></h2>
+                            <a href="{{ route(name: 'admin.image.create') }}" class="btn btn-success mt-2 mb-4">
                                 <i class="material-icons">&#xE147;</i>
                                 <span>Thêm mới</span>
                             </a>
@@ -72,37 +71,34 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Hình ảnh</th>
-                                <th>Tên thương hiệu</th>
-                                <th>Mô tả</th>
+                                <th>Đường dẫn</th>
                                 <th>Chức năng</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($brands as $brand)
+                            @foreach ($images as $image)
                                 <tr>
-                                    <td>{{ $brand->brand_id }}</td>
-                                    <td style="width: 120px; height: 100px">
-                                        @if ($brand->brand_image && Storage::disk('public')->exists($brand->brand_image))
-                                            <img src="{{ Storage::url($brand->brand_image) }}"
-                                                alt="{{ $brand->brand_name }}"
-                                                style="width: 90px; height: 80px; object-fit: cover;">
+                                    <td>{{ $image->image_id }}</td>
+                                    <td style="width: 100px;">
+                                        @if (Storage::disk('public')->exists($image->image_url))
+                                            <img src="{{ Storage::url($image->image_url) }}" alt="Image Preview"
+                                                style="max-width: 100px; max-height: 100px; object-fit: cover;">
                                         @else
-                                            <img src="{{ asset('images/placeholder.png') }}" alt="Placeholder"
-                                                style="width: 90px; height: 80px; object-fit: cover;">
+                                            <span class="text-muted">No image</span>
                                         @endif
                                     </td>
-                                    <td>{{ $brand->brand_name }}</td>
-                                    <td>{{ Str::limit($brand->description, 500) }}</td>
+                                    <td>{{ $image->image_url }}</td>
                                     <td>
-                                        <a href="{{ route('admin.brand.edit', ['brand' => $brand->brand_id]) }}">
+                                        <a href="{{ route('admin.image.edit', ['image' => $image->image_id]) }}"
+                                            class="edit" title="Sửa" data-toggle="tooltip">
                                             <i class="material-icons">&#xE254;</i>
                                         </a>
-                                        <form action="{{ route('admin.brand.delete', $brand->brand_id) }}"
+                                        <form action="{{ route('admin.image.delete', $image->image_id) }}"
                                             method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="delete" title="Xóa" data-toggle="tooltip"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này không?')">
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa hình ảnh này không? Hình ảnh sẽ bị xóa khỏi tất cả sản phẩm liên quan.')">
                                                 <i class="material-icons">&#xE872;</i>
                                             </button>
                                         </form>
@@ -111,20 +107,27 @@
                             @endforeach
                         </tbody>
                     </table>
+
+                    @if ($images->isEmpty())
+                        <div class="text-center p-3">
+                            <p>Chưa có hình ảnh nào được tải lên.</p>
+                        </div>
+                    @endif
+
                     <div class="clearfix">
                         <div class="footer-container">
                             <div class="pagination-info">
                                 <span>Tổng số lượng : </span>
-                                <span class="total-records">{{ $brands->total() }}</span>
+                                <span class="total-records">{{ $images->total() }}</span>
                             </div>
 
                             <div class="page-info">
                                 <div class="page-info-text">
-                                    Trang <span class="page-number">{{ $brands->currentPage() }}</span>
-                                    <span class="all-page-number"> / {{ $brands->lastPage() }} </span>
+                                    Trang <span class="page-number">{{ $images->currentPage() }}</span>
+                                    <span class="all-page-number"> / {{ $images->lastPage() }} </span>
                                 </div>
                                 <button class="next-page-btn" onclick="nextPage()"
-                                    {{ $brands->currentPage() >= $brands->lastPage() ? 'disabled' : '' }}>
+                                    {{ $images->currentPage() >= $images->lastPage() ? 'disabled' : '' }}>
                                     <span>Trang tiếp</span>
                                 </button>
                             </div>
@@ -133,16 +136,15 @@
                 </div>
             </div>
         </div>
-    </div>
 </body>
 
 <script>
     function nextPage() {
-        const currentPage = {{ $brands->currentPage() }};
-        const totalPages = {{ $brands->lastPage() }};
+        const currentPage = {{ $images->currentPage() }};
+        const totalPages = {{ $images->lastPage() }};
 
         if (currentPage < totalPages) {
-            window.location.href = "{{ $brands->url($brands->currentPage() + 1) }}";
+            window.location.href = "{{ $images->url($images->currentPage() + 1) }}";
         }
     }
 

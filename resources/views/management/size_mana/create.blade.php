@@ -45,11 +45,13 @@
                     </div>
                     <div class="card-body">
                         <form action="{{ route('admin.size.store') }}" method="POST">
+
                             @csrf
                             <div class="form-group mb-3">
-                                <label>Tên Size sản phẩm</label>
+                                <label>Tên danh mục</label>
                                 <input type="text" name="size_name"
-                                    class="form-control @error('size_name') is-invalid @enderror" required>
+                                    class="form-control @error('size_name') is-invalid @enderror"
+                                    value="{{ old('size_name') }}" required>
                                 @error('size_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -57,7 +59,7 @@
 
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('admin.size') }}" class="btn btn-secondary">Quay lại</a>
-                                <button type="submit" class="btn btn-primary">Thêm Size sản phẩm</button>
+                                <button type="submit" class="btn btn-primary">Thêm size mới</button>
                             </div>
                         </form>
                     </div>

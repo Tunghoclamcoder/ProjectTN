@@ -18,7 +18,6 @@ class Image extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'image_product', 'image_id', 'product_id')
-            ->using(ImageProduct::class)
             ->withPivot('image_order', 'image_role');
     }
 }

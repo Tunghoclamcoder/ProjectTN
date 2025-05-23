@@ -10,68 +10,69 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with('products')->get();
-        return view('Owner.category_management.index', compact('categories'));
+        $categories = Category::withCount('products')->paginate(10);
+        return view('management.category_mana.index', compact('categories'));
     }
 
     public function create()
     {
-        return view('Owner.category_management.create');
+        return view('management.category_mana.create');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'category_name' => 'required|string|max:100|unique:categories'
         ]);
 
         try {
-            Category::create($request->only('category_name'));
-
+            Category::create($validated);
             return redirect()
                 ->route('admin.category')
-                ->with('success', 'Thêm danh mục thành công');
+                ->with('success', 'Danh mục đã được tạo thành công.');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi thêm danh mục');
+                ->with('error', 'Có lỗi xảy ra khi tạo danh mục.');
         }
     }
 
     public function edit(Category $category)
     {
-        return view('Owner.category_management.edit', compact('category'));
+        return view('management.category_mana.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
-        $request->validate([
-            'category_name' => 'required|string|max:100|unique:categories,category_name,' . $category->category_id . ',category_id'
+        $validated = $request->validate([
+            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $category->category_id . ',category_id',
         ]);
 
         try {
-            $category->update($request->only('category_name'));
-
+            $category->update($validated);
             return redirect()
                 ->route('admin.category')
-                ->with('success', 'Cập nhật danh mục thành công');
+                ->with('success', 'Danh mục đã được cập nhật thành công.');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi cập nhật danh mục');
+                ->with('error', 'Có lỗi xảy ra khi cập nhật danh mục.');
         }
     }
 
     public function destroy(Category $category)
     {
         try {
-            $category->delete();
+            if ($category->products()->exists()) {
+                return back()->with('error', 'Không thể xóa danh mục này vì đang có sản phẩm liên kết.');
+            }
 
+            $category->delete();
             return redirect()
                 ->route('admin.category')
-                ->with('success', 'Xóa danh mục thành công');
+                ->with('success', 'Danh mục đã được xóa thành công.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra khi xóa danh mục');
+            return back()->with('error', 'Có lỗi xảy ra khi xóa danh mục.');
         }
     }
 }

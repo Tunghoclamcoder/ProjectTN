@@ -15,6 +15,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\CartController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,7 @@ Route::get('/', function () {
     return redirect('/homepage');
 });
 Route::get('/homepage', [ShopController::class, 'index'])->name('shop.home');
+Route::get('/product/{product_id}', [ShopController::class, 'show'])->name('shop.product.show');
 
 // 2) Trang đăng ký, đăng nhập, đăng xuất cho Customer
 Route::middleware('guest:customer')->group(function () {
@@ -35,6 +37,7 @@ Route::middleware('guest:customer')->group(function () {
 Route::middleware('auth:customer')->group(function () {
     Route::get('/customer/profile', [CustomerController::class, 'profile'])->name('customer.profile');
     Route::get('/customer/orders', [CustomerController::class, 'orders'])->name('customer.orders');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add-to-cart');
     Route::post('/customer/logout', [CustomerController::class, 'logout'])->name('customer.logout');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
@@ -121,8 +124,9 @@ Route::prefix('admin')->group(function () {
         Route::prefix('images')->group(function () {
             Route::get('/', [ImageController::class, 'index'])->name('admin.image');
             Route::get('/create', [ImageController::class, 'create'])->name('admin.image.create');
-            Route::get('/{category}/edit', action: [ImageController::class, 'edit'])->name('admin.image.edit');
+            Route::get('/{image}/edit', action: [ImageController::class, 'edit'])->name('admin.image.edit');
             Route::post('/', [ImageController::class, 'store'])->name('admin.image.store');
+            Route::put('/{image}', [ImageController::class, 'update'])->name('admin.image.update');
             Route::delete('/{image}', [ImageController::class, 'destroy'])->name('admin.image.delete');
         });
 
@@ -131,6 +135,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->name('admin.product');
             Route::get('/create', [ProductController::class, 'create'])->name('admin.product.create');
             Route::post('/', [ProductController::class, 'store'])->name('admin.product.store');
+            Route::get('/{product}/details', action: [ProductController::class, 'show'])->name('admin.product.show');
             Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('admin.product.edit');
             Route::put('/{product}', [ProductController::class, 'update'])->name('admin.product.update');
             Route::delete('/{product}', [ProductController::class, 'destroy'])->name('admin.product.delete');

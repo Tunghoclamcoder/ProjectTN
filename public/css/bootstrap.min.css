@@ -8132,7 +8132,7 @@ fieldset:disabled .btn {
 }
 .bg-info {
     --bs-bg-opacity: 1;
-    background-color: rgba(var(--bs-info-rgb), var(--bs-bg-opacity)) !important;
+    background-color: rgb(4 107 199) !important;
 }
 .bg-warning {
     --bs-bg-opacity: 1;

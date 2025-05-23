@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
-    use HasFactory;
-
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
 
@@ -26,34 +25,76 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'order_date' => 'date'
+        'order_date' => 'date',
     ];
 
-    // Relationships
-    public function customer()
+    // Relationship with Customer
+    public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
-    public function employee()
+    // Relationship with Employee
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 
-    public function voucher()
+    // Relationship with Voucher
+    public function voucher(): BelongsTo
     {
-        return $this->belongsTo(Voucher::class, 'voucher_id', 'voucher_id');
+        return $this->belongsTo(Voucher::class, 'voucher_id', 'id');
     }
 
-    public function paymentMethod()
+    // Relationship with PaymentMethod
+    public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id', 'method_id');
     }
 
-    public function shippingMethod()
+    // Relationship with ShippingMethod
+    public function shippingMethod(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class, 'shipping_method_id', 'method_id');
     }
 
-    public $timestamps = false;
+    // Relationship with OrderDetails
+    public function orderDetails(): HasMany
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
+    }
+
+    // Helper method to get total amount
+    public function getTotalAmount()
+    {
+        return $this->orderDetails->sum(function ($detail) {
+            return $detail->quantity * $detail->price * (1 - $detail->discount / 100);
+        });
+    }
+
+    // Helper method to get status label
+    public function getStatusLabel()
+    {
+        $statuses = [
+            'pending' => 'Chờ xác nhận',
+            'confirmed' => 'Đã xác nhận',
+            'shipping' => 'Đang giao hàng',
+            'completed' => 'Đã hoàn thành',
+            'cancelled' => 'Đã hủy'
+        ];
+
+        return $statuses[$this->order_status] ?? $this->order_status;
+    }
+
+    // Scope for filtering orders by status
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('order_status', $status);
+    }
+
+    // Scope for filtering orders by date range
+    public function scopeDateBetween($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('order_date', [$startDate, $endDate]);
+    }
 }

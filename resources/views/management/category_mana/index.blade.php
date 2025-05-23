@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-@php
-    use Illuminate\Support\Facades\Storage;
-@endphp
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý Thương hiệu</title>
+    <title>Quản lý Danh mục</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -20,6 +17,8 @@
 
 <body>
 
+
+    <!-- Include sidebar và header của dashboard -->
     @include('components.admin-header')
 
     @if (session('success'))
@@ -54,8 +53,8 @@
                     </div>
                     <div class="row mt-3">
                         <div class="col-sm-6">
-                            <h2>Quản lý <b>Thương hiệu</b></h2>
-                            <a href="{{ route(name: 'admin.brand.create') }}" class="btn btn-success mt-2 mb-4">
+                            <h2>Quản lý <b>Danh mục</b></h2>
+                            <a href="{{ route(name: 'admin.category.create') }}" class="btn btn-success mt-2 mb-4">
                                 <i class="material-icons">&#xE147;</i>
                                 <span>Thêm mới</span>
                             </a>
@@ -71,38 +70,26 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Hình ảnh</th>
-                                <th>Tên thương hiệu</th>
-                                <th>Mô tả</th>
+                                <th>Tên danh mục</th>
                                 <th>Chức năng</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($brands as $brand)
+                            @foreach ($categories as $category)
                                 <tr>
-                                    <td>{{ $brand->brand_id }}</td>
-                                    <td style="width: 120px; height: 100px">
-                                        @if ($brand->brand_image && Storage::disk('public')->exists($brand->brand_image))
-                                            <img src="{{ Storage::url($brand->brand_image) }}"
-                                                alt="{{ $brand->brand_name }}"
-                                                style="width: 90px; height: 80px; object-fit: cover;">
-                                        @else
-                                            <img src="{{ asset('images/placeholder.png') }}" alt="Placeholder"
-                                                style="width: 90px; height: 80px; object-fit: cover;">
-                                        @endif
-                                    </td>
-                                    <td>{{ $brand->brand_name }}</td>
-                                    <td>{{ Str::limit($brand->description, 500) }}</td>
+                                    <td>{{ $category->category_id }}</td>
+                                    <td>{{ $category->category_name }}</td>
                                     <td>
-                                        <a href="{{ route('admin.brand.edit', ['brand' => $brand->brand_id]) }}">
+                                        <a href="{{ route('admin.category.edit', ['category' => $category->category_id]) }}"
+                                            class="edit" title="Sửa" data-toggle="tooltip">
                                             <i class="material-icons">&#xE254;</i>
                                         </a>
-                                        <form action="{{ route('admin.brand.delete', $brand->brand_id) }}"
+                                        <form action="{{ route('admin.category.delete', $category->category_id) }}"
                                             method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="delete" title="Xóa" data-toggle="tooltip"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này không?')">
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không? Các sản phẩm thuộc danh mục này sẽ không bị xóa.')">
                                                 <i class="material-icons">&#xE872;</i>
                                             </button>
                                         </form>
@@ -115,16 +102,16 @@
                         <div class="footer-container">
                             <div class="pagination-info">
                                 <span>Tổng số lượng : </span>
-                                <span class="total-records">{{ $brands->total() }}</span>
+                                <span class="total-records">{{ $categories->total() }}</span>
                             </div>
 
                             <div class="page-info">
                                 <div class="page-info-text">
-                                    Trang <span class="page-number">{{ $brands->currentPage() }}</span>
-                                    <span class="all-page-number"> / {{ $brands->lastPage() }} </span>
+                                    Trang <span class="page-number">{{ $categories->currentPage() }}</span>
+                                    <span class="all-page-number"> / {{ $categories->lastPage() }} </span>
                                 </div>
                                 <button class="next-page-btn" onclick="nextPage()"
-                                    {{ $brands->currentPage() >= $brands->lastPage() ? 'disabled' : '' }}>
+                                    {{ $categories->currentPage() >= $categories->lastPage() ? 'disabled' : '' }}>
                                     <span>Trang tiếp</span>
                                 </button>
                             </div>
@@ -133,16 +120,15 @@
                 </div>
             </div>
         </div>
-    </div>
 </body>
 
 <script>
     function nextPage() {
-        const currentPage = {{ $brands->currentPage() }};
-        const totalPages = {{ $brands->lastPage() }};
+        const currentPage = {{ $categories->currentPage() }};
+        const totalPages = {{ $categories->lastPage() }};
 
         if (currentPage < totalPages) {
-            window.location.href = "{{ $brands->url($brands->currentPage() + 1) }}";
+            window.location.href = "{{ $categories->url($categories->currentPage() + 1) }}";
         }
     }
 

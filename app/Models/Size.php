@@ -17,9 +17,10 @@ class Size extends Model
     ];
     public $timestamps = false;
 
-    // Relationship with products (if needed)
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_sizes', 'size_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'size_product', 'size_id', 'product_id')
+            ->using(sizeProduct::class)
+            ->withPivot('size_order');
     }
 }
