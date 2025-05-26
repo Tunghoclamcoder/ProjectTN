@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Profile</title>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="{{ asset('js/alert.js') }}"></script>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+</head>
+
 <header>
     <div class="container">
         <div class="header">
@@ -23,7 +35,7 @@
                         @else
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle">
-                                    <i class="lni lni-user"></i> Tài khoản của tôi
+                                    <i class="lni lni-user"></i> Tài khoản
                                 </a>
                                 <div class="dropdown-menu">
                                     <a href="{{ route('customer.profile') }}" class="dropdown-item">

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -22,9 +23,21 @@ class CustomerController extends Controller
             'password' => 'required'
         ]);
 
-        // Check if account is active before login
+        Log::info('Login attempt', ['email' => $credentials['email']]);
+
+        // Kiểm tra xem tài khoản có tồn tại và đang hoạt động không
         $customer = Customer::where('email', $credentials['email'])->first();
-        if ($customer && $customer->status === 'inactive') {
+
+        if (!$customer) {
+            Log::info('Customer not found');
+            return redirect()
+                ->route('customer.login')
+                ->with('error', 'Email hoặc mật khẩu không đúng.')
+                ->withInput();
+        }
+
+        if ($customer->status === 'inactive') {
+            Log::info('Customer account is inactive');
             return redirect()
                 ->route('customer.login')
                 ->with('error', 'Tài khoản của bạn đã bị vô hiệu hóa.')
@@ -32,13 +45,14 @@ class CustomerController extends Controller
         }
 
         if (Auth::guard('customer')->attempt($credentials)) {
+            Log::info('Login successful');
             $request->session()->regenerate();
 
-            return redirect()
-                ->route('shop.home')
+            return redirect()->intended(route('shop.home'))
                 ->with('success', 'Đăng nhập thành công! Chào mừng bạn trở lại.');
         }
 
+        Log::info('Login failed - invalid credentials');
         return redirect()
             ->route('customer.login')
             ->with('error', 'Email hoặc mật khẩu không đúng.')
@@ -50,7 +64,7 @@ class CustomerController extends Controller
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('customer.login');
+        return redirect()->route('shop.home');
     }
     public function showRegisterForm()
     {
@@ -117,5 +131,34 @@ class CustomerController extends Controller
                 'message' => 'Có lỗi xảy ra khi thay đổi trạng thái'
             ], 500);
         }
+    }
+
+    public function profile()
+    {
+        $customer = Auth::guard('customer')->user();
+
+        return view('Customer.profile', compact('customer'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customer,email',
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $authCustomer = Auth::guard('customer')->user();
+        $customer = Customer::find($authCustomer->customer_id);
+
+        $customer->update([
+            'customer_name' => $request->customer_name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+        ]);
+
+        return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
     }
 }

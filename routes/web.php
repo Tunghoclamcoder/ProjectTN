@@ -36,6 +36,7 @@ Route::middleware('guest:customer')->group(function () {
 
 Route::middleware('auth:customer')->group(function () {
     Route::get('/customer/profile', [CustomerController::class, 'profile'])->name('customer.profile');
+    Route::put('/customer/update-profile', [CustomerController::class, 'updateProfile'])->name('customer.update.profile');
     Route::get('/customer/orders', [CustomerController::class, 'orders'])->name('customer.orders');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add-to-cart');
     Route::post('/customer/logout', [CustomerController::class, 'logout'])->name('customer.logout');

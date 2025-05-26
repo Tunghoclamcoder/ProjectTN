@@ -6,33 +6,36 @@
     <meta name="viewport" content="width=device-width" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <script src="{{ asset('js/alert.js') }}"></script>
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
 </head>
 
 <body>
     @include('Customer.components.header')
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <div class="alerts-container">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
 
     <img src="{{ asset('images/slider.png') }}" class="w-100" alt="Slider">
     <div class="container">
@@ -98,25 +101,10 @@
             {{ $products->links() }}
         </div>
     </div>
-    ư
+
     @include('Customer.components.footer')
 </body>
 <script>
-    $(document).ready(function() {
-        $('.log-btn').click(function() {
-            $('.log-status').addClass('wrong-entry');
-            $('.alert').fadeIn(500);
-            setTimeout(function() {
-                $('.alert').fadeOut('slow');
-            }, 3000);
-
-        });
-        $('.form-control').keypress(function() {
-            $('.log-status').removeClass('wrong-entry');
-        });
-
-    });
-
     // JS nút Add to cart
     const cartButtons = document.querySelectorAll('.cart-button');
 

@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ asset('css/materialdesignicons.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/main.css') }}" />
+    <script src="{{ asset('js/alert.js') }}"></script>
 </head>
 
 <body>
@@ -25,6 +26,30 @@
         <div class="spinner"></div>
     </div>
     <!-- ======== Preloader =========== -->
+
+    <div class="alerts-container">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
 
     <!-- ======== sidebar-nav start =========== -->
     <aside class="sidebar-nav-wrapper">
