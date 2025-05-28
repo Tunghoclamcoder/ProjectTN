@@ -22,19 +22,23 @@ class ShippingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'method_name' => 'required|string|max:50|unique:shipping_methods'
+            'method_name' => 'required|string|max:50|unique:shipping_methods',
+            'shipping_fee' => 'required|numeric|min:0'
         ]);
 
         try {
-            ShippingMethod::create($request->only('method_name'));
+            ShippingMethod::create([
+                'method_name' => $request->method_name,
+                'shipping_fee' => $request->shipping_fee
+            ]);
 
             return redirect()
                 ->route('admin.shipping')
-                ->with('success', 'Thêm phương thức thanh toán thành công');
+                ->with('success', 'Thêm phương thức vận chuyển thành công');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi thêm phương thức thanh toán');
+                ->with('error', 'Có lỗi xảy ra khi thêm phương thức vận chuyển');
         }
     }
 
@@ -46,14 +50,23 @@ class ShippingController extends Controller
     public function update(Request $request, ShippingMethod $shippingMethod)
     {
         $request->validate([
-            'method_name' => 'required|string|max:50|unique:shipping_methods,method_name,' . $shippingMethod->method_id . ',method_id'
+            'method_name' => 'required|string|max:50|unique:shipping_methods,method_name,' . $shippingMethod->method_id . ',method_id',
+            'shipping_fee' => 'required|numeric|min:0'
         ]);
 
         try {
-            $shippingMethod->update($request->only('method_name'));
-            return redirect()->route('admin.shipping')->with('success', 'Cập nhật phương thức thanh toán thành công');
+            $shippingMethod->update([
+                'method_name' => $request->method_name,
+                'shipping_fee' => $request->shipping_fee
+            ]);
+
+            return redirect()
+                ->route('admin.shipping')
+                ->with('success', 'Cập nhật phương thức vận chuyển thành công');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Có lỗi xảy ra khi cập nhật phương thức thanh toán');
+            return back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi cập nhật phương thức vận chuyển');
         }
     }
 
@@ -61,9 +74,12 @@ class ShippingController extends Controller
     {
         try {
             $shippingMethod->delete();
-            return redirect()->route('admin.shipping')->with('success', 'Xóa phương thức thanh toán thành công');
+            return redirect()
+                ->route('admin.shipping')
+                ->with('success', 'Xóa phương thức vận chuyển thành công');
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra khi xóa phương thức thanh toán');
+            return back()
+                ->with('error', 'Có lỗi xảy ra khi xóa phương thức vận chuyển');
         }
     }
 }

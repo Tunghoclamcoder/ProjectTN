@@ -76,6 +76,10 @@
                 <span>Chưa có tài khoản? </span>
                 <a href="{{ route('customer.register') }}">Đăng ký tại đây</a>
             </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                <a href="{{ route('customer.forgot_password') }}">Quên mật khẩu?</a>
+            </div>
         </form>
     </div>
 

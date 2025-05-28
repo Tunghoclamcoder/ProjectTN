@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -8,12 +7,9 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminAuthenticate
 {
-    public function handle(Request $request, Closure $next, ...$guards)
+    public function handle(Request $request, Closure $next)
     {
-        if (! Auth::guard('admin')->check()) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
-            }
+        if (!Auth::guard('owner')->check() && !Auth::guard('employee')->check()) {
             return redirect()->route('admin.login');
         }
 

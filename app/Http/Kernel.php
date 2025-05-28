@@ -14,6 +14,7 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         'admin.check' => \App\Http\Middleware\CheckAdminLogin::class,
+        'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
     ];
     protected $middleware = [
         \App\Http\Middleware\TrustProxies::class,
@@ -45,11 +46,6 @@ class Kernel extends HttpKernel
         ],
     ];
 
-    /**
-     * The application's middleware aliases.
-     *
-     * @var array<string, class-string|string>
-     */
     protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
@@ -61,6 +57,8 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'auth.admin' => \App\Http\Middleware\AdminAuthenticate::class,
+        'admin.check' => \App\Http\Middleware\CheckAdminLogin::class,
+        'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
+        'check.role' => \App\Http\Middleware\CheckRole::class,
     ];
 }

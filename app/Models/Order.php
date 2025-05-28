@@ -10,6 +10,7 @@ class Order extends Model
 {
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
+    public $timestamps = false;
 
     protected $fillable = [
         'order_date',
@@ -64,14 +65,6 @@ class Order extends Model
         return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
     }
 
-    // Helper method to get total amount
-    public function getTotalAmount()
-    {
-        return $this->orderDetails->sum(function ($detail) {
-            return $detail->quantity * $detail->price * (1 - $detail->discount / 100);
-        });
-    }
-
     // Helper method to get status label
     public function getStatusLabel()
     {
@@ -96,5 +89,12 @@ class Order extends Model
     public function scopeDateBetween($query, $startDate, $endDate)
     {
         return $query->whereBetween('order_date', [$startDate, $endDate]);
+    }
+
+    public function getTotalAmount()
+    {
+        return $this->orderDetails->sum(function ($detail) {
+            return $detail->sold_quantity * $detail->sold_price;
+        });
     }
 }

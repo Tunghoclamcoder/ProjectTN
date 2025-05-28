@@ -1,11 +1,14 @@
 <!DOCTYPE html>
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý nhân viên</title>
+    <title>Quản lý Voucher</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -17,7 +20,7 @@
 </head>
 
 <body>
-    <!-- Include sidebar và header của dashboard -->
+
     @include('components.admin-header')
 
     <div class="alerts-container">
@@ -49,62 +52,97 @@
             <div class="table-wrapper">
                 <div class="table-title">
                     <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col">
                             <a href="{{ route('admin.dashboard') }}" class="btn back-btn">
                                 <i class="fa fa-arrow-left"></i>
                                 <span style="font-size: 12px; font-weight: 500;"> Quay lại</span>
                             </a>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h2>Danh sách <b>Khách hàng</b></h2>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="search-box">
-                                    <i class="material-icons">&#xE8B6;</i>
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
-                                </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-sm-6">
+                            <h2>Quản lý <b>Voucher</b></h2>
+                            <a href="{{ route('admin.voucher.create') }}" class="btn btn-success mt-2 mb-4">
+                                <i class="material-icons">&#xE147;</i>
+                                <span>Thêm mới</span>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="search-box">
+                                <i class="material-icons">&#xE8B6;</i>
+                                <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
                     <table class="table table-striped table-hover table-bordered">
                         <thead>
                             <tr>
-                                <th>STT</th>
-                                <th>Tên nhân viên <i class="fa fa-sort"></i></th>
-                                <th>Email</th>
-                                <th>Số điện thoại</th>
+                                <th>ID</th>
+                                <th>Mã Voucher</th>
+                                <th>Giảm giá</th>
+                                <th>Ngày bắt đầu</th>
+                                <th>Ngày kết thúc</th>
+                                <th>Số tiền tối thiểu</th>
+                                <th>Số tiền giảm tối đa</th>
+                                <th>Số lần sử dụng</th>
+                                <th>Đã sử dụng</th>
                                 <th>Trạng thái</th>
-                                <th>Thao tác</th>
+                                <th>Chức năng</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($employees as $employee)
+                            @foreach ($vouchers as $voucher)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $employee->employee_name }}</td>
-                                    <td>{{ $employee->email }}</td>
-                                    <td>{{ $employee->phone_number }}</td>
+                                    <td>{{ $voucher->id }}</td>
+                                    <td>{{ $voucher->code }}</td>
                                     <td>
-                                        <span style="font-size: 10px"
-                                            class="badge status-badge {{ $employee->status == 'active' ? 'badge-success' : 'badge-danger' }}">
-                                            {{ $employee->status == 'active' ? 'Đang làm việc' : 'Đã nghỉ làm' }}
+                                        @if ($voucher->discount_amount)
+                                            {{ number_format($voucher->discount_amount) }} VNĐ
+                                        @else
+                                            {{ $voucher->discount_percentage }}%
+                                        @endif
+                                    </td>
+                                    <td>{{ $voucher->start_date->format('d/m/Y') }}</td>
+                                    <td>{{ $voucher->expiry_date->format('d/m/Y') }}</td>
+                                    <td>{{ number_format($voucher->minimum_purchase_amount) }} VNĐ</td>
+                                    <td>{{ number_format($voucher->maximum_purchase_amount) }} VNĐ</td>
+                                    <td>{{ $voucher->max_usage_count ?: 'Không giới hạn' }}</td>
+                                    <td>{{ $voucher->usage_count }}</td>
+                                    <td>
+                                        <span class="badge {{ $voucher->status ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $voucher->status ? 'Đang kích hoạt' : 'Đã hết hạn' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.employee.edit', $employee->employee_id) }}"
-                                            class="edit" title="Chỉnh sửa" data-toggle="tooltip">
-                                            <i class="material-icons">&#xE254;</i>
-                                        </a>
-                                        <form action="{{ route('admin.employee.delete', $employee->employee_id) }}"
-                                            method="POST" style="display:inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="delete" title="Xóa" data-toggle="tooltip"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này không?')">
-                                                <i class="material-icons">&#xE872;</i>
-                                            </button>
-                                        </form>
+                                        <div class="action-buttons">
+                                            <a href="{{ route('admin.voucher.edit', $voucher->id) }}" class="edit"
+                                                title="Sửa">
+                                                <i class="material-icons">&#xE254;</i>
+                                            </a>
+
+                                            <form action="{{ route('admin.voucher.toggle', $voucher->id) }}"
+                                                method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="toggle-btn {{ $voucher->status ? 'active' : 'inactive' }}"
+                                                    title="{{ $voucher->status ? 'Vô hiệu hóa' : 'Kích hoạt' }}">
+                                                    <i class="material-icons">
+                                                        {{ $voucher->status ? 'toggle_on' : 'toggle_off' }}
+                                                    </i>
+                                                </button>
+                                            </form>
+
+                                            <form action="{{ route('admin.voucher.delete', $voucher->id) }}"
+                                                method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="delete" title="Xóa"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này không?')"
+                                                    style="background: none; border: none; padding: 5px;">
+                                                    <i class="material-icons">&#xE872;</i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -114,16 +152,16 @@
                         <div class="footer-container">
                             <div class="pagination-info">
                                 <span>Tổng số lượng : </span>
-                                <span class="total-records">{{ $customers->total() }}</span>
+                                <span class="total-records">{{ $vouchers->total() }}</span>
                             </div>
 
                             <div class="page-info">
                                 <div class="page-info-text">
-                                    Trang <span class="page-number">{{ $customers->currentPage() }}</span>
-                                    <span class="all-page-number"> / {{ $customers->lastPage() }} </span>
+                                    Trang <span class="page-number">{{ $vouchers->currentPage() }}</span>
+                                    <span class="all-page-number"> / {{ $vouchers->lastPage() }} </span>
                                 </div>
                                 <button class="next-page-btn" onclick="nextPage()"
-                                    {{ $customers->currentPage() >= $customers->lastPage() ? 'disabled' : '' }}>
+                                    {{ $vouchers->currentPage() >= $vouchers->lastPage() ? 'disabled' : '' }}>
                                     <span>Trang tiếp</span>
                                 </button>
                             </div>
@@ -132,12 +170,25 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            $(document).ready(function() {
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-        </script>
+    </div>
 </body>
+
+<script>
+    function nextPage() {
+        const currentPage = {{ $vouchers->currentPage() }};
+        const totalPages = {{ $vouchers->lastPage() }};
+
+        if (currentPage < totalPages) {
+            window.location.href = "{{ $vouchers->url($vouchers->currentPage() + 1) }}";
+        }
+    }
+
+    // Tự động ẩn alert sau 5 giây
+    $(document).ready(function() {
+        setTimeout(function() {
+            $(".alert").alert('close');
+        }, 5000);
+    });
+</script>
 
 </html>

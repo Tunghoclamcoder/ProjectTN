@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trang đăng ký tài khoản khách hàng</title>
-    <<script src="{{ asset('js/alert.js') }}"></script>
+    <script src="{{ asset('js/alert.js') }}"></script>
 </head>
 
 <body>

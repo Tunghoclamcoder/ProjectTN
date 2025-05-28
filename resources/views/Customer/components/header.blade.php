@@ -24,7 +24,7 @@
                         <li><a href="#">Giới thiệu</a></li>
                         @auth('customer')
                             <li>
-                                <a href="#">
+                                <a href="{{ route('cart.view')}}">
                                     <i class="lni lni-shopping-basket"></i> Mua ngay
                                 </a>
                             </li>
@@ -41,7 +41,7 @@
                                     <a href="{{ route('customer.profile') }}" class="dropdown-item">
                                         <i class="lni lni-user"></i> Thông tin tài khoản
                                     </a>
-                                    <a href="{{ route('customer.orders') }}" class="dropdown-item">
+                                    <a href="{{-- {{ route('customer.orders') }} --}} #" class="dropdown-item">
                                         <i class="lni lni-shopping-basket"></i> Đơn hàng của tôi
                                     </a>
                                     <form action="{{ route('customer.logout') }}" method="POST">

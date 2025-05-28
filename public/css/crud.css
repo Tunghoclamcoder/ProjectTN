@@ -347,3 +347,46 @@ table.table td i {
     margin: 0;
     padding-left: 20px;
 }
+
+.toggle-btn {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+}
+
+.toggle-btn.active {
+    color: #198754;
+}
+
+.toggle-btn.inactive {
+    color: #dc3545;
+}
+
+.toggle-btn:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.1);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons .edit,
+.action-buttons .delete {
+    color: #555;
+    transition: all 0.3s;
+}
+
+.action-buttons .edit:hover {
+    color: #2196F3;
+}
+
+.action-buttons .delete:hover {
+    color: #dc3545;
+}

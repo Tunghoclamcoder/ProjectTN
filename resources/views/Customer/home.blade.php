@@ -4,7 +4,7 @@
 <head>
     <title>Website bán đồ</title>
     <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <script src="{{ asset('js/alert.js') }}"></script>
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
@@ -74,13 +74,13 @@
 
                         {{-- Nút add to cart --}}
                         @auth('customer')
-                            <form action="{{-- {{ route('cart.add-to-cart') }} --}} #" method="POST" class="d-inline">
+                            <form action="{{ route('cart.add-to-cart') }}" method="POST" class="d-inline">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->product_id }}">
 
                                 <button class="cart-button">
-                                    <span class="add-to-cart">Add to cart</span>
-                                    <span class="added">Added</span>
+                                    <span style="width: 100%" class="add-to-cart">Thêm vào giỏ hàng</span>
+                                    <span class="added">Đã thêm !</span>
                                     <i class="fas fa-shopping-cart"></i>
                                     <i class="fas fa-box"></i>
                                 </button>
@@ -103,19 +103,20 @@
     </div>
 
     @include('Customer.components.footer')
-</body>
-<script>
-    // JS nút Add to cart
-    const cartButtons = document.querySelectorAll('.cart-button');
 
-    cartButtons.forEach(button => {
-        button.addEventListener('click', cartClick);
-    });
+    <script>
+        // JS nút Add to cart
+        const cartButtons = document.querySelectorAll('.cart-button');
 
-    function cartClick() {
-        let button = this;
-        button.classList.add('clicked');
-    }
-</script>
+        cartButtons.forEach(button => {
+            button.addEventListener('click', cartClick);
+        });
+
+        function cartClick() {
+            let button = this;
+            button.classList.add('clicked');
+        }
+    </script>
 
 </html>
+</body>

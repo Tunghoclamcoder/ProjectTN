@@ -75,6 +75,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Phương thức vận chuyển</th>
+                                <th>Phí Ship</th>
                                 <th>Chức năng</th>
                             </tr>
                         </thead>
@@ -83,6 +84,7 @@
                                 <tr>
                                     <td>{{ $shipping->method_id }}</td>
                                     <td>{{ $shipping->method_name }}</td>
+                                    <td>{{ number_format($shipping->shipping_fee) }} VNĐ</td>
                                     <td>
                                         <a href="{{ route('admin.shipping.edit', $shipping->method_id) }}"
                                             class="edit-btn">

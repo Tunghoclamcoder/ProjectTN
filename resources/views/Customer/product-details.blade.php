@@ -82,20 +82,19 @@
                 <p>{{ $product->description }}</p>
             </div>
 
+            <div class="sizes">
+                <p>Size:</p>
+                <select name="size_id" id="size" class="size-option" required>
+                    @foreach ($product->sizes as $size)
+                        <option style="color: #000000" value="{{ $size->size_id }}">{{ $size->size_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <form action="{{ route('cart.add-to-cart') }}" method="POST" class="product-form">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-
-                <div class="sizes">
-                    <p>Size:</p>
-                    <select name="size_id" id="size" class="size-option" required>
-                        @foreach ($product->sizes as $size)
-                            <option style="color: #000000" value="{{ $size->size_id }}">{{ $size->size_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div class="quantity">
                     <label style="color: #000000">Số lượng:</label>
                     <input type="number" name="quantity" value="1" min="1" max="{{ $product->quantity }}">

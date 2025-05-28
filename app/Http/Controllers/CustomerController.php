@@ -8,6 +8,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class CustomerController extends Controller
 {
@@ -160,5 +162,92 @@ class CustomerController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
+    }
+
+    public function showForgotPasswordForm()
+    {
+        return view('Customer.LoginAccount.forgot_password');
+    }
+
+    // Xử lý gửi email đặt lại mật khẩu
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $customer = Customer::where('email', $request->email)->first();
+        if (!$customer) {
+            return back()->with('error', 'Email không tồn tại.');
+        }
+
+        // Tạo token và lưu vào DB (giả sử bạn có cột reset_token và reset_token_expire)
+        $token = Str::random(60);
+        $customer->reset_token = $token;
+        $customer->reset_token_expire = now()->addMinutes(30);
+        $customer->save();
+
+        // Gửi email (bạn cần tạo view email.reset_password)
+        Mail::send('emails.reset_password', ['token' => $token, 'customer' => $customer], function ($message) use ($customer) {
+            $message->to($customer->email);
+            $message->subject('Đặt lại mật khẩu');
+        });
+
+        return back()->with('success', 'Đã gửi email đặt lại mật khẩu!');
+    }
+
+    // Hiển thị form đặt lại mật khẩu
+    public function showResetPasswordForm($token)
+    {
+        return view('Customer.LoginAccount.reset_password', compact('token'));
+    }
+
+    // Xử lý đặt lại mật khẩu
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $customer = Customer::where('reset_token', $request->token)
+            ->where('reset_token_expire', '>', now())
+            ->first();
+
+        if (!$customer) {
+            return back()->with('error', 'Token không hợp lệ hoặc đã hết hạn.');
+        }
+
+        $customer->password = bcrypt($request->password);
+        $customer->reset_token = null;
+        $customer->reset_token_expire = null;
+        $customer->save();
+
+        return redirect()->route('customer.login')->with('success', 'Đặt lại mật khẩu thành công!');
+    }
+
+    // Hiển thị form đổi mật khẩu (khi đã đăng nhập)
+    public function showChangePasswordForm()
+    {
+        return view('Customer.LoginAccount.change_password');
+    }
+
+    // Xử lý đổi mật khẩu
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $authCustomer = Auth::guard('customer')->user();
+        $customer = Customer::find($authCustomer->customer_id);
+
+        if (!Hash::check($request->current_password, $customer->password)) {
+            return back()->with('error', 'Mật khẩu hiện tại không đúng.');
+        }
+
+        $customer->password = bcrypt($request->new_password);
+        $customer->save();
+
+        return back()->with('success', 'Đổi mật khẩu thành công!');
     }
 }

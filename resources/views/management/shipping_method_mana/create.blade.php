@@ -56,6 +56,13 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="form-group mb-3">
+                                <label for="shipping_fee">Phí vận chuyển (VNĐ)</label>
+                                <input type="number" class="form-control" id="shipping_fee" name="shipping_fee"
+                                    value="{{ old('shipping_fee') }}" min="0" required>
+                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('admin.shipping') }}" class="btn btn-secondary">Quay lại</a>
                                 <button type="submit" class="btn btn-primary">Thêm Phương thức vận chuyển</button>

@@ -36,6 +36,8 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+
+        $this->setHomeAndLoginPaths();
     }
 
     /**
@@ -48,5 +50,18 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+    }
+
+    protected function setHomeAndLoginPaths()
+    {
+        // Set login path mặc định cho authentication
+        config(['auth.defaults.guard' => 'customer']);
+
+        // Override login route path
+        if (!Route::has('login')) {
+            Route::get('/login', function () {
+                return redirect()->route('customer.login');
+            })->name('login');
+        }
     }
 }

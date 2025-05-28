@@ -37,31 +37,59 @@ Route::middleware('guest:customer')->group(function () {
 Route::middleware('auth:customer')->group(function () {
     Route::get('/customer/profile', [CustomerController::class, 'profile'])->name('customer.profile');
     Route::put('/customer/update-profile', [CustomerController::class, 'updateProfile'])->name('customer.update.profile');
-    Route::get('/customer/orders', [CustomerController::class, 'orders'])->name('customer.orders');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add-to-cart');
     Route::post('/customer/logout', [CustomerController::class, 'logout'])->name('customer.logout');
+    Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('cart.add-to-cart');
+    Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+    Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.update-quantity');
+    Route::delete('/cart/delete/{productId}', [CartController::class, 'deleteItem'])->name('cart.delete-item');
+    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::post('/voucher/apply', [CartController::class, 'applyVoucher'])->name(name: 'voucher.apply');
+    Route::get('/checkout', [OrderController::class, 'index'])->name('checkout');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
     Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
 });
 
+Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPasswordForm'])->name('customer.forgot_password');
+Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLinkEmail'])->name('customer.send_reset_link');
+Route::get('customer/reset-password/{token}', [CustomerController::class, 'showResetPasswordForm'])->name('customer.reset_password');
+Route::post('customer/reset-password', [CustomerController::class, 'resetPassword'])->name('customer.update_password');
+
+// Đổi mật khẩu (cần đăng nhập)
+Route::get('customer/change-password', [CustomerController::class, 'showChangePasswordForm'])->middleware('auth:customer')->name('customer.change_password');
+Route::post('customer/change-password', [CustomerController::class, 'changePassword'])->middleware('auth:customer')->name('customer.update_change_password');
+
 Route::get('/product/{product_id}/reviews', [FeedbackController::class, 'showProductReviews'])->name('product.reviews');
 
 //Login route mặc định của Admin
 Route::get('login', function () {
-    return redirect()->route('admin.login');
+    // Get current URL and intended URL
+    $intended = session()->get('url.intended');
+
+    // Check if trying to access admin routes
+    if ($intended && str_contains($intended, '/admin')) {
+        return redirect()->route('admin.login');
+    }
+
+    // Check if trying to access employee routes
+    if ($intended && str_contains($intended, '/employee')) {
+        return redirect()->route('employee.login');
+    }
+
+    // Default to customer login
+    return redirect()->route('customer.login');
 })->name('login');
+
 
 // Routes xử lý cho Owner và đăng nhập đăng xuất Admin
 Route::prefix('admin')->group(function () {
-    // Routes cho owner chưa đăng nhập
     Route::middleware('guest:owner,employee')->group(function () {
         Route::get('/login', [OwnerController::class, 'showLoginForm'])->name('admin.login');
         Route::post('/login', [OwnerController::class, 'login'])->name('admin.login.submit');
     });
 
     // Routes yêu cầu Owner đã đăng nhập
-    Route::middleware('auth:owner,employee')->group(function () {
+    Route::middleware(['auth:owner,employee'])->group(function () {  // Thay đổi ở đây
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('admin.dashboard');
         Route::post('/logout', [OwnerController::class, 'logout'])->name('admin.logout');
 
@@ -150,6 +178,9 @@ Route::prefix('admin')->group(function () {
             Route::get('/{voucher}/edit', [VoucherController::class, 'edit'])->name('admin.voucher.edit');
             Route::put('/{voucher}', [VoucherController::class, 'update'])->name('admin.voucher.update');
             Route::delete('/{voucher}', [VoucherController::class, 'destroy'])->name('admin.voucher.delete');
+            Route::post('vouchers/apply', [VoucherController::class, 'apply'])->name('admin.voucher.apply');
+            Route::post('voucher/{voucher}/toggle', [VoucherController::class, 'toggleStatus'])
+                ->name('admin.voucher.toggle');
         });
 
         // Routes quản lý payment-methods

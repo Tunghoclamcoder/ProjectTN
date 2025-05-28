@@ -8,23 +8,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OrderDetail extends Model
 {
     protected $table = 'order_details';
-
-    // No primary key since this appears to be a pure pivot table
     public $incrementing = false;
-
-    // No timestamps since they're not in the table
     public $timestamps = false;
 
     protected $fillable = [
         'order_id',
         'product_id',
         'sold_price',
-        'sold_quality'
+        'sold_quantity'
     ];
 
     protected $casts = [
         'sold_price' => 'decimal:0',
-        'sold_quality' => 'integer'
+        'sold_quantity' => 'integer'
     ];
 
     // Relationship with Order
@@ -42,6 +38,6 @@ class OrderDetail extends Model
     // Calculate subtotal for this item
     public function getSubtotal()
     {
-        return $this->sold_price * $this->sold_quality;
+        return $this->sold_price * $this->sold_quantity;
     }
 }
