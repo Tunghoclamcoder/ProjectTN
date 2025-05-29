@@ -43,13 +43,21 @@ Route::middleware('auth:customer')->group(function () {
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.update-quantity');
     Route::delete('/cart/delete/{productId}', [CartController::class, 'deleteItem'])->name('cart.delete-item');
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-    Route::post('/voucher/apply', [CartController::class, 'applyVoucher'])->name(name: 'voucher.apply');
-    Route::get('/checkout', [OrderController::class, 'index'])->name('checkout');
+    Route::post('/voucher/apply', [OrderController::class, 'applyVoucher'])->name('voucher.apply');
+    Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout');
+    Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('order.store');
+    Route::get('/orders', [OrderController::class, 'ordersHistory'])
+        ->name('customer.orders');
+    Route::get('/orders/{order}', [OrderController::class, 'orderDetails'])
+        ->name('customer.orders.detail');
+    Route::put('/orders/{order}/cancel', [OrderController::class, 'cancelOrder'])
+        ->name('customer.orders.cancel');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
     Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
 });
 
+// Quên mật khẩu
 Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPasswordForm'])->name('customer.forgot_password');
 Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLinkEmail'])->name('customer.send_reset_link');
 Route::get('customer/reset-password/{token}', [CustomerController::class, 'showResetPasswordForm'])->name('customer.reset_password');
@@ -177,8 +185,8 @@ Route::prefix('admin')->group(function () {
             Route::post('/', [VoucherController::class, 'store'])->name('admin.voucher.store');
             Route::get('/{voucher}/edit', [VoucherController::class, 'edit'])->name('admin.voucher.edit');
             Route::put('/{voucher}', [VoucherController::class, 'update'])->name('admin.voucher.update');
-            Route::delete('/{voucher}', [VoucherController::class, 'destroy'])->name('admin.voucher.delete');
-            Route::post('vouchers/apply', [VoucherController::class, 'apply'])->name('admin.voucher.apply');
+            Route::delete('/{voucher}', action: [VoucherController::class, 'destroy'])->name('admin.voucher.delete');
+            // Route::post('vouchers/apply', action: [VoucherController::class, 'apply'])->name('admin.voucher.apply');
             Route::post('voucher/{voucher}/toggle', [VoucherController::class, 'toggleStatus'])
                 ->name('admin.voucher.toggle');
         });
@@ -206,11 +214,14 @@ Route::prefix('admin')->group(function () {
         // Routes quản lý orders
         Route::prefix('orders')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('admin.order');
-            Route::get('/create', [OrderController::class, 'create'])->name('admin.order.create');
+            Route::get('/create', [OrderController::class, 'create'])->name(name: 'admin.order.create');
             Route::post('/', [OrderController::class, 'store'])->name('admin.order.store');
             Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('admin.order.edit');
+            Route::get('/{order}/show', [OrderController::class, 'show'])->name('admin.order.show');
+            Route::put('/{order}/update-status', [OrderController::class, 'updateStatus'])
+                ->name('admin.order.update-status');
             Route::put('/{order}', [OrderController::class, 'update'])->name('admin.order.update');
-            Route::delete('/{order}', [OrderController::class, 'destroy'])->name('admin.order.delete');
+            // Route::delete('/{order}', [OrderController::class, 'destroy'])->name('admin.order.delete');
         });
     });
 });

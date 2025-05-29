@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đặt hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .order-status {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .status-delivered {
+            color: #198754;
+        }
+
+        .status-shipped {
+            color: #0d6efd;
+        }
+
+        .status-processing {
+            color: #fd7e14;
+        }
+
+        .status-cancelled {
+            color: #dc3545;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+        }
+
+        .btn-sm {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="mb-4">
+            <a href="{{ route('shop.home') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Quay về trang chủ
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Lịch sử đặt hàng
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>All Orders</option>
+                            <option>Last 30 Days</option>
+                            <option>Last 3 Months</option>
+                            <option>Last Year</option>
+                        </select>
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-funnel me-1"></i>Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Mã đơn hàng</th>
+                                <th scope="col">Ngày đặt</th>
+                                <th scope="col">Tổng tiền</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($orders as $order)
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-primary">#{{ $order->order_id }}</span>
+                                    </td>
+                                    <td>
+                                        <div>{{ $order->order_date->format('d/m/Y') }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">{{ number_format($order->getFinalTotal()) }} VNĐ</span>
+                                        @if ($order->voucher)
+                                            <br>
+                                            <small class="text-success">
+                                                <i class="bi bi-tag-fill"></i> Đã áp dụng mã giảm giá
+                                            </small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @switch($order->order_status)
+                                            @case('pending')
+                                                <span class="badge bg-warning" style="padding: 10px">
+                                                    <i class="bi bi-clock me-1"></i>Chờ xác nhận
+                                                </span>
+                                            @break
+
+                                            @case('confirmed')
+                                                <span class="badge bg-info" style="padding: 10px">
+                                                    <i class="bi bi-check-circle me-1"></i>Đã xác nhận
+                                                </span>
+                                            @break
+
+                                            @case('shipping')
+                                                <span class="badge bg-primary" style="padding: 10px">
+                                                    <i class="bi bi-truck me-1"></i>Đang giao hàng
+                                                </span>
+                                            @break
+
+                                            @case('completed')
+                                                <span class="badge bg-success" style="padding: 10px">
+                                                    <i class="bi bi-check-all me-1"></i>Đã giao hàng
+                                                </span>
+                                            @break
+
+                                            @case('cancelled')
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>Đã hủy
+                                                </span>
+                                            @break
+                                        @endswitch
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('customer.orders.detail', $order->order_id) }}"
+                                                class="btn btn-outline-primary btn-sm" title="Xem chi tiết">
+                                                <i class="bi bi-eye"></i> Xem chi tiết
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="bi bi-inbox h4 mb-3 d-block"></i>
+                                                <p class="mb-0">Bạn chưa có đơn hàng nào</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Phân trang -->
+                    @if ($orders->hasPages())
+                        <nav aria-label="Order history pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {{ $orders->links() }}
+                            </ul>
+                        </nav>
+                    @endif
+
+                    <!-- Thống kê đơn hàng -->
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-success">Tổng đơn hàng</h5>
+                                    <h2 class="text-success">{{ $totalOrders }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-primary">Tổng chi tiêu</h5>
+                                    <h2 class="text-primary">{{ number_format($totalSpent) }} VNĐ</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-info">Đơn hàng thành công</h5>
+                                    <h2 class="text-info">{{ $completedOrders }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+
+    </html>

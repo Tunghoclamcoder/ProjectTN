@@ -278,7 +278,7 @@ table.table td i {
     font-family: Inter;
     font-weight: 600;
     font-size: 12px;
-    background: #1d1d1d;
+    background: linear-gradient(90deg, #4FA800 0%, #00844E 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

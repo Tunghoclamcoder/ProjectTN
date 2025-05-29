@@ -97,4 +97,28 @@ class Order extends Model
             return $detail->sold_quantity * $detail->sold_price;
         });
     }
+
+    public function getDiscountAmount()
+    {
+        if (!$this->voucher) {
+            return 0;
+        }
+
+        $total = $this->orderDetails->sum(function ($detail) {
+            return $detail->sold_price * $detail->sold_quantity;
+        });
+
+        return $this->voucher->discount_percentage
+            ? ($total * $this->voucher->discount_percentage / 100)
+            : $this->voucher->discount_amount;
+    }
+
+    public function getFinalTotal()
+    {
+        $total = $this->orderDetails->sum(function ($detail) {
+            return $detail->sold_price * $detail->sold_quantity;
+        });
+
+        return $total - $this->getDiscountAmount();
+    }
 }

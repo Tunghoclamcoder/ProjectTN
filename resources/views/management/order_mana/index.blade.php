@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý nhân viên</title>
+    <title>Quản lý Đơn hàng</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -19,26 +19,29 @@
     <!-- Include sidebar và header của dashboard -->
     @include('components.admin-header')
 
-    <div class="alerts-container">
+    <div class="container mt-3">
         @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if (session('success'))
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible fade show">
                 {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
     </div>
@@ -56,7 +59,11 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-6">
-                                <h2>Danh sách <b>Khách hàng</b></h2>
+                                <h2>Quản lý <b>Đơn hàng</b></h2>
+                                <a href="{{ route('admin.order.create') }}" class="btn btn-success mt-2 mb-4">
+                                    <i class="size-icons">&#xE147;</i>
+                                    <span>Thêm mới</span>
+                                </a>
                             </div>
                             <div class="col-sm-6">
                                 <div class="search-box">
@@ -69,41 +76,99 @@
                     <table class="table table-striped table-hover table-bordered">
                         <thead>
                             <tr>
-                                <th>STT</th>
-                                <th>Tên nhân viên <i class="fa fa-sort"></i></th>
-                                <th>Email</th>
-                                <th>Số điện thoại</th>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($employees as $employee)
+                            @foreach ($orders as $order)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $employee->employee_name }}</td>
-                                    <td>{{ $employee->email }}</td>
-                                    <td>{{ $employee->phone_number }}</td>
+                                    <td>#{{ $order->order_id }}</td>
                                     <td>
-                                        <span style="font-size: 10px"
-                                            class="badge status-badge {{ $employee->status == 'active' ? 'badge-success' : 'badge-danger' }}">
-                                            {{ $employee->status == 'active' ? 'Đang làm việc' : 'Đã nghỉ làm' }}
+                                        <div>{{ $order->receiver_name }}</div>
+                                        <small class="text-muted">
+                                            SĐT: {{ $order->receiver_phone }}<br>
+                                            Địa chỉ: {{ $order->receiver_address }}
+                                        </small>
+                                    </td>
+                                    <td>{{ $order->order_date->format('d/m/Y H:i') }}</td>
+                                    <td>{{ number_format($order->getTotalAmount()) }} VNĐ
+                                        @if ($order->voucher)
+                                            <br>
+                                            <small class="text-success">
+                                                Đã áp dụng voucher: {{ $order->voucher->code }}
+                                            </small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge
+                                            @switch($order->order_status)
+                                                @case('pending')
+                                                    bg-warning
+                                                    @break
+                                                @case('confirmed')
+                                                    bg-info
+                                                    @break
+                                                @case('shipping')
+                                                    bg-primary
+                                                    @break
+                                                @case('completed')
+                                                    bg-success
+                                                    @break
+                                                @case('cancelled')
+                                                    bg-danger
+                                                    @break
+                                            @endswitch">
+                                            {{ $order->getStatusLabel() }}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.employee.edit', $employee->employee_id) }}"
-                                            class="edit" title="Chỉnh sửa" data-toggle="tooltip">
-                                            <i class="material-icons">&#xE254;</i>
-                                        </a>
-                                        <form action="{{ route('admin.employee.delete', $employee->employee_id) }}"
-                                            method="POST" style="display:inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="delete" title="Xóa" data-toggle="tooltip"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này không?')">
-                                                <i class="material-icons">&#xE872;</i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('admin.order.show', $order->order_id) }}"
+                                                class="btn btn-sm btn-info" title="Xem chi tiết">
+                                                <i class="material-icons">visibility</i>
+                                            </a>
+
+                                            <a href="{{ route('admin.order.edit', $order->order_id) }}"
+                                                class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                                <i class="material-icons">&#xE254;</i>
+                                            </a>
+
+                                            @if ($order->order_status == 'pending')
+                                                <form
+                                                    action="{{ route('admin.order.update-status', $order->order_id) }}"
+                                                    method="POST" style="display:inline">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="order_status" value="confirmed">
+                                                    <button type="submit" class="btn btn-sm btn-success"
+                                                        title="Xác nhận đơn hàng"
+                                                        onclick="return confirm('Xác nhận đơn hàng này?')">
+                                                        <i class="material-icons">check</i>
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            @if ($order->order_status != 'completed' && $order->order_status != 'cancelled')
+                                                <form
+                                                    action="{{ route('admin.order.update-status', $order->order_id) }}"
+                                                    method="POST" style="display:inline">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="order_status" value="cancelled">
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                        title="Hủy đơn hàng"
+                                                        onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+                                                        <i class="material-icons">clear</i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -113,16 +178,16 @@
                         <div class="footer-container">
                             <div class="pagination-info">
                                 <span>Tổng số lượng : </span>
-                                <span class="total-records">{{ $customers->total() }}</span>
+                                <span class="total-records">{{ $orders->total() }}</span>
                             </div>
 
                             <div class="page-info">
                                 <div class="page-info-text">
-                                    Trang <span class="page-number">{{ $customers->currentPage() }}</span>
-                                    <span class="all-page-number"> / {{ $customers->lastPage() }} </span>
+                                    Trang <span class="page-number">{{ $orders->currentPage() }}</span>
+                                    <span class="all-page-number"> / {{ $orders->lastPage() }} </span>
                                 </div>
                                 <button class="next-page-btn" onclick="nextPage()"
-                                    {{ $customers->currentPage() >= $customers->lastPage() ? 'disabled' : '' }}>
+                                    {{ $orders->currentPage() >= $orders->lastPage() ? 'disabled' : '' }}>
                                     <span>Trang tiếp</span>
                                 </button>
                             </div>

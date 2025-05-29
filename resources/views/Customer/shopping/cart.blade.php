@@ -114,9 +114,13 @@
                 </div>
 
                 @if ($cartItems->count() > 0)
-                    <a href="{{ route('checkout') }} #" class="btn btn-primary w-100">
-                        Checkout
+                    <a href="{{ route('checkout') }}" class="btn btn-primary w-100">
+                        <i class="bi bi-cart-check me-2"></i>Tiến hành thanh toán
                     </a>
+                @else
+                    <button class="btn btn-primary w-100" disabled>
+                        <i class="bi bi-cart-x me-2"></i>Giỏ hàng trống
+                    </button>
                 @endif
             </div>
         </div>

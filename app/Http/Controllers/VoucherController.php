@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Exception;
 
 class VoucherController extends Controller
 {
@@ -31,32 +33,62 @@ class VoucherController extends Controller
 
             // Validate basic rules first
             $validated = $request->validate([
-                'code' => 'required|unique:vouchers,code',
+                'code' => 'required|unique:vouchers,code|regex:/^[A-Z0-9]+$/',
                 'discount_amount' => 'nullable|numeric|min:0',
                 'discount_percentage' => 'nullable|numeric|between:0,100',
-                'start_date' => 'required|date',
-                'expiry_date' => 'required|date|after:start_date',
+                'start_date' => [
+                    'required',
+                    'date',
+                    'after_or_equal:today'
+                ],
+                'expiry_date' => [
+                    'required',
+                    'date',
+                    'after:start_date'
+                ],
                 'minimum_purchase_amount' => 'nullable|numeric|min:0',
-                'maximum_purchase_amount' => 'nullable|numeric|min:0|gt:minimum_purchase_amount',
+                'maximum_purchase_amount' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $minAmount = $request->input('minimum_purchase_amount');
+                        if ($value && $minAmount && $value <= $minAmount) {
+                            $fail('Số tiền giảm tối đa phải lớn hơn số tiền tối thiểu.');
+                        }
+                    }
+                ],
                 'max_usage_count' => 'nullable|integer|min:1',
                 'status' => 'required|boolean'
             ]);
 
-            // Validate discount logic
-            if ($request->filled('discount_amount') && $request->filled('discount_percentage')) {
-                throw new \Illuminate\Validation\ValidationException(validator([], [], [
-                    'discount' => 'Vui lòng chỉ chọn một loại giảm giá (số tiền hoặc phần trăm)'
-                ]));
-            }
-
+            // Validate discount type logic
             if (!$request->filled('discount_amount') && !$request->filled('discount_percentage')) {
-                throw new \Illuminate\Validation\ValidationException(validator([], [], [
-                    'discount' => 'Vui lòng chọn một loại giảm giá'
-                ]));
+                throw ValidationException::withMessages([
+                    'discount' => 'Vui lòng chọn một loại giảm giá (số tiền hoặc phần trăm)'
+                ]);
             }
 
-            // Create voucher data
-            $voucherData = array_merge($validated, ['usage_count' => 0]);
+            if ($request->filled('discount_amount') && $request->filled('discount_percentage')) {
+                throw ValidationException::withMessages([
+                    'discount' => 'Chỉ được chọn một loại giảm giá (số tiền hoặc phần trăm)'
+                ]);
+            }
+
+            // Validate discount amount logic
+            if ($request->filled('discount_amount') && $request->filled('minimum_purchase_amount')) {
+                if ($request->discount_amount >= $request->minimum_purchase_amount) {
+                    throw ValidationException::withMessages([
+                        'discount_amount' => 'Số tiền giảm không được lớn hơn hoặc bằng số tiền tối thiểu của đơn hàng'
+                    ]);
+                }
+            }
+
+            // Create voucher data with default usage count
+            $voucherData = array_merge($validated, [
+                'usage_count' => 0,
+                'code' => strtoupper($request->code)
+            ]);
 
             // Remove empty discount field
             if ($request->filled('discount_amount')) {
@@ -69,18 +101,23 @@ class VoucherController extends Controller
 
             $voucher = Voucher::create($voucherData);
 
+            // Auto disable voucher if expiry date is passed
+            if ($voucher->expiry_date < now()) {
+                $voucher->update(['status' => false]);
+            }
+
             DB::commit();
 
             return redirect()
                 ->route('admin.voucher')
                 ->with('success', 'Voucher đã được tạo thành công.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             DB::rollBack();
             Log::error('Validation error', ['errors' => $e->errors()]);
             return back()
                 ->withErrors($e->errors())
                 ->withInput();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error creating voucher', [
                 'message' => $e->getMessage(),
@@ -134,43 +171,86 @@ class VoucherController extends Controller
     public function apply(Request $request)
     {
         $request->validate([
-            'code' => 'required|exists:vouchers,code',
-            'purchase_amount' => 'required|numeric|min:0'
+            'voucher_code' => 'required|exists:vouchers,code'
         ]);
 
         try {
-            $voucher = Voucher::where('code', $request->code)->first();
+            $voucher = Voucher::where('code', $request->voucher_code)
+                ->where('status', 1)
+                ->first();
 
-            if (!$voucher->isValid()) {
+            if (!$voucher) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Voucher không hợp lệ hoặc đã hết hạn'
-                ], 400);
+                    'message' => 'Mã giảm giá không hợp lệ'
+                ]);
             }
 
-            $discount = $voucher->calculateDiscount($request->purchase_amount);
-
-            if ($discount <= 0) {
+            // Kiểm tra điều kiện voucher
+            $total = session('cart_total', 0);
+            if ($voucher->minimum_purchase_amount > $total) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng voucher'
-                ], 400);
+                    'message' => 'Đơn hàng chưa đạt giá trị tối thiểu'
+                ]);
             }
 
-            // Increment usage count if voucher is valid and applicable
-            $voucher->incrementUsage();
+            // Tính toán giảm giá
+            $discount = $voucher->discount_percentage
+                ? ($total * $voucher->discount_percentage / 100)
+                : $voucher->discount_amount;
+
+            $newTotal = $total - $discount;
+
+            // Lưu thông tin vào session
+            session(['voucher_id' => $voucher->id]);
+            session(['cart_total' => $newTotal]);
 
             return response()->json([
                 'success' => true,
-                'discount' => $discount,
-                'message' => 'Voucher đã được áp dụng thành công'
+                'message' => 'Áp dụng mã giảm giá thành công',
+                'new_total' => $newTotal,
+                'voucher_id' => $voucher->id
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Có lỗi xảy ra khi áp dụng voucher'
-            ], 500);
+                'message' => 'Có lỗi xảy ra khi áp dụng mã giảm giá'
+            ]);
         }
+    }
+
+    public function applyVoucher(Request $request)
+    {
+        $request->validate([
+            'voucher_code' => 'required|exists:vouchers,code'
+        ]);
+
+        $voucher = Voucher::where('code', $request->voucher_code)
+            ->where('status', true)
+            ->first();
+
+        if (!$voucher) {
+            return back()->with('error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
+        }
+
+        // Lấy tổng giá trị giỏ hàng
+        $cartTotal = session('cart.total', 0);
+
+        // Kiểm tra điều kiện áp dụng
+        if ($voucher->minimum_purchase_amount && $cartTotal < $voucher->minimum_purchase_amount) {
+            return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này');
+        }
+
+        // Lưu thông tin voucher vào session
+        session([
+            'voucher.id' => $voucher->id,
+            'voucher.code' => $voucher->code,
+            'voucher.discount_amount' => $voucher->discount_amount,
+            'voucher.discount_percentage' => $voucher->discount_percentage
+        ]);
+
+        return back()->with('success', 'Áp dụng mã giảm giá thành công');
     }
 
     public function toggleStatus(Voucher $voucher)

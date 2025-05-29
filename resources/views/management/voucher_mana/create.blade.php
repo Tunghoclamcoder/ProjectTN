@@ -42,7 +42,7 @@
         @endif
     </div>
 
-    @if (config('app.debug'))
+    {{-- @if (config('app.debug'))
         <div class="card mt-4">
             <div class="card-header">
                 <h5>Debug Information</h5>
@@ -61,7 +61,7 @@
             </pre>
             </div>
         </div>
-    @endif
+    @endif --}}
 
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -132,7 +132,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label>Ngày bắt đầu <span class="text-danger">*</span></label>
-                                        <input type="date" name="start_date"
+                                        <input type="date" name="start_date" id="start_date"
                                             class="form-control @error('start_date') is-invalid @enderror"
                                             value="{{ old('start_date') }}" required min="{{ date('Y-m-d') }}">
                                         @error('start_date')
@@ -142,7 +142,7 @@
 
                                     <div class="form-group mb-3">
                                         <label>Ngày hết hạn <span class="text-danger">*</span></label>
-                                        <input type="date" name="expiry_date"
+                                        <input type="date" name="expiry_date" id="expiry_date"
                                             class="form-control @error('expiry_date') is-invalid @enderror"
                                             value="{{ old('expiry_date') }}" required>
                                         @error('expiry_date')
@@ -151,7 +151,7 @@
                                     </div>
 
                                     <div class="form-group mb-3">
-                                        <label>Số tiền đơn hàng tối thiểu</label>
+                                        <label>Số tiền đơn hàng tối thiểu để được sale</label>
                                         <div class="input-group">
                                             <input type="number" name="minimum_purchase_amount"
                                                 class="form-control @error('minimum_purchase_amount') is-invalid @enderror"
@@ -185,13 +185,10 @@
 
                             <div class="form-group mb-3">
                                 <label>Trạng thái</label>
-                                <select name="status" class="form-control @error('status') is-invalid @enderror">
-                                    <option value="1" {{ old('status', '1') === '1' ? 'selected' : '' }}>
-                                        Đang kích hoạt
-                                    </option>
-                                    <option value="0" {{ old('status', '1') === '0' ? 'selected' : '' }}>
-                                        Đã hết hạn
-                                    </option>
+                                <select name="status" id="status"
+                                    class="form-control @error('status') is-invalid @enderror">
+                                    <option value="1">Đang kích hoạt</option>
+                                    <option value="0">Đã hết hạn</option>
                                 </select>
                                 <small class="text-muted">Chỉ những voucher đang kích hoạt mới có thể sử dụng</small>
                                 @error('status')
@@ -216,43 +213,104 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const discountAmount = document.querySelector('[name="discount_amount"]');
-                const discountPercentage = document.querySelector('[name="discount_percentage"]');
+                // JS để cập nhật ngày hết hạn và trạng thái dựa trên ngày bắt đầu, ngày hết hạn phải sau ngày bắt đầu ít nhất 1 ngày
+                const startDateInput = document.getElementById('start_date');
+                const expiryDateInput = document.getElementById('expiry_date');
+                const statusSelect = document.getElementById('status');
 
-                function updateDiscountFields() {
-                    if (discountAmount.value) {
-                        discountPercentage.value = '';
-                        discountPercentage.disabled = true;
-                    } else if (discountPercentage.value) {
-                        discountAmount.value = '';
-                        discountAmount.disabled = true;
+                // Function to update expiry date min value and status
+                function updateExpiryDateAndStatus() {
+                    const startDate = new Date(startDateInput.value);
+
+                    // Set minimum expiry date to one day after start date
+                    const minExpiryDate = new Date(startDate);
+                    minExpiryDate.setDate(startDate.getDate() + 1);
+                    expiryDateInput.min = minExpiryDate.toISOString().split('T')[0];
+
+                    // If expiry date is before min date, update it
+                    if (expiryDateInput.value && new Date(expiryDateInput.value) < minExpiryDate) {
+                        expiryDateInput.value = minExpiryDate.toISOString().split('T')[0];
+                    }
+
+                    // Check if voucher has expired
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const expiryDate = new Date(expiryDateInput.value);
+
+                    if (expiryDate < today) {
+                        statusSelect.value = "0"; // Set to expired
+                        statusSelect.disabled = true;
                     } else {
-                        discountAmount.disabled = false;
-                        discountPercentage.disabled = false;
+                        statusSelect.disabled = false;
                     }
                 }
 
-                // Listen for input changes
-                discountAmount.addEventListener('input', updateDiscountFields);
-                discountPercentage.addEventListener('input', updateDiscountFields);
+                // Update on start date change
+                startDateInput.addEventListener('change', updateExpiryDateAndStatus);
 
-                // Form validation before submit
-                document.querySelector('form').addEventListener('submit', function(e) {
-                    if (discountAmount.value && discountPercentage.value) {
-                        e.preventDefault();
-                        alert('Vui lòng chỉ chọn một loại giảm giá (số tiền hoặc phần trăm)');
-                        return false;
+                // Update on expiry date change
+                expiryDateInput.addEventListener('change', function() {
+                    const startDate = new Date(startDateInput.value);
+                    const expiryDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    // Validate expiry date is after start date
+                    if (expiryDate <= startDate) {
+                        alert('Ngày hết hạn phải sau ngày bắt đầu ít nhất 1 ngày!');
+                        const minExpiryDate = new Date(startDate);
+                        minExpiryDate.setDate(startDate.getDate() + 1);
+                        this.value = minExpiryDate.toISOString().split('T')[0];
                     }
 
-                    if (!discountAmount.value && !discountPercentage.value) {
-                        e.preventDefault();
-                        alert('Vui lòng chọn một loại giảm giá');
-                        return false;
+                    // Update status based on expiry date
+                    if (expiryDate < today) {
+                        statusSelect.value = "0"; // Set to expired
+                        statusSelect.disabled = true;
+                    } else {
+                        statusSelect.disabled = false;
                     }
                 });
 
-                // Initialize state
-                updateDiscountFields();
+                // Initial setup
+                if (startDateInput.value) {
+                    updateExpiryDateAndStatus();
+                }
+
+                // JS để set giá tón giảm tối đa phải lớn hơn số tiền đơn hàng tối thiểu
+                const minPurchaseInput = document.querySelector('input[name="minimum_purchase_amount"]');
+                const maxPurchaseInput = document.querySelector('input[name="maximum_purchase_amount"]');
+
+                function validatePurchaseAmounts() {
+                    const minAmount = parseFloat(minPurchaseInput.value) || 0;
+                    const maxAmount = parseFloat(maxPurchaseInput.value) || 0;
+
+                    if (maxAmount > 0 && maxAmount <= minAmount) {
+                        alert('Số tiền giảm tối đa phải lớn hơn số tiền đơn hàng tối thiểu!');
+                        maxPurchaseInput.value = ''; // Clear max amount input
+                        maxPurchaseInput.focus();
+                        return false;
+                    }
+                    return true;
+                }
+
+                // Validate khi thay đổi giá trị minimum
+                minPurchaseInput.addEventListener('change', function() {
+                    if (maxPurchaseInput.value) {
+                        validatePurchaseAmounts();
+                    }
+                });
+
+                // Validate khi thay đổi giá trị maximum
+                maxPurchaseInput.addEventListener('change', validatePurchaseAmounts);
+
+                // Validate before form submission
+                document.querySelector('form').addEventListener('submit', function(e) {
+                    if (!validatePurchaseAmounts()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
             });
         </script>
     @endpush
