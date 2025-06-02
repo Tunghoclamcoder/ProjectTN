@@ -17,6 +17,18 @@
                 <img src="{{ asset('images/logo.png') }}">
             </div>
 
+            <div class="search-container">
+                <form action="{{ route('products.search') }}" method="GET" class="search-form">
+                    <div class="search-box">
+                        <input type="text" name="query" placeholder="Tìm kiếm sản phẩm..."
+                            value="{{ request('query') }}" class="search-input">
+                        <button type="submit" class="search-btn">
+                            <i class="lni lni-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <div class="menu"><a href="#menu" class="openicon">☰</a>
                 <nav id="menu">
                     <ul>
@@ -24,11 +36,13 @@
                         <li><a href="#">Giới thiệu</a></li>
                         @auth('customer')
                             <li>
-                                <a href="{{ route('cart.view')}}">
+                                <a href="{{ route('cart.view') }}">
                                     <i class="lni lni-shopping-basket"></i> Mua ngay
                                 </a>
                             </li>
-                        @endauth <li><a href="#">Danh mục</a></li>
+                        @endauth
+                        <li><a href="{{ route(name: 'categories.list') }}">Danh mục</a></li>
+                        <li><a href="{{ route(name: 'brands.list') }}">Thương hiệu</a></li>
                         @guest('customer')
                             <li><a href="{{ route('customer.login') }}">Đăng nhập</a></li>
                             <li><a href="{{ route('customer.register') }}">Đăng ký</a></li>

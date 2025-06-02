@@ -62,10 +62,18 @@ class Voucher extends Model
         return $discount;
     }
 
-    // Tăng số lần sử dụng
+    // Tăng số lần mỗi khi voucher được sử dụng
     public function incrementUsage()
     {
         $this->usage_count++;
         $this->save();
+    }
+
+    // Kiểm tra xem voucher đã được sử dụng bởi khách hàng chưa
+    public function hasBeenUsedByCustomer($customerId)
+    {
+        return Order::where('customer_id', $customerId)
+            ->where('voucher_id', $this->id)
+            ->exists();
     }
 }

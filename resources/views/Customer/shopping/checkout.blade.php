@@ -134,7 +134,7 @@
             if (minPurchase && total < minPurchase) {
                 alert(
                     `Đơn hàng cần tối thiểu ${new Intl.NumberFormat('vi-VN').format(minPurchase)}đ để sử dụng voucher này`
-                    );
+                );
                 this.value = '';
                 return;
             }
@@ -145,9 +145,19 @@
     document.getElementById('voucherForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const voucherCode = document.getElementById('voucher_select').value;
+
+        // Kiểm tra nếu chưa chọn voucher
+        if (!voucherCode) {
+            const messageDiv = document.getElementById('voucher-message');
+            messageDiv.className = 'text-danger mt-2';
+            messageDiv.textContent = 'Vui lòng chọn mã giảm giá trước khi áp dụng';
+            return;
+        }
+
         const formData = new FormData();
         formData.append('_token', '{{ csrf_token() }}');
-        formData.append('voucher_code', document.getElementById('voucher_select').value);
+        formData.append('voucher_code', voucherCode);
 
         fetch('{{ route('voucher.apply') }}', {
                 method: 'POST',
@@ -161,7 +171,7 @@
                 const messageDiv = document.getElementById('voucher-message');
 
                 if (data.success) {
-                    messageDiv.className = 'text-success mt-2';
+                    messageDiv.className = 'alert alert-success mt-2';
                     // Cập nhật tổng tiền
                     document.querySelector('.list-group-item strong').textContent =
                         new Intl.NumberFormat('vi-VN').format(data.new_total) + 'đ';
@@ -178,16 +188,15 @@
                     }
                     voucherInput.value = data.voucher_id;
                 } else {
-                    messageDiv.className = 'text-danger mt-2';
+                    messageDiv.className = 'alert alert-danger mt-2';
                 }
-
                 messageDiv.textContent = data.message;
             })
             .catch(error => {
                 console.error('Error:', error);
                 const messageDiv = document.getElementById('voucher-message');
-                messageDiv.className = 'text-danger mt-2';
-                messageDiv.textContent = 'Bạn đã áp dụng mã giảm giá này rồi!';
+                messageDiv.className = 'alert alert-danger mt-2';
+                messageDiv.textContent = 'Có lỗi xảy ra khi áp dụng mã giảm giá';
             });
     });
 </script>

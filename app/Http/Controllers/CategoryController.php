@@ -75,4 +75,29 @@ class CategoryController extends Controller
             return back()->with('error', 'Có lỗi xảy ra khi xóa danh mục.');
         }
     }
+
+    public function categoryList()
+    {
+        $categories = Category::withCount('products')
+            ->orderBy('products_count', 'desc')
+            ->get();
+
+        return view('Customer.category.category_list', compact('categories'));
+    }
+
+    /**
+     * Hiển thị sản phẩm trong một danh mục cụ thể
+     */
+    public function show($id)
+    {
+        $category = Category::with(['products' => function ($query) {
+            $query->where('status', 'active')
+                ->where('quantity', '>', 0)
+                ->with(['brand', 'images']);
+        }])->findOrFail($id);
+
+        $products = $category->products()->paginate(12);
+
+        return view('Customer.category.filter_product', compact('category', 'products'));
+    }
 }

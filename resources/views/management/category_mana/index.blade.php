@@ -96,7 +96,8 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="delete" title="Xóa" data-toggle="tooltip"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không? Các sản phẩm thuộc danh mục này sẽ không bị xóa.')">
+                                                style="color: red"
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?')">
                                                 <i class="material-icons">&#xE872;</i>
                                             </button>
                                         </form>

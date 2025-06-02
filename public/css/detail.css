@@ -151,10 +151,14 @@ hr {
     opacity: 0.67;
 }
 
-.pagination {
-    color: #787a80;
-    margin: 15px 0;
+.pagination p {
+    color: #787878;
+    margin: 20px 20px 50px 20px;
     cursor: pointer;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: Lato;
+    transition: all 0.3s ease;
 }
 
 @media screen and (max-width: 576px) {

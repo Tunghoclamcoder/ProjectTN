@@ -58,6 +58,11 @@ class OrderController extends Controller
             'shipping_method_id' => 'required|exists:shipping_methods,method_id'
         ]);
 
+        if ($request->voucher_id) {
+            $voucher = Voucher::findOrFail($request->voucher_id);
+            $voucher->increment('usage_count');
+        }
+
         try {
             Order::create($request->all());
 
@@ -204,10 +209,17 @@ class OrderController extends Controller
                 }
             }
 
-            // Get all payment and shipping methods without status check
+            // Get all payment and shipping methods
             $paymentMethods = PaymentMethod::all();
             $shippingMethods = ShippingMethod::all();
 
+            // Lấy danh sách voucher_id đã được khách hàng sử dụng
+            $usedVoucherIds = Order::where('customer_id', $customer->customer_id)
+                ->whereNotNull('voucher_id')
+                ->pluck('voucher_id')
+                ->toArray();
+
+            // Get active vouchers excluding used ones
             $activeVouchers = Voucher::where('status', true)
                 ->where('start_date', '<=', now())
                 ->where('expiry_date', '>=', now())
@@ -219,6 +231,7 @@ class OrderController extends Controller
                     $query->whereNull('max_usage_count')
                         ->orWhereRaw('usage_count < max_usage_count');
                 })
+                ->whereNotIn('id', $usedVoucherIds) // Loại bỏ voucher đã sử dụng
                 ->get();
 
             return view('Customer.shopping.checkout', compact(
@@ -262,6 +275,23 @@ class OrderController extends Controller
                 }
             }
 
+            if (session()->has('voucher')) {
+                $voucherData = session('voucher');
+                $voucher = Voucher::find($voucherData['id']);
+
+                // Kiểm tra voucher còn hiệu lực và còn lượt sử dụng
+                if (
+                    !$voucher || !$voucher->status ||
+                    $voucher->expiry_date < now() ||
+                    ($voucher->max_usage_count && $voucher->usage_count >= $voucher->max_usage_count)
+                ) {
+                    throw new \Exception('Mã giảm giá không còn hiệu lực hoặc đã hết lượt sử dụng');
+                }
+
+                // Tăng usage_count
+                $voucher->increment('usage_count');
+            }
+
             // Update cart to order
             $cartOrder->update([
                 'order_status' => 'pending',
@@ -299,21 +329,41 @@ class OrderController extends Controller
     public function applyVoucher(Request $request)
     {
         try {
-            $request->validate([
-                'voucher_code' => 'required|exists:vouchers,code'
-            ]);
-
-            $voucher = Voucher::where('code', $request->voucher_code)
-                ->where('status', true)
-                ->where('start_date', '<=', now())
-                ->where('expiry_date', '>=', now())
-                ->first();
-
-            if (!$voucher) {
-                return back()->with('error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
+            // Validate request
+            if (empty($request->voucher_code)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vui lòng chọn mã giảm giá'
+                ], 400);
             }
 
             $customer = Auth::guard('customer')->user();
+            $voucher = Voucher::where('code', $request->voucher_code)->first();
+
+            if (!$voucher) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mã giảm giá không tồn tại'
+                ], 404);
+            }
+
+            // Kiểm tra voucher có hợp lệ không
+            if (!$voucher->status || $voucher->start_date > now() || $voucher->expiry_date < now()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mã giảm giá đã hết hạn hoặc không còn hiệu lực'
+                ], 400);
+            }
+
+            // Kiểm tra số lần sử dụng
+            if ($voucher->max_usage_count && $voucher->usage_count >= $voucher->max_usage_count) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mã giảm giá đã hết lượt sử dụng'
+                ], 400);
+            }
+
+            // Lấy giỏ hàng hiện tại
             $cartOrder = Order::where([
                 'customer_id' => $customer->customer_id,
                 'order_status' => 'cart'
@@ -323,8 +373,15 @@ class OrderController extends Controller
 
             // Kiểm tra điều kiện áp dụng
             if ($voucher->minimum_purchase_amount && $total < $voucher->minimum_purchase_amount) {
-                return back()->with('error', 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này'
+                ], 400);
             }
+
+            // Tính toán giá trị sau khi áp dụng voucher
+            $discountAmount = $voucher->discount_amount ?? ($total * $voucher->discount_percentage / 100);
+            $newTotal = max(0, $total - $discountAmount);
 
             // Lưu thông tin voucher vào session
             session([
@@ -336,9 +393,17 @@ class OrderController extends Controller
                 ]
             ]);
 
-            return back()->with('success', 'Áp dụng mã giảm giá thành công');
+            return response()->json([
+                'success' => true,
+                'message' => 'Áp dụng mã giảm giá thành công',
+                'new_total' => $newTotal,
+                'voucher_id' => $voucher->id
+            ]);
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra khi áp dụng mã giảm giá');
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi áp dụng mã giảm giá'
+            ], 500);
         }
     }
 

@@ -14,8 +14,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="{{ asset('css/crud.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="{{ asset('js/alert.js') }}"></script>
 </head>
 
@@ -49,11 +48,11 @@
 
     <div class="container-fluid">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="padding: 15px">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Chi tiết sản phẩm</h4>
-                    <a href="{{ route('admin.product') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Quay lại
+                    <a href="{{ route('admin.product') }}" class="btn btn-secondary" style="padding: 10px 20px">
+                        Quay lại
                     </a>
                 </div>
             </div>
@@ -109,11 +108,19 @@
                                 <tr>
                                     <th>Giảm giá:</th>
                                     <td>
-                                        {{ $product->discount }}%
                                         @if ($product->discount > 0)
-                                            <span class="text-success">
-                                                (Giá sau giảm: {{ number_format($product->getDiscountedPrice()) }} VNĐ)
-                                            </span>
+                                            <div>
+                                                <span class="badge bg-warning text-dark">Giảm giá:
+                                                    {{ $product->discount }}%</span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <span class="text-success">
+                                                    Giá sau giảm: {{ number_format($product->getDiscountedPrice()) }}
+                                                    VNĐ
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span>Không có giảm giá</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -157,7 +164,7 @@
                                 </tr>
                                 <tr>
                                     <th>Mô tả:</th>
-                                    <td>{{ $product->description }}</td>
+                                    <td style="line-height: 25px; font-size: 14px;">{{ $product->description }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -168,61 +175,61 @@
     </div>
 </body>
 <style>
-.main-product-image {
-    width: 100%;
-    max-width: 400px;
-    height: 400px;
-    object-fit: cover;
-    border: 2px solid #28a745;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    .main-product-image {
+        width: 100%;
+        max-width: 400px;
+        height: 400px;
+        object-fit: cover;
+        border: 2px solid #28a745;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-.sub-images-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
+    .sub-images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
 
-.sub-product-image {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    transition: transform 0.2s;
-}
+    .sub-product-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: transform 0.2s;
+    }
 
-.sub-product-image:hover {
-    transform: scale(1.05);
-    cursor: pointer;
-}
+    .sub-product-image:hover {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
 
-.no-image-placeholder {
-    width: 100%;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-}
+    .no-image-placeholder {
+        width: 100%;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+    }
 
-.main-image-container,
-.sub-images-container {
-    background-color: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+    .main-image-container,
+    .sub-images-container {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
 
-h5 {
-    color: #495057;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
+    h5 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
 </style>
 <script>
     function updateMainImage(imagePath) {

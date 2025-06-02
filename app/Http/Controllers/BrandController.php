@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Routing\Controller;
@@ -93,5 +94,30 @@ class BrandController extends Controller
                 ->route('admin.brand')
                 ->with('error', "Không thể xóa thương hiệu. Lỗi: " . $e->getMessage());
         }
+    }
+
+    public function brandList()
+    {
+        $brands = Brand::withCount('products')
+            ->orderBy('brand_name')
+            ->get();
+
+        return view('Customer.brand.brand_list', compact(var_name: 'brands'));
+    }
+
+    /**
+     * Hiển thị sản phẩm trong một thương hiệu cụ thể
+     */
+    public function show($id)
+    {
+        $brand = Brand::findOrFail($id);
+
+        $products = Product::where('brand_id', $id)
+            ->with(['brand', 'images'])
+            ->where('status', 'active')
+            ->where('quantity', '>', 0)
+            ->paginate(12);
+
+        return view('Customer.brand.brand_product', compact('brand', 'products'));
     }
 }

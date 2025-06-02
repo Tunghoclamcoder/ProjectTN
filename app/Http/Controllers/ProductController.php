@@ -11,6 +11,8 @@ use App\Models\Image;
 use App\Models\ImageProduct;
 use App\Models\CategoryProduct;
 use App\Models\SizeProduct;
+use App\Models\ShippingMethod;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -282,7 +284,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         try {
-            // Eager load relationships with specific constraints for images
+            // Eager load relationships
             $product->load([
                 'brand',
                 'material',
@@ -291,6 +293,48 @@ class ProductController extends Controller
                 'images' => function ($query) {
                     $query->orderByPivot('image_order');
                 }
+            ]);
+
+            $mainImage = $product->images()
+                ->wherePivot('image_role', 'main')
+                ->first();
+
+            $subImages = $product->images()
+                ->wherePivot('image_role', 'sub')
+                ->orderByPivot('image_order')
+                ->get();
+
+            // Load shipping methods
+            $shippingMethods = ShippingMethod::all();
+
+            // Debug log
+            Log::info('ShippingMethods in shop controller:', [
+                'count' => $shippingMethods->count(),
+                'data' => $shippingMethods->toArray()
+            ]);
+
+            return view('Customer.product-details', [
+                'product' => $product,
+                'mainImage' => $mainImage,
+                'subImages' => $subImages,
+                'shippingMethods' => $shippingMethods
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in shop show method: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra khi hiển thị sản phẩm');
+        }
+    }
+
+    public function adminShow(Product $product)
+    {
+        try {
+            // Eager load all relationships
+            $product->load([
+                'brand',
+                'material',
+                'categories',
+                'sizes',
+                'images'
             ]);
 
             // Get main image and sub images
@@ -303,11 +347,18 @@ class ProductController extends Controller
                 ->orderByPivot('image_order')
                 ->get();
 
-            return view('management.product_mana.detail', compact('product', 'mainImage', 'subImages'));
+            return view('management.product_mana.detail', [
+                'product' => $product,
+                'mainImage' => $mainImage,
+                'subImages' => $subImages,
+                'shippingMethods' => \App\Models\ShippingMethod::all()
+            ]);
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            Log::error('Error in admin product show: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra khi hiển thị chi tiết sản phẩm');
         }
     }
+
     public function destroy(Product $product)
     {
         try {

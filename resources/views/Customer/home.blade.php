@@ -47,15 +47,22 @@
     <!----------PRODUCT HTML STARTS----->
 
     <div class="container">
-        <div class="product">
+        <div class="product-grid">
             @forelse($products as $product)
                 <div class="pro">
-                    @if ($mainImage = $product->getMainImage())
-                        <img src="{{ Storage::url($mainImage->image_url) }}" class="w-100"
-                            alt="{{ $product->product_name }}">
-                    @else
-                        <img src="{{ asset('images/no-image.png') }}" class="w-100" alt="No image available">
-                    @endif
+                    <div class="product-image-container">
+                        @if ($mainImage = $product->getMainImage())
+                            <img src="{{ Storage::url($mainImage->image_url) }}" class="w-100"
+                                alt="{{ $product->product_name }}">
+                            @if ($product->discount > 0)
+                                <div class="discount-label">
+                                    SALE {{ $product->discount }}%
+                                </div>
+                            @endif
+                        @else
+                            <img src="{{ asset('images/no-image.png') }}" class="w-100" alt="No image available">
+                        @endif
+                    </div>
 
                     <p class="prd-name">{{ $product->product_name }}</p>
                     <p>

@@ -44,7 +44,7 @@
 
     <section class="product-container">
         <!-- Left side - Product Images -->
-        <div class="img-card">
+        <div class="img-card" style="min-width: 35%;">
             @if ($mainImage)
                 <img src="{{ Storage::url($mainImage->image_url) }}" alt="{{ $product->product_name }}"
                     id="featured-image">
@@ -107,23 +107,25 @@
             <div class="shipping-info">
                 <p><strong style="color: blue">Thông tin vận chuyển:</strong></p>
                 <p>Miễn phí vận chuyển cho đơn hàng trên 500.000đ</p>
+
                 <div class="delivery">
                     <p>HÌNH THỨC</p>
-                    <p>THỜI GIAN</p>
                     <p>PHÍ VẬN CHUYỂN</p>
                 </div>
-                <hr>
-                <div class="delivery">
-                    <p>Giao hàng tiêu chuẩn</p>
-                    <p>3-5 ngày</p>
-                    <p>30.000đ</p>
-                </div>
-                <hr>
-                <div class="delivery">
-                    <p>Giao hàng nhanh</p>
-                    <p>1-2 ngày</p>
-                    <p>45.000đ</p>
-                </div>
+
+                @forelse($shippingMethods as $method)
+                    <hr>
+                    <div class="delivery">
+                        <p>{{ $method->method_name }}</p>
+                        <p>{{ number_format($method->shipping_fee) }}đ</p>
+                    </div>
+                @empty
+                    <hr>
+                    <div class="delivery">
+                        <p>Giao hàng tiêu chuẩn</p>
+                        <p>30.000đ</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>

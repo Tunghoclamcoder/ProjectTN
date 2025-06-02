@@ -131,7 +131,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.product.show', ['product' => $product->product_id]) }}"
+                                        <a href="{{ route('admin.product.details', ['product' => $product->product_id]) }}"
                                             class="view" title="Xem chi tiết" data-toggle="tooltip">
                                             <i class="material-icons">&#xE417;</i>
                                         </a>

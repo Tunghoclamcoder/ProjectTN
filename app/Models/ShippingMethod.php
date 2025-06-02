@@ -11,7 +11,7 @@ class ShippingMethod extends Model
 
     protected $table = 'shipping_methods';
     protected $primaryKey = 'method_id';
-    protected $fillable = ['method_name', 'shhipping_fee'];
+    protected $fillable = ['method_name', 'shipping_fee'];
 
     public $timestamps = false;
 }

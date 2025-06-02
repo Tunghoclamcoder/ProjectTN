@@ -23,8 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/homepage');
 });
-Route::get('/homepage', [ShopController::class, 'index'])->name('shop.home');
-Route::get('/product/{product_id}', [ShopController::class, 'show'])->name('shop.product.show');
+Route::get('/homepage', [ShopController::class, 'index'])->name(name: 'shop.home');
 
 // 2) Trang đăng ký, đăng nhập, đăng xuất cho Customer
 Route::middleware('guest:customer')->group(function () {
@@ -55,7 +54,20 @@ Route::middleware('auth:customer')->group(function () {
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
     Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
+    Route::get('/product/{product}', [ProductController::class, 'show'])->name('shop.product.show');
 });
+
+//Search cho trang chủ của Customer
+Route::get('/search', [ShopController::class, 'search'])->name('products.search');
+Route::get('/search/suggestions', [ShopController::class, 'searchSuggestions'])->name('products.search.suggestions');
+
+//Trang hiển thị danh mục sản phẩm
+Route::get('/categories', [CategoryController::class, 'categoryList'])->name('categories.list');
+Route::get('/categories/{id}', [CategoryController::class, 'show'])->name('categories.show');
+
+//Trang hiển thị thương hiệu sản phẩm
+Route::get('/brands', [BrandController::class, 'brandList'])->name('brands.list');
+Route::get('/brands/{id}', [BrandController::class, 'show'])->name('brands.show');
 
 // Quên mật khẩu
 Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPasswordForm'])->name('customer.forgot_password');
@@ -172,7 +184,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->name('admin.product');
             Route::get('/create', [ProductController::class, 'create'])->name('admin.product.create');
             Route::post('/', [ProductController::class, 'store'])->name('admin.product.store');
-            Route::get('/{product}/details', action: [ProductController::class, 'show'])->name('admin.product.show');
+            Route::get('/{product}/details', [ProductController::class, 'adminShow'])->name('admin.product.details');
             Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('admin.product.edit');
             Route::put('/{product}', [ProductController::class, 'update'])->name('admin.product.update');
             Route::delete('/{product}', [ProductController::class, 'destroy'])->name('admin.product.delete');
