@@ -25,49 +25,32 @@ class CustomerController extends Controller
             'password' => 'required'
         ]);
 
-        Log::info('Login attempt', ['email' => $credentials['email']]);
-
-        // Kiểm tra xem tài khoản có tồn tại và đang hoạt động không
-        $customer = Customer::where('email', $credentials['email'])->first();
-
-        if (!$customer) {
-            Log::info('Customer not found');
-            return redirect()
-                ->route('customer.login')
-                ->with('error', 'Email hoặc mật khẩu không đúng.')
-                ->withInput();
-        }
-
-        if ($customer->status === 'inactive') {
-            Log::info('Customer account is inactive');
-            return redirect()
-                ->route('customer.login')
-                ->with('error', 'Tài khoản của bạn đã bị vô hiệu hóa.')
-                ->withInput();
-        }
+        // Clear any existing intended URL
+        session()->forget('url.intended');
 
         if (Auth::guard('customer')->attempt($credentials)) {
-            Log::info('Login successful');
             $request->session()->regenerate();
 
-            return redirect()->intended(route('shop.home'))
-                ->with('success', 'Đăng nhập thành công! Chào mừng bạn trở lại.');
+            return redirect()->route('shop.home')
+                ->with('success', 'Đăng nhập thành công!');
         }
 
-        Log::info('Login failed - invalid credentials');
-        return redirect()
-            ->route('customer.login')
-            ->with('error', 'Email hoặc mật khẩu không đúng.')
-            ->withInput();
+        return back()
+            ->withInput($request->only('email'))
+            ->with('error', 'Email hoặc mật khẩu không chính xác.');
     }
 
     public function logout(Request $request)
     {
         Auth::guard('customer')->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('shop.home');
+
+        return redirect()->route('customer.login')
+            ->with('success', 'Đăng xuất thành công!');
     }
+
     public function showRegisterForm()
     {
         return view('Customer.LoginAccount.register');

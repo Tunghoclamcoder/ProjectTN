@@ -12,12 +12,13 @@ use Illuminate\Routing\Controller;
 
 class EmployeeController extends Controller
 {
+
     public function showLoginForm()
     {
         if (Auth::guard('employee')->check()) {
-            return redirect()->route('employee.dashboard');
+            return redirect()->route('management.dashboard');
         }
-        return view('employee.login');
+        return view('management.login');
     }
 
     public function login(Request $request)
@@ -47,12 +48,15 @@ class EmployeeController extends Controller
 
     public function logout(Request $request)
     {
+        Auth::guard('owner')->logout();
         Auth::guard('employee')->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('employee.login');
-    }
 
+        return redirect()->route('admin.login')
+            ->with('success', 'Đăng xuất thành công!');
+    }
     // CRUD nhân viên
     public function index()
     {

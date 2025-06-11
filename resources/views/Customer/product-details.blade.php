@@ -8,6 +8,8 @@
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/detail.css') }}">
     <script src="{{ asset('js/alert.js') }}"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 </head>
 
 <body>
@@ -92,17 +94,27 @@
                 </select>
             </div>
 
-            <form action="{{ route('cart.add-to-cart') }}" method="POST" class="product-form">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                <div class="quantity">
-                    <label style="color: #000000">Số lượng:</label>
-                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->quantity }}">
-                    <button type="submit" class="add-to-cart">
-                        <i class="lni lni-cart"></i> Thêm vào giỏ
-                    </button>
+            @if ($product->quantity > 0)
+                <form action="{{ route('cart.add-to-cart') }}" method="POST" class="product-form" id="addToCartForm">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                    <input type="hidden" name="size_id" id="selected_size_id">
+                    <div class="quantity">
+                        <label style="color: #000000">Số lượng:</label>
+                        <input type="number" name="quantity" value="1" min="1"
+                            max="{{ $product->quantity }}">
+                        <button type="submit" class="add-to-cart">
+                            <i class="lni lni-cart"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                </form>
+            @else
+                <div class="out-of-stock-message">
+                    <span class="text-danger">
+                        Sản phẩm đã hết hàng
+                    </span>
                 </div>
-            </form>
+            @endif
 
             <div class="shipping-info">
                 <p><strong style="color: blue">Thông tin vận chuyển:</strong></p>
@@ -130,7 +142,7 @@
         </div>
     </section>
 
-    @push('scripts')
+    {{-- @push('scripts')
         <script>
             const featuredImg = document.getElementById('featured-image');
             const smallImgs = document.getElementsByClassName('small-Img');
@@ -145,26 +157,77 @@
                 });
             });
         </script>
-    @endpush
+    @endpush --}}
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý ảnh
         const featuredImage = document.getElementById('featured-image');
         const smallImages = document.querySelectorAll('.small-Img');
 
         smallImages.forEach(smallImg => {
             smallImg.addEventListener('click', function() {
-                // Thay đổi ảnh chính
                 featuredImage.src = this.src;
-
-                // Xóa class active từ tất cả ảnh nhỏ
                 smallImages.forEach(img => {
                     img.classList.remove('active');
                 });
-
-                // Thêm class active cho ảnh được click
                 this.classList.add('active');
             });
         });
+
+        // Xử lý form add to cart
+        const form = document.getElementById('addToCartForm');
+        const sizeSelect = document.getElementById('size');
+        const selectedSizeInput = document.getElementById('selected_size_id');
+
+        // Set initial size value
+        if (sizeSelect && selectedSizeInput) {
+            selectedSizeInput.value = sizeSelect.value;
+
+            // Update size when changed
+            sizeSelect.addEventListener('change', function() {
+                selectedSizeInput.value = this.value;
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                fetch(this.action, {
+                        method: 'POST',
+                        body: new FormData(this),
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                ?.content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Cập nhật số lượng giỏ hàng
+                            const cartCountElement = document.querySelector('.cart-count');
+                            if (cartCountElement && data.cartCount) {
+                                cartCountElement.textContent = data.cartCount;
+                            }
+                            // Hiển thị thông báo thành công
+                            alert(data.message);
+                        } else {
+                            // Xử lý khi có lỗi
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                alert(data.message || 'Có lỗi xảy ra');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                    });
+            });
+        }
     });
 </script>

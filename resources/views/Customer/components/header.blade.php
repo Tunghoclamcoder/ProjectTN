@@ -14,7 +14,9 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="{{ asset('images/logo.png') }}">
+                <a href="{{ route('shop.home') }}">
+                    <img src="{{ asset('images/logo.png') }}">
+                </a>
             </div>
 
             <div class="search-container">
@@ -32,7 +34,6 @@
             <div class="menu"><a href="#menu" class="openicon">☰</a>
                 <nav id="menu">
                     <ul>
-                        <li><a href="{{ route('shop.home') }}">Trang chủ</a></li>
                         <li><a href="#">Giới thiệu</a></li>
                         @auth('customer')
                             <li>
@@ -48,8 +49,13 @@
                             <li><a href="{{ route('customer.register') }}">Đăng ký</a></li>
                         @else
                             <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle">
-                                    <i class="lni lni-user"></i> Tài khoản
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="lni lni-user"></i>
+                                    @auth('customer')
+                                        {{ Auth::guard('customer')->user()->customer_name }}
+                                    @else
+                                        Tài khoản
+                                    @endauth
                                 </a>
                                 <div class="dropdown-menu">
                                     <a href="{{ route('customer.profile') }}" class="dropdown-item">

@@ -526,6 +526,8 @@ footer {
     z-index: 1000;
     opacity: 0;
     transition: all 0.5s ease-in-out;
+    display: flex;
+    justify-content: center;
 }
 
 .alert.show {
@@ -695,6 +697,37 @@ footer {
 .product-image-container {
     position: relative;
     width: 100%;
+    overflow: hidden;
+}
+
+.out-of-stock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(127, 127, 127, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+
+}
+
+.out-of-stock-overlay span {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 8px 16px;
+    background-color: rgba(255, 0, 0, 0.8);
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* Update cart button for out of stock items */
+.cart-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .discount-label {

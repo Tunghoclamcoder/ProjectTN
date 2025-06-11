@@ -16,8 +16,11 @@ class CartController extends Controller
     public function addToCart(Request $request)
     {
         if (!Auth::guard('customer')->check()) {
-            return redirect()->route('customer.login')
-                ->with('error', 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+                'redirect' => route('customer.login')
+            ], 401);
         }
 
         try {
@@ -27,17 +30,13 @@ class CartController extends Controller
             $customer = Auth::guard('customer')->user();
             $requestedQuantity = $request->quantity ?? 1;
 
-            // Debug logging
-            Log::info('Starting add to cart', [
-                'product_id' => $product->product_id,
-                'customer_id' => $customer->customer_id,
-                'quantity' => $requestedQuantity
-            ]);
-
             // Check stock
             if ($product->quantity <= 0) {
                 DB::rollBack();
-                return back()->with('error', 'Sản phẩm đã hết hàng');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sản phẩm đã hết hàng'
+                ], 400);
             }
 
             // Get or create cart
@@ -63,7 +62,10 @@ class CartController extends Controller
 
                 if ($newQuantity > $product->quantity) {
                     DB::rollBack();
-                    return back()->with('error', 'Tổng số lượng vượt quá số lượng tồn kho');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tổng số lượng vượt quá số lượng tồn kho'
+                    ], 400);
                 }
 
                 DB::table('order_details')
@@ -75,12 +77,6 @@ class CartController extends Controller
                         'sold_quantity' => $newQuantity,
                         'sold_price' => $product->getDiscountedPrice()
                     ]);
-
-                Log::info('Updated cart item', [
-                    'order_id' => $cartOrder->order_id,
-                    'product_id' => $product->product_id,
-                    'new_quantity' => $newQuantity
-                ]);
             } else {
                 // Create new item
                 OrderDetail::create([
@@ -89,27 +85,30 @@ class CartController extends Controller
                     'sold_quantity' => $requestedQuantity,
                     'sold_price' => $product->getDiscountedPrice()
                 ]);
-
-                Log::info('Created new cart item', [
-                    'order_id' => $cartOrder->order_id,
-                    'product_id' => $product->product_id,
-                    'quantity' => $requestedQuantity
-                ]);
             }
 
             // Refresh order relations to get updated total
             $cartOrder->load('orderDetails');
+            $cartCount = $cartOrder->orderDetails->sum('sold_quantity');
 
             DB::commit();
 
-            return back()->with('success', "Đã thêm $requestedQuantity sản phẩm vào giỏ hàng");
+            return response()->json([
+                'success' => true,
+                'message' => "Đã thêm $requestedQuantity sản phẩm vào giỏ hàng",
+                'cartCount' => $cartCount
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Cart error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return back()->with('error', 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng'
+            ], 500);
         }
     }
 

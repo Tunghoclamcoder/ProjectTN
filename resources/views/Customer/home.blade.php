@@ -13,7 +13,7 @@
 <body>
     @include('Customer.components.header')
 
-    <div class="alerts-container">
+    <div class="alerts-container" style="display: flex; justify-content: center;">
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -59,6 +59,11 @@
                                     SALE {{ $product->discount }}%
                                 </div>
                             @endif
+                            @if ($product->quantity <= 0)
+                                <div class="out-of-stock-overlay">
+                                    <span>Đã bán hết</span>
+                                </div>
+                            @endif
                         @else
                             <img src="{{ asset('images/no-image.png') }}" class="w-100" alt="No image available">
                         @endif
@@ -81,17 +86,18 @@
 
                         {{-- Nút add to cart --}}
                         @auth('customer')
-                            <form action="{{ route('cart.add-to-cart') }}" method="POST" class="d-inline">
+                            <form class="add-to-cart-form d-inline" data-product-id="{{ $product->product_id }}">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->product_id }}">
 
-                                <button class="cart-button">
-                                    <span style="width: 100%" class="add-to-cart">Thêm vào giỏ hàng</span>
+                                <button type="button" class="cart-button" {{ $product->quantity <= 0 ? 'disabled' : '' }}>
+                                    <span style="width: 100%" class="add-to-cart">
+                                        {{ $product->quantity > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' }}
+                                    </span>
                                     <span class="added">Đã thêm !</span>
                                     <i class="fas fa-shopping-cart"></i>
                                     <i class="fas fa-box"></i>
                                 </button>
-
                             </form>
                         @endauth
                     </div>
@@ -112,16 +118,71 @@
     @include('Customer.components.footer')
 
     <script>
-        // JS nút Add to cart
-        const cartButtons = document.querySelectorAll('.cart-button');
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartButtons = document.querySelectorAll('.cart-button');
 
-        cartButtons.forEach(button => {
-            button.addEventListener('click', cartClick);
+            cartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (button.disabled) return;
+
+                    const form = button.closest('.add-to-cart-form');
+                    const productId = form.dataset.productId;
+
+                    // Add clicked animation
+                    button.classList.add('clicked');
+
+                    // Send AJAX request
+                    fetch('{{ route('cart.add-to-cart') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update cart count if you have one
+                                if (data.cartCount) {
+                                    document.querySelector('.cart-count').textContent = data
+                                        .cartCount;
+                                }
+
+                                // Show success message
+                                showAlert('success', 'Sản phẩm đã được thêm vào giỏ hàng');
+                            } else {
+                                showAlert('error', data.message || 'Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('error', 'Có lỗi xảy ra khi thêm sản phẩm');
+                        })
+                        .finally(() => {
+                            // Remove clicked animation after 2 seconds
+                            setTimeout(() => {
+                                button.classList.remove('clicked');
+                            }, 2000);
+                        });
+                });
+            });
         });
 
-        function cartClick() {
-            let button = this;
-            button.classList.add('clicked');
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+
+            const alertsContainer = document.querySelector('.alerts-container');
+            alertsContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
         }
     </script>
 

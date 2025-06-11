@@ -41,6 +41,7 @@
         <h1>N & T</h1>
         <form method="POST" action="{{ route('customer.login.submit') }}">
             @csrf
+
             <div class="form-group">
                 <input type="email" name="email" class="form-control @error('email') wrong-entry @enderror"
                     placeholder="Email" value="{{ old('email') }}" required>
@@ -89,9 +90,9 @@
     @import "compass/css3";
     @import url(https://fonts.googleapis.com/css?family=Vibur);
 
-    <style>* {
+    <style> {
         box-sizing: border-box;
-        font-family: arial;
+        foFnt-family: arial;
     }
 
     body {
@@ -164,30 +165,46 @@
         color: #8C918F;
     }
 
-    .alert {
-        display: none;
-        font-size: 12px;
-        color: #f00;
-        float: left;
+    .alerts-container {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 80%;
+        max-width: 400px;
     }
 
-    /* Additional styles for Laravel validation */
+    .alert {
+        display: none;
+        /* Ẩn mặc định */
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 4px;
+        text-align: center;
+    }
+
     .alert-danger {
         color: #721c24;
         background-color: #f8d7da;
         border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        padding: 15px;
-        margin-bottom: 20px;
     }
 
     .alert-success {
         color: #155724;
         background-color: #d4edda;
         border: 1px solid #c3e6cb;
-        border-radius: 4px;
-        padding: 15px;
-        margin-bottom: 20px;
+    }
+
+    .form-group .alert {
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        width: 100%;
+        font-size: 12px;
+        background: none;
+        border: none;
+        padding: 0;
     }
 
     .form-group {
@@ -208,18 +225,39 @@
 </style>
 <script>
     $(document).ready(function() {
-        $('.log-btn').click(function() {
-            $('.log-status').addClass('wrong-entry');
-            $('.alert').fadeIn(500);
-            setTimeout(function() {
-                $('.alert').fadeOut('slow');
-            }, 3000);
+        // Xóa sự kiện click cũ
+        $('.log-btn').off('click');
 
-        });
-        $('.form-control').keypress(function() {
+        // Xử lý form submission
+        $('form').on('submit', function(e) {
+            // Reset trạng thái
             $('.log-status').removeClass('wrong-entry');
+            $('.alert').hide();
+
+            // Kiểm tra validation phía client
+            let hasError = false;
+            $('.form-control').each(function() {
+                if (!$(this).val()) {
+                    hasError = true;
+                    $(this).closest('.form-group').addClass('wrong-entry');
+                }
+            });
         });
 
+        // Xử lý khi nhập vào input
+        $('.form-control').on('input', function() {
+            $(this).closest('.form-group').removeClass('wrong-entry');
+            $(this).closest('.form-group').find('.alert').fadeOut('slow');
+        });
+
+        // Hiển thị alert message nếu có
+        @if (session('error'))
+            $('.alert-danger').fadeIn(500).delay(3000).fadeOut('slow');
+        @endif
+
+        @if (session('success'))
+            $('.alert-success').fadeIn(500).delay(3000).fadeOut('slow');
+        @endif
     });
 </script>
 

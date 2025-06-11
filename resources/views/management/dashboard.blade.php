@@ -173,94 +173,11 @@
                         <span class="text">Invoice</span>
                     </a>
                 </li>
-                <li class="nav-item nav-item-has-children">
-                    <a href="#0" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_3"
-                        aria-controls="ddmenu_3" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M14.9211 10.1294C15.1652 9.88534 15.1652 9.48967 14.9211 9.24559L10.7544 5.0789C10.5103 4.83482 10.1147 4.83482 9.87057 5.0789C9.62649 5.32297 9.62649 5.71871 9.87057 5.96278L12.9702 9.06251H1.97916C1.63398 9.06251 1.35416 9.34234 1.35416 9.68751C1.35416 10.0327 1.63398 10.3125 1.97916 10.3125H12.9702L9.87057 13.4123C9.62649 13.6563 9.62649 14.052 9.87057 14.2961C10.1147 14.5402 10.5103 14.5402 10.7544 14.2961L14.9211 10.1294Z" />
-                                <path
-                                    d="M11.6383 15.18L15.805 11.0133C16.5373 10.2811 16.5373 9.09391 15.805 8.36166L11.6383 4.195C11.2722 3.82888 10.7923 3.64582 10.3125 3.64582V3.02082C10.3125 2.10035 11.0587 1.35416 11.9792 1.35416H16.9792C17.8997 1.35416 18.6458 2.10035 18.6458 3.02082V16.3542C18.6458 17.2747 17.8997 18.0208 16.9792 18.0208H11.9792C11.0587 18.0208 10.3125 17.2747 10.3125 16.3542V15.7292C10.7923 15.7292 11.2722 15.5461 11.6383 15.18Z" />
-                            </svg>
-                        </span>
-                        <span class="text">Auth</span>
-                    </a>
-                    <ul id="ddmenu_3" class="collapse dropdown-nav">
-                        <li>
-                            <a href="signin.html"> Sign In </a>
-                        </li>
-                        <li>
-                            <a href="signup.html"> Sign Up </a>
-                        </li>
-                    </ul>
-                </li>
+
                 <span class="divider">
                     <hr />
                 </span>
-                <li class="nav-item nav-item-has-children">
-                    <a href="#0" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_4"
-                        aria-controls="ddmenu_4" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M1.66666 5.41669C1.66666 3.34562 3.34559 1.66669 5.41666 1.66669C7.48772 1.66669 9.16666 3.34562 9.16666 5.41669C9.16666 7.48775 7.48772 9.16669 5.41666 9.16669C3.34559 9.16669 1.66666 7.48775 1.66666 5.41669Z" />
-                                <path
-                                    d="M1.66666 14.5834C1.66666 12.5123 3.34559 10.8334 5.41666 10.8334C7.48772 10.8334 9.16666 12.5123 9.16666 14.5834C9.16666 16.6545 7.48772 18.3334 5.41666 18.3334C3.34559 18.3334 1.66666 16.6545 1.66666 14.5834Z" />
-                                <path
-                                    d="M10.8333 5.41669C10.8333 3.34562 12.5123 1.66669 14.5833 1.66669C16.6544 1.66669 18.3333 3.34562 18.3333 5.41669C18.3333 7.48775 16.6544 9.16669 14.5833 9.16669C12.5123 9.16669 10.8333 7.48775 10.8333 5.41669Z" />
-                                <path
-                                    d="M10.8333 14.5834C10.8333 12.5123 12.5123 10.8334 14.5833 10.8334C16.6544 10.8334 18.3333 12.5123 18.3333 14.5834C18.3333 16.6545 16.6544 18.3334 14.5833 18.3334C12.5123 18.3334 10.8333 16.6545 10.8333 14.5834Z" />
-                            </svg>
-                        </span>
-                        <span class="text">UI Elements </span>
-                    </a>
-                    <ul id="ddmenu_4" class="collapse dropdown-nav">
-                        <li>
-                            <a href="alerts.html"> Alerts </a>
-                        </li>
-                        <li>
-                            <a href="buttons.html"> Buttons </a>
-                        </li>
-                        <li>
-                            <a href="cards.html"> Cards </a>
-                        </li>
-                        <li>
-                            <a href="typography.html"> Typography </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item nav-item-has-children">
-                    <a href="#0" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_55"
-                        aria-controls="ddmenu_55" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M5.48663 1.1466C5.77383 0.955131 6.16188 1.03274 6.35335 1.31994L6.87852 2.10769C7.20508 2.59755 7.20508 3.23571 6.87852 3.72556L6.35335 4.51331C6.16188 4.80052 5.77383 4.87813 5.48663 4.68666C5.19943 4.49519 5.12182 4.10715 5.31328 3.81994L5.83845 3.03219C5.88511 2.96221 5.88511 2.87105 5.83845 2.80106L5.31328 2.01331C5.12182 1.72611 5.19943 1.33806 5.48663 1.1466Z" />
-                                <path
-                                    d="M2.49999 5.83331C2.03976 5.83331 1.66666 6.2064 1.66666 6.66665V10.8333C1.66666 13.5948 3.90523 15.8333 6.66666 15.8333H9.99999C12.1856 15.8333 14.0436 14.431 14.7235 12.4772C14.8134 12.4922 14.9058 12.5 15 12.5H16.6667C17.5872 12.5 18.3333 11.7538 18.3333 10.8333V8.33331C18.3333 7.41284 17.5872 6.66665 16.6667 6.66665H15C15 6.2064 14.6269 5.83331 14.1667 5.83331H2.49999ZM14.9829 11.2496C14.9942 11.1123 15 10.9735 15 10.8333V7.91665H16.6667C16.8967 7.91665 17.0833 8.10319 17.0833 8.33331V10.8333C17.0833 11.0634 16.8967 11.25 16.6667 11.25H15L14.9898 11.2498L14.9829 11.2496Z" />
-                                <path
-                                    d="M8.85332 1.31994C8.6619 1.03274 8.27383 0.955131 7.98663 1.1466C7.69943 1.33806 7.62182 1.72611 7.81328 2.01331L8.33848 2.80106C8.38507 2.87105 8.38507 2.96221 8.33848 3.03219L7.81328 3.81994C7.62182 4.10715 7.69943 4.49519 7.98663 4.68666C8.27383 4.87813 8.6619 4.80052 8.85332 4.51331L9.37848 3.72556C9.70507 3.23571 9.70507 2.59755 9.37848 2.10769L8.85332 1.31994Z" />
-                                <path
-                                    d="M10.4867 1.1466C10.7738 0.955131 11.1619 1.03274 11.3533 1.31994L11.8785 2.10769C12.2051 2.59755 12.2051 3.23571 11.8785 3.72556L11.3533 4.51331C11.1619 4.80052 10.7738 4.87813 10.4867 4.68666C10.1994 4.49519 10.1218 4.10715 10.3133 3.81994L10.8385 3.03219C10.8851 2.96221 10.8851 2.87105 10.8385 2.80106L10.3133 2.01331C10.1218 1.72611 10.1994 1.33806 10.4867 1.1466Z" />
-                                <path
-                                    d="M2.49999 16.6667C2.03976 16.6667 1.66666 17.0398 1.66666 17.5C1.66666 17.9602 2.03976 18.3334 2.49999 18.3334H14.1667C14.6269 18.3334 15 17.9602 15 17.5C15 17.0398 14.6269 16.6667 14.1667 16.6667H2.49999Z" />
-                            </svg>
-                        </span>
-                        <span class="text">Icons</span>
-                    </a>
-                    <ul id="ddmenu_55" class="collapse dropdown-nav">
-                        <li>
-                            <a href="icons.html"> LineIcons </a>
-                        </li>
-                        <li>
-                            <a href="mdi-icons.html"> MDI Icons </a>
-                        </li>
-                    </ul>
-                </li>
+
                 <li class="nav-item nav-item-has-children">
                     <a href="#0" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_5"
                         aria-controls="ddmenu_5" aria-expanded="false" aria-label="Toggle navigation">
@@ -549,7 +466,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-6">
                             <div class="title">
-                                <h2>eCommerce Dashboard</h2>
+                                <h2>Admin Dashboard</h2>
                             </div>
                         </div>
                         <!-- end col -->
@@ -561,7 +478,7 @@
                                             <a href="#0">Dashboard</a>
                                         </li>
                                         <li class="breadcrumb-item active" aria-current="page">
-                                            eCommerce
+                                            Thống kê
                                         </li>
                                     </ol>
                                 </nav>
@@ -573,74 +490,69 @@
                 </div>
                 <!-- ========== title-wrapper end ========== -->
                 <div class="row">
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="icon-card mb-30">
-                            <div class="icon purple">
-                                <i class="lni lni-cart-full"></i>
-                            </div>
-                            <div class="content">
-                                <h6 class="mb-10">New Orders</h6>
-                                <h3 class="text-bold mb-10">34567</h3>
-                                <p class="text-sm text-success">
-                                    <i class="lni lni-arrow-up"></i> +2.00%
-                                    <span class="text-gray">(30 days)</span>
-                                </p>
-                            </div>
-                        </div>
-                        <!-- End Icon Cart -->
-                    </div>
-                    <!-- End Col -->
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="icon-card mb-30">
-                            <div class="icon success">
-                                <i class="lni lni-dollar"></i>
-                            </div>
-                            <div class="content">
-                                <h6 class="mb-10">Total Income</h6>
-                                <h3 class="text-bold mb-10">$74,567</h3>
-                                <p class="text-sm text-success">
-                                    <i class="lni lni-arrow-up"></i> +5.45%
-                                    <span class="text-gray">Increased</span>
-                                </p>
-                            </div>
-                        </div>
-                        <!-- End Icon Cart -->
-                    </div>
-                    <!-- End Col -->
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="icon-card mb-30">
-                            <div class="icon primary">
-                                <i class="lni lni-credit-cards"></i>
-                            </div>
-                            <div class="content">
-                                <h6 class="mb-10">Total Expense</h6>
-                                <h3 class="text-bold mb-10">$24,567</h3>
-                                <p class="text-sm text-danger">
-                                    <i class="lni lni-arrow-down"></i> -2.00%
-                                    <span class="text-gray">Expense</span>
-                                </p>
-                            </div>
-                        </div>
-                        <!-- End Icon Cart -->
-                    </div>
-                    <!-- End Col -->
+                    <!-- Tổng số khách hàng -->
                     <div class="col-xl-3 col-lg-4 col-sm-6">
                         <div class="icon-card mb-30">
                             <div class="icon orange">
-                                <i class="lni lni-user"></i>
+                                <i class="lni lni-users"></i>
                             </div>
                             <div class="content">
-                                <h6 class="mb-10">New User</h6>
-                                <h3 class="text-bold mb-10">34567</h3>
-                                <p class="text-sm text-danger">
-                                    <i class="lni lni-arrow-down"></i> -25.00%
-                                    <span class="text-gray"> Earning</span>
+                                <h6 class="mb-10">Tổng khách hàng</h6>
+                                <h3 class="text-bold mb-10">{{ $totalCustomers }}</h3>
+                                <p class="text-sm">
+                                    <span class="text-gray">Khách hàng đang hoạt động</span>
                                 </p>
                             </div>
                         </div>
-                        <!-- End Icon Cart -->
                     </div>
-                    <!-- End Col -->
+
+                    <!-- Đơn hàng thành công -->
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="icon-card mb-30">
+                            <div class="icon success">
+                                <i class="lni lni-checkmark-circle"></i>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10">Đơn hàng thành công</h6>
+                                <h3 class="text-bold mb-10">{{ $completedOrders }}</h3>
+                                <p class="text-sm">
+                                    <span class="text-gray">Đã vận chuyển</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tổng doanh thu -->
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="icon-card mb-30">
+                            <div class="icon purple">
+                                <i class="lni lni-dollar"></i>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10">Tổng doanh thu</h6>
+                                <h3 class="text-bold mb-10">{{ number_format($totalRevenue) }}đ</h3>
+                                <p class="text-sm">
+                                    <span class="text-gray">Từ đơn hàng thành công</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Đơn hàng chờ xác nhận -->
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="icon-card mb-30">
+                            <div class="icon primary">
+                                <i class="lni lni-timer"></i>
+                            </div>
+                            <div class="content">
+                                <h6 class="mb-10">Đơn hàng chờ xác nhận</h6>
+                                <h3 class="text-bold mb-10">{{ $pendingOrders }}</h3>
+                                <p class="text-sm">
+                                    <span class="text-gray">Đang chờ xử lý</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- End Row -->
                 <div class="row">
@@ -675,49 +587,32 @@
                     <!-- End Col -->
                     <div class="col-lg-5">
                         <div class="card-style mb-30">
-                            <div class="title d-flex flex-wrap align-items-center justify-content-between">
+                            <div class="title d-flex flex-wrap justify-content-between">
                                 <div class="left">
-                                    <h6 class="text-medium mb-30">Sales/Revenue</h6>
+                                    <h6 class="text-medium mb-10">Thống kê doanh thu</h6>
+                                    <h3 class="text-bold">{{ number_format($totalRevenue) }}đ</h3>
                                 </div>
                                 <div class="right">
                                     <div class="select-style-1">
                                         <div class="select-position select-sm">
-                                            <select class="light-bg">
-                                                <option value="">Yearly</option>
-                                                <option value="">Monthly</option>
-                                                <option value="">Weekly</option>
+                                            <select class="light-bg" id="revenueFilter">
+                                                <option value="7days" selected>7 ngày qua</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <!-- end select -->
                                 </div>
                             </div>
-                            <!-- End Title -->
                             <div class="chart">
-                                <canvas id="Chart2"
-                                    style="width: 100%; height: 400px; margin-left: -45px;"></canvas>
+                                <canvas id="Chart2" style="width: 100%; height: 400px;"></canvas>
                             </div>
-                            <!-- End Chart -->
                         </div>
                     </div>
                     <!-- End Col -->
                 </div>
                 <!-- End Row -->
                 <div class="row">
-                    <div class="col-lg-5">
-                        <div class="card-style mb-30">
-                            <div class="title d-flex justify-content-between align-items-center">
-                                <div class="left">
-                                    <h6 class="text-medium mb-30">Sells by State</h6>
-                                </div>
-                            </div>
-                            <!-- End Title -->
-                            <div id="map" style="width: 100%; height: 400px; overflow: hidden;"></div>
-                            <p>Last updated: 7 days ago</p>
-                        </div>
-                    </div>
                     <!-- End Col -->
-                    <div class="col-lg-7">
+                    <div class="col-lg-12">
                         <div class="card-style mb-30">
                             <div class="title d-flex flex-wrap justify-content-between align-items-center">
                                 <div class="left">
@@ -1350,70 +1245,6 @@
     <script src="{{ asset('js/main.js') }}"></script>
 
     <script>
-        // ======== jvectormap activation
-        var markers = [{
-                name: "Egypt",
-                coords: [26.8206, 30.8025]
-            },
-            {
-                name: "Russia",
-                coords: [61.524, 105.3188]
-            },
-            {
-                name: "Canada",
-                coords: [56.1304, -106.3468]
-            },
-            {
-                name: "Greenland",
-                coords: [71.7069, -42.6043]
-            },
-            {
-                name: "Brazil",
-                coords: [-14.235, -51.9253]
-            },
-        ];
-
-        var jvm = new jsVectorMap({
-            map: "world_merc",
-            selector: "#map",
-            zoomButtons: true,
-
-            regionStyle: {
-                initial: {
-                    fill: "#d1d5db",
-                },
-            },
-
-            labels: {
-                markers: {
-                    render: (marker) => marker.name,
-                },
-            },
-
-            markersSelectable: true,
-            selectedMarkers: markers.map((marker, index) => {
-                var name = marker.name;
-
-                if (name === "Russia" || name === "Brazil") {
-                    return index;
-                }
-            }),
-            markers: markers,
-            markerStyle: {
-                initial: {
-                    fill: "#4A6CF7"
-                },
-                selected: {
-                    fill: "#ff5050"
-                },
-            },
-            markerLabelStyle: {
-                initial: {
-                    fontWeight: 400,
-                    fontSize: 14,
-                },
-            },
-        });
         // ====== calendar activation
         document.addEventListener("DOMContentLoaded", function() {
             var calendarMiniEl = document.getElementById("calendar-mini");
@@ -1545,47 +1376,28 @@
         const chart2 = new Chart(ctx2, {
             type: "bar",
             data: {
-                labels: [
-                    "Jan",
-                    "Fab",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                ],
+                labels: @json($last7Days),
                 datasets: [{
-                    label: "",
+                    label: "Doanh thu",
                     backgroundColor: "#365CF5",
                     borderRadius: 30,
                     barThickness: 6,
                     maxBarThickness: 8,
-                    data: [
-                        600, 700, 1000, 700, 650, 800, 690, 740, 720, 1120, 876, 900,
-                    ],
-                }, ],
+                    data: @json($dailyRevenue),
+                }],
             },
             options: {
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            titleColor: function(context) {
-                                return "#8F92A1";
-                            },
                             label: function(context) {
-                                let label = context.dataset.label || "";
-
-                                if (label) {
-                                    label += ": ";
-                                }
-                                label += context.parsed.y;
-                                return label;
-                            },
+                                return 'Doanh thu: ' + new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                }).format(context.raw);
+                            }
                         },
                         backgroundColor: "#F3F6F8",
                         titleAlign: "center",
@@ -1606,12 +1418,9 @@
                             y: 10,
                         },
                     },
-                },
-                legend: {
-                    display: false,
-                },
-                legend: {
-                    display: false,
+                    legend: {
+                        display: false,
+                    }
                 },
                 layout: {
                     padding: {
@@ -1632,9 +1441,16 @@
                         },
                         ticks: {
                             padding: 35,
-                            max: 1200,
-                            min: 0,
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                }).format(value);
+                            }
                         },
+                        min: 0,
                     },
                     x: {
                         grid: {
@@ -1646,18 +1462,10 @@
                         },
                         ticks: {
                             padding: 20,
-                        },
-                    },
-                },
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                    title: {
-                        display: false,
-                    },
-                },
-            },
+                        }
+                    }
+                }
+            }
         });
         // =========== chart two end
 

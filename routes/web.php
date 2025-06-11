@@ -16,6 +16,8 @@ use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\DashboardController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/homepage');
 });
-Route::get('/homepage', [ShopController::class, 'index'])->name(name: 'shop.home');
+Route::get('/homepage', [ShopController::class, 'index'])->name('shop.home');
 
 // 2) Trang đăng ký, đăng nhập, đăng xuất cho Customer
 Route::middleware('guest:customer')->group(function () {
@@ -109,8 +111,10 @@ Route::prefix('admin')->group(function () {
     });
 
     // Routes yêu cầu Owner đã đăng nhập
-    Route::middleware(['auth:owner,employee'])->group(function () {  // Thay đổi ở đây
-        Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('admin.dashboard');
+    Route::middleware(['auth:owner,employee', 'prevent-back-history'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('admin.dashboard')
+            ->withoutMiddleware(['prevent-back-history']);
         Route::post('/logout', [OwnerController::class, 'logout'])->name('admin.logout');
 
         // Routes quản lý nhân viên
@@ -237,6 +241,7 @@ Route::prefix('admin')->group(function () {
         });
     });
 });
+
 
 // Employee Routes
 Route::prefix('employee')->group(function () {
