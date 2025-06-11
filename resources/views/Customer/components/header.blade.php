@@ -20,14 +20,15 @@
             </div>
 
             <div class="search-container">
-                <form action="{{ route('products.search') }}" method="GET" class="search-form">
+                <form action="{{ route('products.search') }}" method="GET" class="search-form" id="searchForm">
                     <div class="search-box">
-                        <input type="text" name="query" placeholder="Tìm kiếm sản phẩm..."
-                            value="{{ request('query') }}" class="search-input">
+                        <input type="text" name="query" id="searchInput" placeholder="Tìm kiếm sản phẩm..."
+                            value="{{ request('query') }}" class="search-input" autocomplete="off">
                         <button type="submit" class="search-btn">
                             <i class="lni lni-search"></i>
                         </button>
                     </div>
+                    <div id="searchSuggestions" class="search-suggestions"></div>
                 </form>
             </div>
 
@@ -38,7 +39,7 @@
                         @auth('customer')
                             <li>
                                 <a href="{{ route('cart.view') }}">
-                                    <i class="lni lni-shopping-basket"></i> Mua ngay
+                                    <i class="lni lni-shopping-basket"></i> Giỏ hàng
                                 </a>
                             </li>
                         @endauth
@@ -80,3 +81,55 @@
         </div>
     </div>
 </header>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchForm = document.getElementById('searchForm');
+    const suggestionsContainer = document.getElementById('searchSuggestions');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetch(`/search-suggestions?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(suggestions => {
+                    suggestionsContainer.innerHTML = '';
+
+                    if (suggestions.length > 0) {
+                        suggestions.forEach(suggestion => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.textContent = suggestion;
+                            div.addEventListener('click', () => {
+                                searchInput.value = suggestion;
+                                searchForm.submit();
+                            });
+                            suggestionsContainer.appendChild(div);
+                        });
+                        suggestionsContainer.style.display = 'block';
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                });
+        }, 300);
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchForm.contains(e.target)) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+});
+</script>

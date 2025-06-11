@@ -67,36 +67,27 @@ class ShopController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('query');
-        $perPage = 12;
 
         if (empty($query)) {
             return redirect()->route('shop.home');
         }
 
-        // Convert query to lowercase for case-insensitive comparison
-        $searchTerm = mb_strtolower(trim($query));
+        try {
+            $products = Product::with(['brand', 'images', 'categories'])
+                ->where('status', 'active')
+                ->where(function ($q) use ($query) {
+                    $q->where('product_name', 'LIKE', "%{$query}%")
+                        ->orWhereHas('brand', function ($q) use ($query) {
+                            $q->where('brand_name', 'LIKE', "%{$query}%");
+                        });
+                })
+                ->paginate(12);
 
-        $products = Product::with(['brand', 'images', 'categories'])
-            ->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(product_name) LIKE ?', ["%{$searchTerm}%"]) // Chỉ tìm trong tên sản phẩm
-                    ->orWhere(function ($subQ) use ($searchTerm) {
-                        // Tìm chính xác từng từ trong tên sản phẩm
-                        $words = explode(' ', $searchTerm);
-                        foreach ($words as $word) {
-                            $subQ->whereRaw('LOWER(product_name) LIKE ?', ["%{$word}%"]);
-                        }
-                    });
-            })
-            ->where('status', 'active')
-            ->where('quantity', '>', 0)
-            ->orderByRaw('CASE
-            WHEN LOWER(product_name) LIKE ? THEN 1
-            WHEN LOWER(product_name) LIKE ? THEN 2
-            ELSE 3
-        END', ["{$searchTerm}%", "%{$searchTerm}%"])
-            ->paginate($perPage);
-
-        return view('Customer.filter.search_result', compact('products', 'query'));
+            return view('Customer.filter.search_result', compact('products', 'query'));
+        } catch (\Exception $e) {
+            Log::error('Search error: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra trong quá trình tìm kiếm');
+        }
     }
 
     public function searchSuggestions(Request $request)
@@ -107,20 +98,16 @@ class ShopController extends Controller
             return response()->json([]);
         }
 
-        // Convert query to lowercase for case-insensitive comparison
-        $searchTerm = mb_strtolower(trim($query));
+        try {
+            $suggestions = Product::where('status', 'active')
+                ->where('product_name', 'LIKE', "%{$query}%")
+                ->limit(5)
+                ->pluck('product_name');
 
-        $suggestions = Product::whereRaw('LOWER(product_name) LIKE ?', ["%{$searchTerm}%"])
-            ->where('status', 'active')
-            ->orderByRaw('CASE
-            WHEN LOWER(product_name) LIKE ? THEN 1
-            WHEN LOWER(product_name) LIKE ? THEN 2
-            ELSE 3
-        END', ["{$searchTerm}%", "%{$searchTerm}%"])
-            ->limit(5)
-            ->pluck('product_name')
-            ->toArray();
-
-        return response()->json($suggestions);
+            return response()->json($suggestions);
+        } catch (\Exception $e) {
+            Log::error('Search suggestions error: ' . $e->getMessage());
+            return response()->json([]);
+        }
     }
 }

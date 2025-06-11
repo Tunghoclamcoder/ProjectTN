@@ -23,10 +23,26 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['brand', 'material', 'categories', 'size'])
-            ->orderBy('product_id', 'desc')
-            ->paginate(10);
-        return view('management.product_mana.index', compact('products'));
+        try {
+            // Lấy danh sách sản phẩm với relationships
+            $products = Product::with(['brand', 'material', 'categories', 'images'])
+                ->paginate(10);
+
+            // Lấy danh sách categories, brands và materials để dùng cho filter
+            $categories = Category::all();
+            $brands = Brand::all();
+            $materials = Material::all();
+
+            return view('management.product_mana.index', compact(
+                'products',
+                'categories',
+                'brands',
+                'materials'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Product Index Error: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra khi tải danh sách sản phẩm');
+        }
     }
 
     public function create()

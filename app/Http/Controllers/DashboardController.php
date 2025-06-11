@@ -80,10 +80,43 @@ class DashboardController extends Controller
                 $dailyRevenue[] = (int)$revenue; // Convert to integer
             }
 
+            // 6. Lấy top sản phẩm bán chạy
+            $topSellingProducts = DB::table('order_details')
+                ->join('products', 'products.product_id', '=', 'order_details.product_id')
+                ->join('category_product', 'products.product_id', '=', 'category_product.product_id')
+                ->join('categories', 'categories.category_id', '=', 'category_product.category_id')
+                ->join('orders', 'orders.order_id', '=', 'order_details.order_id')
+                ->join('image_product', function ($join) {
+                    $join->on('products.product_id', '=', 'image_product.product_id')
+                        ->where('image_product.image_role', '=', 'main');
+                })
+                ->join('images', 'images.image_id', '=', 'image_product.image_id')
+                ->where('orders.order_status', 'completed')
+                ->where('products.status', 'active')
+                ->select(
+                    'products.product_id',
+                    'products.product_name',
+                    'images.image_url',
+                    'categories.category_name',
+                    'products.price',
+                    DB::raw('SUM(order_details.sold_quantity) as total_sold'),
+                    DB::raw('SUM(order_details.sold_quantity * order_details.sold_price) as total_revenue')
+                )
+                ->groupBy(
+                    'products.product_id',
+                    'products.product_name',
+                    'images.image_url',
+                    'categories.category_name',
+                    'products.price'
+                )
+                ->orderBy('total_sold', 'desc')
+                ->limit(5)
+                ->get();
+
             // Debug log
-            Log::info('Revenue Data', [
-                'dates' => $last7Days,
-                'revenues' => $dailyRevenue
+            Log::info('Top Selling Products Query Result:', [
+                'count' => $topSellingProducts->count(),
+                'products' => $topSellingProducts->toArray()
             ]);
 
             return view('management.dashboard', compact(
@@ -92,7 +125,8 @@ class DashboardController extends Controller
                 'totalRevenue',
                 'pendingOrders',
                 'last7Days',
-                'dailyRevenue'
+                'dailyRevenue',
+                'topSellingProducts'
             ));
         } catch (\Exception $e) {
             Log::error('Dashboard Error: ' . $e->getMessage());

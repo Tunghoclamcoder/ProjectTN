@@ -120,10 +120,27 @@
                                     <span class="current-price">{{ number_format($product->price) }}đ</span>
                                 </div>
 
-                                <button class="add-to-cart-btn" onclick="addToCart({{ $product->product_id }})">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    Thêm vào giỏ
-                                </button>
+                                <div class="product-actions-bottom">
+                                    @auth('customer')
+                                        <form action="{{ route('cart.add-to-cart') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                            <button class="cart-button {{ $product->quantity <= 0 ? 'disabled' : '' }}"
+                                                {{ $product->quantity <= 0 ? 'disabled' : '' }}>
+                                                <span
+                                                    class="add-to-cart">{{ $product->quantity > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' }}</span>
+                                                <span class="added">Đã thêm !</span>
+                                                <i class="fas fa-shopping-cart"></i>
+                                                <i class="fas fa-box"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('customer.login') }}" class="cart-button">
+                                            <span class="add-to-cart">Đăng nhập để mua hàng</span>
+                                            <i class="fas fa-sign-in-alt"></i>
+                                        </a>
+                                    @endauth
+                                </div>
                             </div>
                         </div>
                     @endforeach

@@ -60,8 +60,10 @@ Route::middleware('auth:customer')->group(function () {
 });
 
 //Search cho trang chủ của Customer
-Route::get('/search', [ShopController::class, 'search'])->name('products.search');
-Route::get('/search/suggestions', [ShopController::class, 'searchSuggestions'])->name('products.search.suggestions');
+Route::get('/search-suggestions', [ShopController::class, 'searchSuggestions'])
+    ->name('products.search.suggestions');
+Route::get('/search', [ShopController::class, 'search'])
+    ->name('products.search');
 
 //Trang hiển thị danh mục sản phẩm
 Route::get('/categories', [CategoryController::class, 'categoryList'])->name('categories.list');

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\SearchElastic;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
+    use SearchElastic;
+
     protected $table = 'products';
     protected $primaryKey = 'product_id';
 

@@ -610,243 +610,82 @@
                     <!-- End Col -->
                 </div>
                 <!-- End Row -->
-                <div class="row">
-                    <!-- End Col -->
-                    <div class="col-lg-12">
-                        <div class="card-style mb-30">
-                            <div class="title d-flex flex-wrap justify-content-between align-items-center">
-                                <div class="left">
-                                    <h6 class="text-medium mb-30">Top Selling Products</h6>
-                                </div>
-                                <div class="right">
-                                    <div class="select-style-1">
-                                        <div class="select-position select-sm">
-                                            <select class="light-bg">
-                                                <option value="">Yearly</option>
-                                                <option value="">Monthly</option>
-                                                <option value="">Weekly</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <!-- end select -->
-                                </div>
-                            </div>
-                            <!-- End Title -->
-                            <div class="table-responsive">
-                                <table class="table top-selling-table">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>
-                                                <h6 class="text-sm text-medium">Products</h6>
-                                            </th>
-                                            <th class="min-width">
-                                                <h6 class="text-sm text-medium">Category</h6>
-                                            </th>
-                                            <th class="min-width">
-                                                <h6 class="text-sm text-medium">Price</h6>
-                                            </th>
-                                            <th class="min-width">
-                                                <h6 class="text-sm text-medium">Sold</h6>
-                                            </th>
-                                            <th class="min-width">
-                                                <h6 class="text-sm text-medium">Profit</h6>
-                                            </th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="check-input-primary">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="checkbox-1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="product">
-                                                    <div class="image">
-                                                        <img src="assets/images/products/product-mini-1.jpg"
-                                                            alt="" />
-                                                    </div>
-                                                    <p class="text-sm">Arm Chair</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">Interior</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$345</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">43</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$45</p>
-                                            </td>
-                                            <td>
-                                                <div class="action justify-content-end">
-                                                    <button class="more-btn ml-10 dropdown-toggle" id="moreAction1"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="lni lni-more-alt"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end"
-                                                        aria-labelledby="moreAction1">
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Remove</a>
-                                                        </li>
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Edit</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="check-input-primary">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="checkbox-1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="product">
-                                                    <div class="image">
-                                                        <img src="assets/images/products/product-mini-2.jpg"
-                                                            alt="" />
-                                                    </div>
-                                                    <p class="text-sm">SOfa</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">Interior</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$145</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">13</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$15</p>
-                                            </td>
-                                            <td>
-                                                <div class="action justify-content-end">
-                                                    <button class="more-btn ml-10 dropdown-toggle" id="moreAction1"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="lni lni-more-alt"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end"
-                                                        aria-labelledby="moreAction1">
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Remove</a>
-                                                        </li>
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Edit</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="check-input-primary">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="checkbox-1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="product">
-                                                    <div class="image">
-                                                        <img src="assets/images/products/product-mini-3.jpg"
-                                                            alt="" />
-                                                    </div>
-                                                    <p class="text-sm">Dining Table</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">Interior</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$95</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">32</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$215</p>
-                                            </td>
-                                            <td>
-                                                <div class="action justify-content-end">
-                                                    <button class="more-btn ml-10 dropdown-toggle" id="moreAction1"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="lni lni-more-alt"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end"
-                                                        aria-labelledby="moreAction1">
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Remove</a>
-                                                        </li>
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Edit</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="check-input-primary">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="checkbox-1" />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="product">
-                                                    <div class="image">
-                                                        <img src="assets/images/products/product-mini-4.jpg"
-                                                            alt="" />
-                                                    </div>
-                                                    <p class="text-sm">Office Chair</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">Interior</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$105</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">23</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-sm">$345</p>
-                                            </td>
-                                            <td>
-                                                <div class="action justify-content-end">
-                                                    <button class="more-btn ml-10 dropdown-toggle" id="moreAction1"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="lni lni-more-alt"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end"
-                                                        aria-labelledby="moreAction1">
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Remove</a>
-                                                        </li>
-                                                        <li class="dropdown-item">
-                                                            <a href="#0" class="text-gray">Edit</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <!-- End Table -->
+                <div class="col-lg-12">
+                    <div class="card-style mb-30">
+                        <div class="title d-flex flex-wrap justify-content-between align-items-center">
+                            <div class="left">
+                                <h6 class="text-medium mb-30">Sản phẩm bán chạy nhất</h6>
                             </div>
                         </div>
+                        <!-- End Title -->
+                        <div class="table-responsive">
+                            <table class="table top-selling-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>
+                                            <h6 class="text-sm text-medium">Sản phẩm</h6>
+                                        </th>
+                                        <th class="min-width">
+                                            <h6 class="text-sm text-medium">Danh mục</h6>
+                                        </th>
+                                        <th class="min-width">
+                                            <h6 class="text-sm text-medium">Giá bán</h6>
+                                        </th>
+                                        <th class="min-width">
+                                            <h6 class="text-sm text-medium">Đã bán</h6>
+                                        </th>
+                                        <th class="min-width">
+                                            <h6 class="text-sm text-medium">Doanh thu</h6>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($topSellingProducts as $product)
+                                        <tr>
+                                            <td>
+                                                <div class="product">
+                                                    <div class="image">
+                                                        @if ($product->image_url)
+                                                            <img src="{{ Storage::url($product->image_url) }}"
+                                                                alt="{{ $product->product_name }}"
+                                                                style="width: 60px; height: 60px; object-fit: cover;" />
+                                                        @else
+                                                            <img src="{{ asset('images/no-image.png') }}"
+                                                                alt="No image"
+                                                                style="width: 60px; height: 60px; object-fit: cover;" />
+                                                        @endif
+                                                    </div>
+                                                    <p class="text-sm">{{ $product->product_name }}</p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p class="text-sm">{{ $product->category_name }}</p>
+                                            </td>
+                                            <td>
+                                                <p class="text-sm">{{ number_format($product->price) }}đ</p>
+                                            </td>
+                                            <td>
+                                                <p class="text-sm">{{ $product->total_sold }}</p>
+                                            </td>
+                                            <td>
+                                                <p class="text-sm">{{ number_format($product->total_revenue) }}đ</p>
+                                            </td>
+                                            <td>
+                                                <div class="action justify-content-end">
+                                                    <a href="{{ route('admin.product.edit', $product->product_id) }}"
+                                                        class="text-gray">
+                                                        <i class="lni lni-pencil"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <!-- End Col -->
                 </div>
                 <!-- End Row -->
                 <div class="row">

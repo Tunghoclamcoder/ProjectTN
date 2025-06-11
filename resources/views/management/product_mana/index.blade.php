@@ -59,6 +59,45 @@
                             </a>
                         </div>
                     </div>
+
+                    <div class="row mt-3">
+                        <div class="col-sm-12">
+                            <div class="filter-box d-flex gap-3 align-items-center">
+                                <div class="form-group" style="min-width: 350px;">
+                                    <select class="form-control" id="categoryFilter">
+                                        <option value="">Chọn danh mục</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->category_id }}">{{ $category->category_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group" style="min-width: 350px;">
+                                    <select class="form-control" id="brandFilter">
+                                        <option value="">Chọn thương hiệu</option>
+                                        @foreach ($brands as $brand)
+                                            <option value="{{ $brand->brand_id }}">{{ $brand->brand_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group" style="min-width: 350px;">
+                                    <select class="form-control" id="brandFilter">
+                                        <option value="">Chọn chất liệu</option>
+                                        @foreach ($materials as $material)
+                                            <option value="{{ $material->material_id }}">
+                                                {{ $material->material_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <button class="btn btn-secondary reset-filters" style="width: 150px; display: flex; align-items: center">
+                                    <i class="material-icons">refresh</i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row mt-3">
                         <div class="col-sm-6">
                             <h2>Quản lý <b>Sản phẩm</b></h2>
@@ -194,6 +233,47 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    $(document).ready(function() {
+        $('#categoryFilter, #brandFilter').on('change', function() {
+            const categoryId = $('#categoryFilter').val();
+            const brandId = $('#brandFilter').val();
+
+            $('table tbody tr').each(function() {
+                const row = $(this);
+                let shouldShow = true;
+
+                // Filter by category
+                if (categoryId) {
+                    const categories = row.find('td:eq(5)').text().trim();
+                    if (!categories.includes($('#categoryFilter option:selected').text())) {
+                        shouldShow = false;
+                    }
+                }
+
+                // Filter by brand
+                if (brandId) {
+                    const brand = row.find('td:eq(3)').text().trim();
+                    if (brand !== $('#brandFilter option:selected').text()) {
+                        shouldShow = false;
+                    }
+                }
+
+                row.toggle(shouldShow);
+            });
+
+            // Update total records count
+            const visibleRows = $('table tbody tr:visible').length;
+            $('.total-records').text(visibleRows);
+        });
+
+        // Reset filters
+        $('.reset-filters').click(function() {
+            $('#categoryFilter, #brandFilter').val('');
+            $('table tbody tr').show();
+            $('.total-records').text($('table tbody tr').length);
+        });
     });
 </script>
 
