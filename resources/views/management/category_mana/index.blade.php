@@ -68,12 +68,12 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
+                                <i class="size-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id='categoryTable'>
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -145,6 +145,99 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const categoryTable = document.querySelector('#categoryTable tbody');
+
+        // Debug check
+        console.log('Elements found:', {
+            searchInput: !!searchInput,
+            categoryTable: !!categoryTable
+        });
+
+        // Define helper functions first
+        const debounce = (func, wait) => {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        // Define updateCategoryTable before it's used
+        function updateCategoryTable(categories) {
+            if (!categories || categories.length === 0) {
+                categoryTable.innerHTML =
+                    '<tr><td colspan="3" class="text-center">Không tìm thấy danh mục nào</td></tr>';
+                return;
+            }
+
+            categoryTable.innerHTML = categories.map(category => `
+            <tr>
+                <td>${category.category_id}</td>
+                <td>${category.category_name}</td>
+                <td>
+                    <a href="/admin/categories/${category.category_id}/edit" class="edit" title="Sửa">
+                        <i class="material-icons">&#xE254;</i>
+                    </a>
+                    <form action="/admin/categories/${category.category_id}" method="POST" style="display:inline; color: #e34724">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete" title="Xóa"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?')">
+                            <i class="material-icons">&#xE872;</i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        const handleSearch = async (e) => {
+            const query = e.target.value.trim();
+            console.log('Searching for:', query);
+
+            try {
+                const response = await fetch(
+                    `/admin/categories/search?query=${encodeURIComponent(query)}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Search response:', data);
+
+                updateCategoryTable(data.data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                categoryTable.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        };
+
+        // Add event listener
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            console.log('Search listener attached');
+        } else {
+            console.error('Search input not found');
+        }
     });
 </script>
 

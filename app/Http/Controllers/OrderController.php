@@ -13,10 +13,62 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query', '');
+            $date = $request->get('date');
+            $status = $request->get('status');
+
+            $orders = Order::with(['orderDetails', 'voucher'])
+                ->where(function ($q) use ($query) {
+                    $q->where('receiver_name', 'LIKE', "%{$query}%")
+                        ->orWhere('receiver_phone', 'LIKE', "%{$query}%")
+                        ->orWhere('receiver_address', 'LIKE', "%{$query}%");
+                });
+
+            if ($date) {
+                $orders->whereDate('order_date', $date);
+            }
+
+            if ($status) {
+                $orders->where('order_status', $status);
+            }
+
+            $results = $orders->get()->map(function ($order) {
+                return [
+                    'order_id' => $order->order_id,
+                    'receiver_name' => $order->receiver_name,
+                    'receiver_phone' => $order->receiver_phone,
+                    'receiver_address' => $order->receiver_address,
+                    'order_date' => $order->order_date,
+                    'order_status' => $order->order_status,
+                    'total_amount' => $order->getTotalAmount(), // Sử dụng method getTotalAmount()
+                    'voucher' => $order->voucher ? [
+                        'code' => $order->voucher->code,
+                        'discount_amount' => $order->voucher->discount_amount
+                    ] : null
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $results
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Order search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi tìm kiếm: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function index()
     {
         $orders = Order::with(['customer', 'voucher', 'orderDetails.product'])
@@ -75,7 +127,6 @@ class OrderController extends Controller
                 ->with('error', 'Có lỗi xảy ra khi thêm đơn hàng');
         }
     }
-
     public function edit(Order $order)
     {
         $order->load(['orderDetails.product', 'customer', 'voucher']);
@@ -104,6 +155,35 @@ class OrderController extends Controller
             'shipping_method_id' => 'required|exists:shipping_methods,method_id',
         ]);
 
+        $statusOrder = [
+            'pending' => 0,
+            'confirmed' => 1,
+            'shipping' => 2,
+            'completed' => 3,
+            'cancelled' => 4
+        ];
+
+        // Validate request
+        $request->validate([
+            'order_status' => [
+                'required',
+                'in:pending,confirmed,shipping,completed,cancelled',
+                function ($attribute, $value, $fail) use ($order, $statusOrder) {
+                    // Kiểm tra nếu đang cố chuyển về trạng thái trước đó
+                    if ($statusOrder[$value] < $statusOrder[$order->order_status]) {
+                        $fail('Không thể chuyển về trạng thái trước đó.');
+                    }
+
+                    // Kiểm tra nếu đơn hàng đã hoàn thành hoặc đã hủy
+                    if (($order->order_status === 'completed' || $order->order_status === 'cancelled')
+                        && $value !== $order->order_status
+                    ) {
+                        $fail('Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã hủy.');
+                    }
+                },
+            ],
+        ]);
+
         // Keep the existing employee_id
         $validated['employee_id'] = $order->employee_id;
 
@@ -130,7 +210,6 @@ class OrderController extends Controller
         try {
             $validStatuses = ['pending', 'confirmed', 'shipping', 'completed', 'cancelled'];
 
-            // Validate request
             $request->validate([
                 'order_status' => ['required', Rule::in($validStatuses)]
             ], [
@@ -138,26 +217,56 @@ class OrderController extends Controller
                 'order_status.in' => 'Trạng thái đơn hàng không hợp lệ'
             ]);
 
-            // Kiểm tra logic chuyển trạng thái
             if ($order->order_status === 'completed' || $order->order_status === 'cancelled') {
                 return back()->with('error', 'Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã hủy');
             }
 
-            // Update status
-            $order->update([
-                'order_status' => $request->order_status
-            ]);
+            DB::beginTransaction();
+            try {
+                $oldStatus = $order->order_status;
+                $newStatus = $request->order_status;
 
-            // Chuẩn bị thông báo phù hợp
-            $message = match ($request->order_status) {
-                'confirmed' => 'Đã xác nhận đơn hàng thành công',
-                'shipping' => 'Đã chuyển trạng thái sang đang giao hàng',
-                'completed' => 'Đã hoàn thành đơn hàng',
-                'cancelled' => 'Đã hủy đơn hàng',
-                default => 'Cập nhật trạng thái đơn hàng thành công'
-            };
+                // Only deduct quantities when changing from pending to confirmed/shipping/completed
+                if ($oldStatus === 'pending' && in_array($newStatus, ['confirmed', 'shipping', 'completed'])) {
+                    foreach ($order->orderDetails as $orderDetail) {
+                        $product = $orderDetail->product;
+                        if ($product->quantity < $orderDetail->sold_quantity) {
+                            throw new \Exception("Sản phẩm {$product->product_name} không đủ số lượng trong kho");
+                        }
+                        $product->quantity -= $orderDetail->sold_quantity;
+                        $product->save();
+                    }
+                }
 
-            return back()->with('success', $message);
+                // Return quantities when cancelling from confirmed/shipping/completed
+                if ($newStatus === 'cancelled' && in_array($oldStatus, ['confirmed', 'shipping', 'completed'])) {
+                    foreach ($order->orderDetails as $orderDetail) {
+                        $product = $orderDetail->product;
+                        $product->quantity += $orderDetail->sold_quantity;
+                        $product->save();
+                    }
+                }
+
+                $order->update([
+                    'order_status' => $newStatus
+                ]);
+
+                DB::commit();
+
+                $message = match ($newStatus) {
+                    'confirmed' => 'Đã xác nhận đơn hàng và cập nhật số lượng sản phẩm',
+                    'shipping' => 'Đã chuyển trạng thái sang đang giao hàng',
+                    'completed' => 'Đã hoàn thành đơn hàng',
+                    'cancelled' => 'Đã hủy đơn hàng' .
+                        (in_array($oldStatus, ['confirmed', 'shipping', 'completed']) ? ' và hoàn lại số lượng sản phẩm' : ''),
+                    default => 'Cập nhật trạng thái đơn hàng thành công'
+                };
+
+                return back()->with('success', $message);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         } catch (\Exception $e) {
@@ -268,7 +377,7 @@ class OrderController extends Controller
                 'order_status' => 'cart'
             ])->with(['orderDetails.product'])->firstOrFail();
 
-            // Check stock availability
+            // Check stock availability only
             foreach ($cartOrder->orderDetails as $item) {
                 if ($item->sold_quantity > $item->product->quantity) {
                     throw new \Exception("Sản phẩm {$item->product->product_name} chỉ còn {$item->product->quantity} trong kho");
@@ -279,7 +388,6 @@ class OrderController extends Controller
                 $voucherData = session('voucher');
                 $voucher = Voucher::find($voucherData['id']);
 
-                // Kiểm tra voucher còn hiệu lực và còn lượt sử dụng
                 if (
                     !$voucher || !$voucher->status ||
                     $voucher->expiry_date < now() ||
@@ -288,11 +396,10 @@ class OrderController extends Controller
                     throw new \Exception('Mã giảm giá không còn hiệu lực hoặc đã hết lượt sử dụng');
                 }
 
-                // Tăng usage_count
                 $voucher->increment('usage_count');
             }
 
-            // Update cart to order
+            // Update cart to order - without deducting quantities
             $cartOrder->update([
                 'order_status' => 'pending',
                 'order_date' => now(),
@@ -304,12 +411,8 @@ class OrderController extends Controller
                 'voucher_id' => session('voucher.id') ?? null
             ]);
 
-            // Update product quantities and record audit
-            foreach ($cartOrder->orderDetails as $item) {
-                $product = $item->product;
-                $product->quantity -= $item->sold_quantity;
-                $product->save();
-            }
+            // Remove the product quantity deduction from here
+            // It will now only happen when order status changes to confirmed/shipping/completed
 
             // Clear voucher session
             session()->forget('voucher');
@@ -465,14 +568,27 @@ class OrderController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
+            // Hoàn lại số lượng sản phẩm
+            foreach ($order->orderDetails as $orderDetail) {
+                $product = $orderDetail->product;
+                $product->quantity += $orderDetail->sold_quantity;
+                $product->save();
+            }
+
+            // Cập nhật trạng thái đơn hàng
             $order->update([
                 'order_status' => 'cancelled'
             ]);
 
+            DB::commit();
+
             return redirect()->route('customer.orders')
-                ->with('success', 'Đã hủy đơn hàng thành công');
+                ->with('success', 'Đã hủy đơn hàng và hoàn lại số lượng sản phẩm thành công');
         } catch (\Exception $e) {
-            return back()->with('error', 'Có lỗi xảy ra khi hủy đơn hàng');
+            DB::rollBack();
+            return back()->with('error', 'Có lỗi xảy ra khi hủy đơn hàng: ' . $e->getMessage());
         }
     }
 }

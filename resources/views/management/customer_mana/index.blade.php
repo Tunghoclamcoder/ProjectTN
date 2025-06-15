@@ -15,6 +15,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/crud.css') }}">
     <script src="{{ asset('js/alert.js') }}"></script>
+
 </head>
 
 <body>
@@ -62,12 +63,13 @@
                             <div class="col-sm-6">
                                 <div class="search-box">
                                     <i class="material-icons">&#xE8B6;</i>
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                                    <input type="text" id="customerSearch" class="form-control"
+                                        placeholder="Tìm kiếm khách hàng...">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id="customerTable">
                         <thead>
                             <tr>
                                 <th>STT</th>
@@ -159,6 +161,81 @@
             });
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('#customerSearch');
+        const customerTable = document.querySelector('#customerTable tbody');
+
+        const handleSearch = debounce(async (e) => {
+            const query = e.target.value.trim();
+
+            try {
+                const response = await fetch(
+                    `/admin/customer/search?query=${encodeURIComponent(query)}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Search response:', data); // Debug log
+
+                if (data.success) {
+                    updateCustomerTable(data.data);
+                } else {
+                    throw new Error(data.message || 'Tìm kiếm thất bại');
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                customerTable.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        }, 300);
+
+        function updateCustomerTable(customers) {
+            if (!customers || customers.length === 0) {
+                customerTable.innerHTML =
+                    '<tr><td colspan="6" class="text-center">Không tìm thấy khách hàng nào</td></tr>';
+                return;
+            }
+
+            customerTable.innerHTML = customers.map(customer => `
+            <tr>
+                <td>${customer.customer_id}</td>
+                <td>${customer.customer_name}</td>
+                <td>${customer.email || ''}</td>
+                <td>${customer.phone_number || ''}</td>
+                <td>${customer.address || ''}</td>
+                <td>
+                    <span class="badge ${customer.status === 'active' ? 'bg-success' : 'bg-danger'}">
+                        ${customer.status === 'active' ? 'Đang hoạt động' : 'Ngừng hoạt động'}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="/admin/customer/${customer.customer_id}/edit"
+                           class="btn btn-warning btn-sm">
+                            <i class="material-icons">&#xE254;</i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        searchInput.addEventListener('input', handleSearch);
+    });
 </script>
 
 </html>

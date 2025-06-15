@@ -411,7 +411,60 @@
                 margin: 0 -15px;
             }
         }
+
+        select option:disabled {
+            color: #999;
+            font-style: italic;
+        }
     </style>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderStatusSelect = document.getElementById('order_status');
+        const currentStatus = orderStatusSelect.value;
+
+        // Định nghĩa thứ tự các trạng thái
+        const statusOrder = {
+            'pending': 0,
+            'confirmed': 1,
+            'shipping': 2,
+            'completed': 3,
+            'cancelled': 4
+        };
+
+        // Disable các option có thứ tự nhỏ hơn trạng thái hiện tại
+        const options = orderStatusSelect.options;
+        for (let i = 0; i < options.length; i++) {
+            if (statusOrder[options[i].value] < statusOrder[currentStatus]) {
+                options[i].disabled = true;
+            }
+        }
+
+        // Nếu đơn hàng đã hoàn thành hoặc đã hủy, disable tất cả các option khác
+        if (currentStatus === 'completed' || currentStatus === 'cancelled') {
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value !== currentStatus) {
+                    options[i].disabled = true;
+                }
+            }
+        }
+    });
+
+    orderStatusSelect.addEventListener('change', function(e) {
+        const newStatus = e.target.value;
+
+        if (statusOrder[newStatus] < statusOrder[currentStatus]) {
+            alert('Không thể chuyển về trạng thái trước đó!');
+            e.target.value = currentStatus;
+            return false;
+        }
+
+        if ((currentStatus === 'completed' || currentStatus === 'cancelled') && newStatus !== currentStatus) {
+            alert('Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã hủy!');
+            e.target.value = currentStatus;
+            return false;
+        }
+    });
+</script>
 
 </html>

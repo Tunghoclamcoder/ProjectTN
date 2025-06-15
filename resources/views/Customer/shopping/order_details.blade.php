@@ -125,12 +125,29 @@
                             <div class="no-image">Không có ảnh</div>
                         @endif
                     </div>
+
                     <div class="product-info">
                         <h4>{{ $detail->product->product_name }}</h4>
                         <p class="product-description">{{ $detail->product->description }}</p>
                         <div class="product-details">
+                            <span class="category">
+                                Danh mục:
+                                {{ $detail->product->getPrimaryCategory() ? $detail->product->getPrimaryCategory()->category_name : 'N/A' }}
+                            </span>
+                            <br>
+                            <span class="brand">
+                                Thương hiệu:
+                                {{ $detail->product->brand ? $detail->product->brand->brand_name : 'N/A' }}
+                            </span>
+                            <br>
+                            <span class="size">
+                                Kích thước:
+                                {{ $detail->product->getPrimarySize() ? $detail->product->getPrimarySize()->size_name : 'N/A' }}
+                            </span>
+                            <br>
                             <span class="quantity">Số lượng: {{ $detail->sold_quantity }}</span>
                         </div>
+
                     </div>
                     <div class="product-pricing">
                         <div class="unit-price">{{ number_format($detail->sold_price) }} VNĐ</div>

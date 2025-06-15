@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id='sizeTable'>
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -142,6 +142,97 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const sizeTable = document.querySelector('#sizeTable tbody');
+
+        // Debug check
+        console.log('Elements found:', {
+            searchInput: !!searchInput,
+            sizeTable: !!sizeTable
+        });
+
+        // Define helper functions first
+        const debounce = (func, wait) => {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        function updateSizeTable(sizes) {
+            if (!sizes || sizes.length === 0) {
+                sizeTable.innerHTML =
+                    '<tr><td colspan="3" class="text-center">Không tìm thấy size nào</td></tr>';
+                return;
+            }
+
+            sizeTable.innerHTML = sizes.map(size => `
+            <tr>
+                <td>${size.size_id}</td>
+                <td>${size.size_name}</td>
+                <td>
+                    <a href="/admin/sizes/${size.size_id}/edit" class="edit" title="Sửa">
+                        <i class="material-icons">&#xE254;</i>
+                    </a>
+                    <form action="/admin/sizes/${size.size_id}" method="POST" style="display:inline; color: #e34724">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete" title="Xóa"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa Size sản phẩm này không?')">
+                            <i class="material-icons">&#xE872;</i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        const handleSearch = async (e) => {
+            const query = e.target.value.trim();
+            console.log('Searching for:', query);
+
+            try {
+                const response = await fetch(`/admin/sizes/search?query=${encodeURIComponent(query)}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Search response:', data);
+
+                updateSizeTable(data.data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                sizeTable.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        };
+
+        // Add event listener
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            console.log('Search listener attached');
+        } else {
+            console.error('Search input not found');
+        }
     });
 </script>
 

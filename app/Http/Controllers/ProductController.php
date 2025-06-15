@@ -12,7 +12,6 @@ use App\Models\ImageProduct;
 use App\Models\CategoryProduct;
 use App\Models\SizeProduct;
 use App\Models\ShippingMethod;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +20,56 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query');
+            $categoryId = $request->get('category');
+            $brandId = $request->get('brand');
+            $materialId = $request->get('material');
+            $status = $request->get('status');
+
+            $products = Product::with(['brand', 'material', 'categories', 'size', 'images'])
+                ->when($query, function ($q) use ($query) {
+                    return $q->where('product_name', 'LIKE', "%{$query}%");
+                })
+                ->when($categoryId, function ($q) use ($categoryId) {
+                    return $q->whereHas('categories', function ($q) use ($categoryId) {
+                        $q->where('categories.category_id', $categoryId);
+                    });
+                })
+                ->when($brandId, function ($q) use ($brandId) {
+                    return $q->where('brand_id', $brandId);
+                })
+                ->when($materialId, function ($q) use ($materialId) {
+                    return $q->where('material_id', $materialId);
+                })
+                ->when($status !== null && $status !== '', function ($q) use ($status) {
+                    return $q->where('status', $status);
+                })
+                ->get();
+
+            $products->each(function ($product) {
+                $product->main_image = $product->getMainImage()
+                    ? Storage::url($product->getMainImage()->image_url)
+                    : asset('images/placeholder.png');
+                $product->NumberOfImage = $product->images->count();
+                $product->discounted_price = $product->getDiscountedPrice();
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Product search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi tìm kiếm'
+            ], 500);
+        }
+    }
+
     public function index()
     {
         try {

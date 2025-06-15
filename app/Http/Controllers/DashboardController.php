@@ -10,13 +10,22 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Traits\PreventBackHistory;
+use Illuminate\Http\Request;
+use App\Models\Product;
+use Elastic\Elasticsearch\Client;
+use App\Traits\Searchable;
+
 
 class DashboardController extends Controller
 {
-    use PreventBackHistory;
-
+    use PreventBackHistory, Searchable;
     public function index()
     {
+        $latestOrders = Order::with(['customer'])
+            ->orderBy('order_date', 'desc')
+            ->take(5)
+            ->get();
+
         try {
             // Kiểm tra auth
             if (!Auth::guard('owner')->check() && !Auth::guard('employee')->check()) {
@@ -126,11 +135,111 @@ class DashboardController extends Controller
                 'pendingOrders',
                 'last7Days',
                 'dailyRevenue',
-                'topSellingProducts'
+                'topSellingProducts',
+                'latestOrders'
             ));
         } catch (\Exception $e) {
             Log::error('Dashboard Error: ' . $e->getMessage());
             return back()->with('error', 'Có lỗi xảy ra khi tải dữ liệu dashboard');
+        }
+    }
+
+    protected Client $elasticsearch;
+
+    public function __construct(Client $elasticsearch)
+    {
+        $this->elasticsearch = $elasticsearch;
+    }
+
+    public function search(Request $request)
+    {
+        try {
+            $query = trim($request->get('query'));
+            Log::info('Search query: ' . $query);
+
+            if (empty($query)) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            // Tìm kiếm sản phẩm
+            $products = Product::where(function ($q) use ($query) {
+                $q->whereRaw('LOWER(product_name) LIKE ?', ['%' . strtolower($query) . '%'])
+                    ->orWhereHas('brand', function ($q) use ($query) {
+                        $q->whereRaw('LOWER(brand_name) LIKE ?', ['%' . strtolower($query) . '%']);
+                    })
+                    ->orWhereHas('categories', function ($q) use ($query) {
+                        $q->whereRaw('LOWER(category_name) LIKE ?', ['%' . strtolower($query) . '%']);
+                    });
+            })
+                ->with(['brand', 'categories', 'images'])
+                ->get();
+
+            Log::info('Found products: ' . $products->count());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'products' => $products->map(function ($product) {
+                        return [
+                            'id' => $product->product_id,
+                            'name' => $product->product_name,
+                            'category' => $product->getPrimaryCategory()?->category_name ?? 'N/A',
+                            'price' => number_format($product->price) . ' VNĐ',
+                            'image' => $product->getMainImage()?->image_url
+                                ? asset('storage/' . $product->getMainImage()->image_url)
+                                : asset('images/no-image.png'),
+                            'url' => route('admin.product.edit', $product->product_id)
+                        ];
+                    })
+                ]);
+            }
+
+            return view('management.search-result-admin', compact('products', 'query'));
+        } catch (\Exception $e) {
+            Log::error('Search error: ' . $e->getMessage());
+            return $request->ajax()
+                ? response()->json(['error' => $e->getMessage()], 500)
+                : back()->with('error', 'Có lỗi xảy ra trong quá trình tìm kiếm: ' . $e->getMessage());
+        }
+    }
+
+    public function searchSuggestions(Request $request)
+    {
+        try {
+            $query = trim($request->get('query'));
+
+            if (strlen($query) < 2) {
+                return response()->json(['products' => []]);
+            }
+
+            $products = Product::where(function ($q) use ($query) {
+                $q->whereRaw('LOWER(product_name) LIKE ?', ['%' . strtolower($query) . '%'])
+                    ->orWhereHas('brand', function ($q) use ($query) {
+                        $q->whereRaw('LOWER(brand_name) LIKE ?', ['%' . strtolower($query) . '%']);
+                    })
+                    ->orWhereHas('categories', function ($q) use ($query) {
+                        $q->whereRaw('LOWER(category_name) LIKE ?', ['%' . strtolower($query) . '%']);
+                    });
+            })
+                ->with(['brand', 'categories', 'images'])
+                ->take(5)
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->product_id,
+                        'name' => $product->product_name,
+                        'category' => $product->getPrimaryCategory()?->category_name ?? 'N/A',
+                        'price' => number_format($product->price) . ' VNĐ',
+                        'image' => $product->getMainImage()?->image_url
+                            ? asset('storage/' . $product->getMainImage()->image_url)
+                            : asset('images/no-image.png'),
+                        'url' => route('admin.product.edit', $product->product_id)
+                    ];
+                });
+
+            return response()->json(['products' => $products]);
+        } catch (\Exception $e) {
+            Log::error('Search suggestions error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

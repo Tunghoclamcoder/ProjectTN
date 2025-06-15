@@ -13,6 +13,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/crud.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 </head>
 
 <body>
@@ -49,22 +51,23 @@
                             </a>
                         </div>
                         <div class="row mt-3">
-                        <div class="col-sm-6">
-                            <h2>Quản lý <b>Nhân viên</b></h2>
-                            <a href="{{ route(name: 'admin.employee.create') }}" class="btn btn-success mt-2 mb-4">
-                                <i class="material-icons">&#xE147;</i>
-                                <span>Thêm mới</span>
-                            </a>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
-                                <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                            <div class="col-sm-6">
+                                <h2>Quản lý <b>Nhân viên</b></h2>
+                                <a href="{{ route(name: 'admin.employee.create') }}" class="btn btn-success mt-2 mb-4">
+                                    <i class="material-icons">&#xE147;</i>
+                                    <span>Thêm mới</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="search-box">
+                                    <i class="material-icons">&#xE8B6;</i>
+                                    <input type="text" class="form-control"
+                                        placeholder="Tìm kiếm theo tên, email hoặc số điện thoại...">
+                                </div>
                             </div>
                         </div>
                     </div>
-                    </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id="employeeTable">
                         <thead>
                             <tr>
                                 <th>STT</th>
@@ -83,7 +86,7 @@
                                     <td>{{ $employee->email }}</td>
                                     <td>{{ $employee->phone_number }}</td>
                                     <td>
-                                        <span style="font-size: 10px"
+                                        <span style="font-size: 10px; display: flex; justify-content: center"
                                             class="badge status-badge {{ $employee->status == 'active' ? 'badge-success' : 'badge-danger' }}">
                                             {{ $employee->status == 'active' ? 'Đang làm việc' : 'Đã nghỉ làm' }}
                                         </span>
@@ -133,6 +136,90 @@
         <script>
             $(document).ready(function() {
                 $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.querySelector('.search-box input');
+                const employeeTable = document.querySelector('#employeeTable tbody');
+
+                const debounce = (func, wait) => {
+                    let timeout;
+                    return function(...args) {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(this, args), wait);
+                    };
+                };
+
+                const handleSearch = debounce(async (e) => {
+                    const query = e.target.value.trim();
+
+                    try {
+                        // Log để debug
+                        console.log('Sending search request for:', query);
+
+                        const response = await fetch(
+                            `/admin/employees/search?query=${encodeURIComponent(query)}`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                        // Log response status để debug
+                        console.log('Response status:', response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        console.log('Response data:', data); // Log data để debug
+
+                        if (!data.success) {
+                            throw new Error(data.message || 'Search failed');
+                        }
+
+                        if (data.data.length === 0) {
+                            employeeTable.innerHTML =
+                                '<tr><td colspan="6" class="text-center">Không tìm thấy nhân viên nào</td></tr>';
+                            return;
+                        }
+
+                        employeeTable.innerHTML = data.data.map(employee => `
+                <tr>
+                    <td>${employee.employee_id}</td>
+                    <td>${employee.employee_name}</td>
+                    <td>${employee.email || ''}</td>
+                    <td>${employee.phone_number || ''}</td>
+                    <td><span style="font-size: 10px; display: flex; justify-content: center"
+                                            class="badge status-badge {{ $employee->status == 'active' ? 'badge-success' : 'badge-danger' }}">
+                                            {{ $employee->status == 'active' ? 'Đang làm việc' : 'Đã nghỉ làm' }}
+                                        </span>
+                                        </td>
+                    <td>
+                        <div class="btn-group" style="display: flex; justify-content: center;">
+                            <a href="/admin/employees/${employee.employee_id}/edit"
+                               class="btn btn-warning btn-sm">
+                                <i class="material-icons">&#xE254;</i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        employeeTable.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+                    }
+                }, 300);
+
+                searchInput.addEventListener('input', handleSearch);
             });
         </script>
 </body>

@@ -69,12 +69,12 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
+                                <i class="size-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id="brandTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -158,6 +158,106 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const brandTable = document.querySelector('#brandTable tbody');
+
+        const debounce = (func, wait) => {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        const handleSearch = debounce(async (e) => {
+            const query = e.target.value.trim();
+
+            try {
+                const response = await fetch(
+                    `/admin/brands/search?query=${encodeURIComponent(query)}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Search failed');
+                }
+
+                updateBrandTable(data.data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                brandTable.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        }, 300);
+
+        function updateBrandTable(brands) {
+            if (!brands || brands.length === 0) {
+                brandTable.innerHTML =
+                    '<tr><td colspan="5" class="text-center">Không tìm thấy thương hiệu nào</td></tr>';
+                return;
+            }
+
+            brandTable.innerHTML = brands.map(brand => `
+            <tr>
+                <td>${brand.brand_id}</td>
+                <td style="width: 120px; height: 100px">
+                    ${brand.brand_image
+                        ? `<img src="/storage/${brand.brand_image}"
+                             alt="${brand.brand_name}"
+                             style="width: 90px; height: 80px; object-fit: cover;">`
+                        : `<img src="/images/placeholder.png"
+                             alt="Placeholder"
+                             style="width: 90px; height: 80px; object-fit: cover;">`
+                    }
+                </td>
+                <td>${brand.brand_name}</td>
+                <td>${limitText(brand.description, 500)}</td>
+                <td>
+                    <a href="/admin/brands/${brand.brand_id}/edit">
+                        <i class="material-icons">&#xE254;</i>
+                    </a>
+                    <form action="/admin/brands/${brand.brand_id}"
+                          method="POST"
+                          style="display:inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="delete"
+                                title="Xóa"
+                                data-toggle="tooltip"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này không?')">
+                            <i class="material-icons">&#xE872;</i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        function limitText(text, limit) {
+            if (!text) return '';
+            return text.length > limit ? text.substring(0, limit) + '...' : text;
+        }
+
+        searchInput.addEventListener('input', handleSearch);
     });
 </script>
 

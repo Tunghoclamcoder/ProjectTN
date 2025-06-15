@@ -13,6 +13,42 @@ use Exception;
 
 class VoucherController extends Controller
 {
+    public function search(Request $request)
+{
+    try {
+        $query = $request->get('query', '');
+        $status = $request->get('status');
+
+        Log::info('Search params:', ['query' => $query, 'status' => $status]);
+
+        $vouchers = Voucher::query();
+
+        // Search by voucher code
+        if (!empty($query)) {
+            $vouchers->where('code', 'LIKE', "%{$query}%");
+        }
+
+        // Filter by status
+        if ($status !== '' && $status !== null) {
+            $vouchers->where('status', $status === '1');
+        }
+
+        $results = $vouchers->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $results
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Voucher search error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Có lỗi xảy ra khi tìm kiếm'
+        ], 500);
+    }
+}
+
     public function index()
     {
         $vouchers = Voucher::orderBy('id', 'desc')->paginate(10);

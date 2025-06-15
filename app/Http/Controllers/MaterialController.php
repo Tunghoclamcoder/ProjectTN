@@ -5,9 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
+
 
 class MaterialController extends Controller
 {
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query', '');
+
+            $materials = Material::where('material_name', 'LIKE', "%{$query}%")->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $materials
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Material search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi tìm kiếm'
+            ], 500);
+        }
+    }
+
     public function index()
     {
         $materials = Material::paginate(10);

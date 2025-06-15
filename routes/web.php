@@ -113,10 +113,15 @@ Route::prefix('admin')->group(function () {
     });
 
     // Routes yêu cầu Owner đã đăng nhập
-    Route::middleware(['auth:owner,employee', 'prevent-back-history'])->group(function () {
+    Route::middleware(['auth:owner,employee'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('admin.dashboard')
             ->withoutMiddleware(['prevent-back-history']);
+        Route::get('/search', [DashboardController::class, 'search'])
+            ->name('admin.search');
+
+        Route::get('/search/suggestions', [DashboardController::class, 'searchSuggestions'])
+            ->name('admin.search.suggestions');
         Route::post('/logout', [OwnerController::class, 'logout'])->name('admin.logout');
 
         // Routes quản lý nhân viên
@@ -127,6 +132,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('admin.employee.edit');
             Route::put('/{employee}', [EmployeeController::class, 'update'])->name('admin.employee.update');
             Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('admin.employee.delete');
+            Route::get('/search', [EmployeeController::class, 'search'])->name('admin.employee.search');
         });
 
         Route::prefix('customer')->group(function () {
@@ -134,6 +140,7 @@ Route::prefix('admin')->group(function () {
             Route::post('/', [CustomerController::class, 'store'])->name(name: 'admin.customer.store');
             Route::patch('customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])
                 ->name('admin.customer.toggle-status');
+            Route::get('/search', [CustomerController::class, 'search'])->name('admin.customer.search'); // Put search route before other routes
         });
 
         // Routes quản lý material
@@ -144,6 +151,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/{material}/edit', [MaterialController::class, 'edit'])->name('admin.material.edit');
             Route::put('/{material}', [MaterialController::class, 'update'])->name('admin.material.update');
             Route::delete('/{material}', [MaterialController::class, 'destroy'])->name('admin.material.delete');
+            Route::get('/search', [MaterialController::class, 'search'])->name('admin.material.search');
         });
 
         // Routes quản lý brands
@@ -154,6 +162,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/{brand}/edit', [BrandController::class, 'edit'])->name('admin.brand.edit');
             Route::put('/{brand}', [BrandController::class, 'update'])->name('admin.brand.update');
             Route::delete('/{brand}', [BrandController::class, 'destroy'])->name('admin.brand.delete');
+            Route::get('/search', [BrandController::class, 'search'])->name('admin.brand.search');
         });
 
         Route::prefix('sizes')->group(function () {
@@ -163,6 +172,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{size}/edit', [SizeController::class, 'edit'])->name('admin.size.edit');
             Route::put('/{size}', [SizeController::class, 'update'])->name('admin.size.update');
             Route::delete('/{size}', [SizeController::class, 'destroy'])->name('admin.size.delete');
+            Route::get('search', [SizeController::class, 'search'])
+                ->name('admin.sizes.search');
         });
 
         // Routes quản lý categories
@@ -173,6 +184,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{category}/edit', action: [CategoryController::class, 'edit'])->name('admin.category.edit');
             Route::put('/{category}', [CategoryController::class, 'update'])->name('admin.category.update');
             Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('admin.category.delete');
+            Route::get('/search', [CategoryController::class, 'search'])
+                ->name('admin.category.search');
         });
 
         // Routes quản lý images
@@ -194,6 +207,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('admin.product.edit');
             Route::put('/{product}', [ProductController::class, 'update'])->name('admin.product.update');
             Route::delete('/{product}', [ProductController::class, 'destroy'])->name('admin.product.delete');
+            Route::get('/search', [ProductController::class, 'search'])
+                ->name('admin.product.search');
         });
 
         // Routes quản lý vouchers
@@ -207,6 +222,8 @@ Route::prefix('admin')->group(function () {
             // Route::post('vouchers/apply', action: [VoucherController::class, 'apply'])->name('admin.voucher.apply');
             Route::post('voucher/{voucher}/toggle', [VoucherController::class, 'toggleStatus'])
                 ->name('admin.voucher.toggle');
+            Route::get('/search', [VoucherController::class, 'search'])
+                ->name('admin.voucher.search');
         });
 
         // Routes quản lý payment-methods
@@ -217,6 +234,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{paymentMethod}/edit', [PaymentController::class, 'edit'])->name('admin.payment.edit');
             Route::put('/{paymentMethod}', [PaymentController::class, 'update'])->name('admin.payment.update');
             Route::delete('/{paymentMethod}', [PaymentController::class, 'destroy'])->name('admin.payment.delete');
+            Route::get('/search', [PaymentController::class, 'search'])
+                ->name('admin.payment.search');
         });
 
         // Routes quản lý shipping-methods
@@ -227,6 +246,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{shippingMethod}/edit', [ShippingController::class, 'edit'])->name('admin.shipping.edit');
             Route::put('/{shippingMethod}', [ShippingController::class, 'update'])->name('admin.shipping.update');
             Route::delete('/{shippingMethod}', [ShippingController::class, 'destroy'])->name('admin.shipping.delete');
+            Route::get('/search', [ShippingController::class, 'search'])
+                ->name('admin.shipping.search');
         });
 
         // Routes quản lý orders
@@ -239,7 +260,7 @@ Route::prefix('admin')->group(function () {
             Route::put('/{order}/update-status', [OrderController::class, 'updateStatus'])
                 ->name('admin.order.update-status');
             Route::put('/{order}', [OrderController::class, 'update'])->name('admin.order.update');
-            // Route::delete('/{order}', [OrderController::class, 'destroy'])->name('admin.order.delete');
+            Route::get('/search', [OrderController::class, 'search'])->name('admin.orders.search');
         });
     });
 });

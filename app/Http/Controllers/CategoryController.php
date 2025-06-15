@@ -5,9 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query', '');
+            Log::info('Category search query:', ['query' => $query]);
+
+            $categories = Category::where('category_name', 'LIKE', "%{$query}%")
+                ->orWhere('category_id', 'LIKE', "%{$query}%")
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $categories
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Category search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi tìm kiếm'
+            ], 500);
+        }
+    }
+
     public function index()
     {
         $categories = Category::withCount('products')->paginate(10);

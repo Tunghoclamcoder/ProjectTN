@@ -74,6 +74,17 @@ class Product extends Model
     {
         return $this->belongsTo(Size::class, 'size_id');
     }
+
+    public function getPrimaryCategory()
+    {
+        return $this->categories()->first();
+    }
+
+    public function getPrimarySize()
+    {
+        return $this->sizes()->first();
+    }
+
     public function getMainImage()
     {
         return $this->images()
@@ -93,5 +104,17 @@ class Product extends Model
     public function getDiscountedPrice()
     {
         return $this->price * (1 - ($this->discount / 100));
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'product_id' => $this->product_id,
+            'product_name' => $this->product_name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'category_name' => $this->getPrimaryCategory() ? $this->getPrimaryCategory()->category_name : null,
+            'brand_name' => $this->brand ? $this->brand->brand_name : null
+        ];
     }
 }

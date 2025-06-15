@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id="shippingTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -144,6 +144,98 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const shippingTable = document.querySelector('table tbody');
+
+        console.log('Elements found:', {
+            searchInput: !!searchInput,
+            shippingTable: !!shippingTable
+        });
+
+        function updateshippingTable(shippings) {
+            if (!shippings || shippings.length === 0) {
+                shippingTable.innerHTML =
+                    '<tr><td colspan="3" class="text-center">Không tìm thấy phương thức vận chuyển nào</td></tr>';
+                return;
+            }
+
+            shippingTable.innerHTML = shippings.map(shipping => `
+            <tr>
+                <td>${shipping.method_id}</td>
+                <td>${shipping.method_name}</td>
+                <td>${new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(shipping.shipping_fee)}</td>
+                <td>
+                    <a href="/admin/shippings/${shipping.method_id}/edit" class="edit-btn">
+                        <i class="material-icons">&#xE254;</i>
+                    </a>
+                    <form action="/admin/shippings/${shipping.method_id}" method="POST" style="display:inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete" title="Xóa"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa phương thức vận chuyển này?')">
+                            <i class="material-icons">&#xE872;</i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        const handleSearch = async (e) => {
+            const query = e.target.value.trim();
+            console.log('Searching for:', query);
+
+            try {
+                // Updated URL to match route prefix
+                const response = await fetch(
+                    `/admin/shipping-methods/search?query=${encodeURIComponent(query)}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Search response:', data);
+
+                updateshippingTable(data.data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                shippingTable.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        };
+
+        if (searchInput) {
+            const debounce = (func, wait) => {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            };
+
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            console.log('Search listener attached');
+        }
     });
 </script>
 

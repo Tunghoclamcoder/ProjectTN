@@ -66,12 +66,7 @@
                                 <span>Thêm mới</span>
                             </a>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
-                                <input type="text" class="form-control" placeholder="Tìm kiếm...">
-                            </div>
-                        </div>
+
                     </div>
                     <table class="table table-striped table-hover table-bordered">
                         <thead>

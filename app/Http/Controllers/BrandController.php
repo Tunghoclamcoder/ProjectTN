@@ -11,6 +11,28 @@ use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
 {
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query', '');
+
+            $brands = Brand::where('brand_name', 'LIKE', "%{$query}%")
+                ->select('brand_id', 'brand_name', 'brand_image', 'description')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $brands
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Brand search error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi tìm kiếm'
+            ], 500);
+        }
+    }
+
     public function index()
     {
         $brands = Brand::paginate(10);

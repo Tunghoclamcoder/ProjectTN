@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -26,10 +27,14 @@
                         </button>
                     </div>
                     <div class="header-search d-none d-md-flex">
-                        <form action="#">
-                            <input type="text" placeholder="Search..." />
-                            <button><i class="lni lni-search-alt"></i></button>
+                        <form action="{{ route('admin.search') }}" method="GET" id="adminSearchForm">
+                            <input type="text" name="query" id="adminSearchInput"
+                                placeholder="Tìm kiếm sản phẩm..." autocomplete="off" />
+                            <button type="submit">
+                                <i class="lni lni-search-alt"></i>
+                            </button>
                         </form>
+                        <div id="adminSearchSuggestions" class="search-suggestions"></div>
                     </div>
                 </div>
             </div>
@@ -222,3 +227,196 @@
         </div>
     </div>
 </header>
+
+<style>
+    .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: none;
+    }
+
+    .suggestion-item {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .suggestion-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        margin-right: 12px;
+        border-radius: 4px;
+    }
+
+    .suggestion-info {
+        flex: 1;
+    }
+
+    .suggestion-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #333;
+    }
+
+    .suggestion-meta {
+        font-size: 0.85em;
+        color: #666;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .no-results {
+        color: #666;
+        text-align: center;
+        padding: 16px;
+    }
+
+    #adminSearchSuggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+
+<script>
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            return new Promise((resolve) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => resolve(func.apply(this, args)), wait);
+            });
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('adminSearchInput');
+        const searchForm = document.getElementById('adminSearchForm');
+        const suggestionsBox = document.getElementById('adminSearchSuggestions');
+        let currentSearchTerm = '';
+
+        const updateSuggestions = (products, query) => {
+            suggestionsBox.innerHTML = '';
+
+            if (products && products.length > 0) {
+                products.forEach(product => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <img src="${product.image}" alt="${product.name}" class="suggestion-image">
+                        <div class="suggestion-info">
+                            <div class="suggestion-name">${product.name}</div>
+                            <div class="suggestion-meta">
+                                <span class="suggestion-category">${product.category}</span>
+                                <span class="suggestion-price">${product.price}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                    div.addEventListener('click', () => {
+                        searchInput.value = product.name;
+                        suggestionsBox.style.display = 'none';
+                        searchForm.submit();
+                    });
+
+                    suggestionsBox.appendChild(div);
+                });
+            } else {
+                suggestionsBox.innerHTML =
+                    '<div class="suggestion-item no-results">Không tìm thấy kết quả</div>';
+            }
+
+            if (query === currentSearchTerm) {
+                suggestionsBox.style.display = 'block';
+            }
+        };
+
+        const searchProducts = async (query) => {
+            try {
+                const response = await fetch(
+                    `/admin/search/suggestions?query=${encodeURIComponent(query)}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                console.log('Search response:', data); // Debug
+
+                if (!data.products) {
+                    console.warn('Invalid response format');
+                    return [];
+                }
+
+                return data.products; // Thêm dòng này để trả về dữ liệu products
+            } catch (error) {
+                console.error('Search error:', error);
+                return [];
+            }
+        };
+
+        const performSearch = debounce(async (query) => {
+            currentSearchTerm = query;
+            console.log('Searching for:', query); // Debug
+
+            if (query.length < 2) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            const products = await searchProducts(query);
+            console.log('Received products:', products); // Debug
+
+            if (query === currentSearchTerm) {
+                updateSuggestions(products, query);
+            }
+        }, 600);
+
+        searchInput.addEventListener('input', async function() {
+            suggestionsBox.innerHTML = '<div class="searching">Đang tìm kiếm...</div>';
+            const query = this.value.trim();
+            await performSearch(query);
+        });
+
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                window.location.href = `/admin/search?query=${encodeURIComponent(query)}`;
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+    });
+</script>

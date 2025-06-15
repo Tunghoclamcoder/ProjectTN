@@ -68,9 +68,19 @@
                             </a>
                         </div>
                         <div class="col-sm-6">
-                            <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
-                                <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                            <div class="search-filters d-flex gap-2">
+                                <div class="search-box flex-grow-1">
+                                    <i class="material-icons">&#xE8B6;</i>
+                                    <input type="text" class="form-control" id="searchInput"
+                                        placeholder="Tìm kiếm theo mã voucher...">
+                                </div>
+                                <div class="status-filter" style="min-width: 150px;">
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="1">Đang kích hoạt</option>
+                                        <option value="0">Đã hết hạn</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -188,6 +198,125 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const statusFilter = document.querySelector('#statusFilter');
+        const voucherTable = document.querySelector('table tbody');
+
+        const debounce = (func, wait) => {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        async function searchVouchers() {
+            const query = searchInput.value.trim();
+            const status = statusFilter.value;
+
+            console.log('Searching with:', {
+                query,
+                status
+            });
+
+            try {
+                const response = await fetch(
+                    `/admin/vouchers/search?query=${encodeURIComponent(query)}&status=${status}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Search response:', data);
+
+                if (data.success) {
+                    updateVoucherTable(data.data);
+                } else {
+                    throw new Error(data.message || 'Search failed');
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                voucherTable.innerHTML = `
+                <tr>
+                    <td colspan="11" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        }
+
+        function updateVoucherTable(vouchers) {
+            if (!vouchers || vouchers.length === 0) {
+                voucherTable.innerHTML =
+                    '<tr><td colspan="11" class="text-center">Không tìm thấy voucher nào</td></tr>';
+                return;
+            }
+
+            voucherTable.innerHTML = vouchers.map(voucher => `
+            <tr>
+                <td>${voucher.id}</td>
+                <td>${voucher.code}</td>
+                <td>${voucher.discount_amount
+                    ? new Intl.NumberFormat('vi-VN').format(voucher.discount_amount) + ' VNĐ'
+                    : voucher.discount_percentage + '%'}</td>
+                <td>${new Date(voucher.start_date).toLocaleDateString('vi-VN')}</td>
+                <td>${new Date(voucher.expiry_date).toLocaleDateString('vi-VN')}</td>
+                <td>${new Intl.NumberFormat('vi-VN').format(voucher.minimum_purchase_amount)} VNĐ</td>
+                <td>${new Intl.NumberFormat('vi-VN').format(voucher.maximum_purchase_amount)} VNĐ</td>
+                <td>${voucher.max_usage_count || 'Không giới hạn'}</td>
+                <td>${voucher.usage_count}</td>
+                <td>
+                    <span class="badge ${voucher.status ? 'bg-success' : 'bg-danger'}">
+                        ${voucher.status ? 'Đang kích hoạt' : 'Đã hết hạn'}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="/admin/vouchers/${voucher.id}/edit" class="edit" title="Sửa">
+                            <i class="material-icons">&#xE254;</i>
+                        </a>
+                        <form action="/admin/vouchers/${voucher.id}/toggle" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit"
+                                class="toggle-btn ${voucher.status ? 'active' : 'inactive'}"
+                                title="${voucher.status ? 'Vô hiệu hóa' : 'Kích hoạt'}">
+                                <i class="material-icons">${voucher.status ? 'toggle_on' : 'toggle_off'}</i>
+                            </button>
+                        </form>
+                        <form action="/admin/vouchers/${voucher.id}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete" title="Xóa"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này không?')"
+                                style="background: none; border: none; padding: 5px;">
+                                <i class="material-icons">&#xE872;</i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        // Add event listeners
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(searchVouchers, 300));
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', searchVouchers);
+        }
     });
 </script>
 

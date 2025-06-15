@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover" id="materialTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -141,6 +141,85 @@
         setTimeout(function() {
             $(".alert").alert('close');
         }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-box input');
+        const materialTable = document.querySelector('#materialTable tbody');
+
+        const debounce = (func, wait) => {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        };
+
+        const handleSearch = debounce(async (e) => {
+            const query = e.target.value.trim();
+
+            try {
+                const response = await fetch(
+                    `/admin/materials/search?query=${encodeURIComponent(query)}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Search failed');
+                }
+
+                updateMaterialTable(data.data);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                materialTable.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger">
+                        Đã xảy ra lỗi khi tìm kiếm: ${error.message}
+                    </td>
+                </tr>`;
+            }
+        }, 300);
+
+        function updateMaterialTable(materials) {
+            if (!materials || materials.length === 0) {
+                materialTable.innerHTML =
+                    '<tr><td colspan="6" class="text-center">Không tìm thấy nguyên liệu nào</td></tr>';
+                return;
+            }
+
+            materialTable.innerHTML = materials.map(material => `
+            <tr>
+                <td>${material.material_id}</td>
+                <td>${material.material_name}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="/admin/materials/${material.material_id}/edit"
+                           class="btn btn-warning btn-sm">
+                            <i class="material-icons">&#xE254;</i>
+                        </a>
+                        <button type="button"
+                                class="btn btn-danger btn-sm"
+                                onclick="deleteMaterial(${material.material_id})">
+                            <i class="material-icons">&#xE872;</i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        searchInput.addEventListener('input', handleSearch);
     });
 </script>
 
