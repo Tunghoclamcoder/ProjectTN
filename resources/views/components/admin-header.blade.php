@@ -200,8 +200,8 @@
                             </li>
                             <li class="divider"></li>
                             <li>
-                                <a href="#0">
-                                    <i class="lni lni-user"></i> View Profile
+                                <a href="{{ route('admin.profile.show') }}">
+                                    <i class="lni lni-user"></i> Xem Profile
                                 </a>
                             </li>
                             <li>
@@ -212,12 +212,15 @@
                             <li>
                                 <a href="#0"> <i class="lni lni-inbox"></i> Messages </a>
                             </li>
-                            <li>
-                                <a href="#0"> <i class="lni lni-cog"></i> Settings </a>
-                            </li>
                             <li class="divider"></li>
                             <li>
-                                <a href="#0"> <i class="lni lni-exit"></i> Sign Out </a>
+                                <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
+                                    @csrf
+                                    <a href="#"
+                                        onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+                                        <i class="lni lni-exit"></i> Đăng xuất
+                                    </a>
+                                </form>
                             </li>
                         </ul>
                     </div>

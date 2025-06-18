@@ -102,17 +102,17 @@ class EmployeeController extends Controller
         return view('employee.dashboard');
     }
 
-    public function logout(Request $request)
-    {
-        Auth::guard('owner')->logout();
-        Auth::guard('employee')->logout();
+    // public function logout(Request $request)
+    // {
+    //     Auth::guard('owner')->logout();
+    //     Auth::guard('employee')->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    //     $request->session()->invalidate();
+    //     $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login')
-            ->with('success', 'Đăng xuất thành công!');
-    }
+    //     return redirect()->route('admin.login')
+    //         ->with('success', 'Đăng xuất thành công!');
+    // }
     // CRUD nhân viên
     public function index()
     {

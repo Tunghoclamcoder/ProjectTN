@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="{{ asset('css/fullcalendar.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/main.css') }}" />
     <script src="{{ asset('js/alert.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>
@@ -409,23 +413,24 @@
                             <table class="table top-selling-table">
                                 <thead>
                                     <tr>
-                                        <th></th>
                                         <th>
-                                            <h6 class="text-sm text-medium">Sản phẩm</h6>
+                                            <h6 class="text-sm text-medium">Sản phẩm
+                                        </th>
+                                        <th style="width: 50px">
+                                            <h6 class="text-sm text-medium">Danh mục</h6>
                                         </th>
                                         <th class="min-width">
-                                            <h6 class="text-sm text-medium">Danh mục</h6>
+                                            <h6 class="text-sm text-medium">Đơn giá</h6>
                                         </th>
                                         <th class="min-width">
                                             <h6 class="text-sm text-medium">Giá bán</h6>
                                         </th>
                                         <th class="min-width">
-                                            <h6 class="text-sm text-medium">Đã bán</h6>
+                                            <h6 class="text-sm text-medium">Số lượng bán ra</h6>
                                         </th>
                                         <th class="min-width">
                                             <h6 class="text-sm text-medium">Doanh thu</h6>
                                         </th>
-                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -454,13 +459,14 @@
                                                 <p class="text-sm">{{ number_format($product->price) }}đ</p>
                                             </td>
                                             <td>
-                                                <p class="text-sm">{{ $product->total_sold }}</p>
-                                            </td>
-                                            <td>
                                                 <p class="text-sm">{{ number_format($product->total_revenue) }}đ</p>
                                             </td>
                                             <td>
-                                                <div class="action justify-content-end">
+                                                <p class="text-sm" style="display: flex; justify-content: center;">
+                                                    {{ $product->total_sold }}</p>
+                                            </td>
+                                            <td>
+                                                <div class="action justify-content-center">
                                                     <a href="{{ route('admin.product.edit', $product->product_id) }}"
                                                         class="text-gray">
                                                         <i class="lni lni-pencil"></i>
@@ -478,67 +484,15 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <div class="card-style mb-30">
-                            <div class="title d-flex flex-wrap align-items-center justify-content-between">
-                                <div class="left">
-                                    <h6 class="text-medium mb-2">Sales Forecast</h6>
+                            <h6 class="mb-10">Top thương hiệu bán chạy</h6>
+                            <div id="chartContainer" style="position: relative; height: 400px;">
+                                <canvas id="brandChart"></canvas>
+                                <div id="chartError" class="text-center text-danger mt-3" style="display: none;">
                                 </div>
-                                <div class="right">
-                                    <div class="select-style-1 mb-2">
-                                        <div class="select-position select-sm">
-                                            <select class="light-bg">
-                                                <option value="">Last Month</option>
-                                                <option value="">Last 3 Months</option>
-                                                <option value="">Last Year</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <!-- end select -->
-                                </div>
-                            </div>
-                            <!-- End Title -->
-                            <div class="chart">
-                                <div id="legend3">
-                                    <ul class="legend3 d-flex flex-wrap align-items-center mb-30">
-                                        <li>
-                                            <div class="d-flex">
-                                                <span class="bg-color primary-bg"> </span>
-                                                <div class="text">
-                                                    <p class="text-sm text-success">
-                                                        <span class="text-dark">Revenue</span> +25.55%
-                                                        <i class="lni lni-arrow-up"></i>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex">
-                                                <span class="bg-color purple-bg"></span>
-                                                <div class="text">
-                                                    <p class="text-sm text-success">
-                                                        <span class="text-dark">Net Profit</span> +45.55%
-                                                        <i class="lni lni-arrow-up"></i>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="d-flex">
-                                                <span class="bg-color orange-bg"></span>
-                                                <div class="text">
-                                                    <p class="text-sm text-danger">
-                                                        <span class="text-dark">Order</span> -4.2%
-                                                        <i class="lni lni-arrow-down"></i>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <canvas id="Chart3"
-                                    style="width: 100%; height: 450px; margin-left: -35px;"></canvas>
                             </div>
                         </div>
                     </div>
+
                     <!-- End Col -->
                     <div class="col-lg-5">
                         <div class="card-style mb-30">
@@ -805,6 +759,30 @@
         .action .btn-info:hover {
             background-color: #138496;
             border-color: #117a8b;
+        }
+
+        /* CSS pie-chart */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .card-style {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .select-sm {
+            min-width: 120px;
+        }
+
+        .chart-wrapper {
+            isolation: isolate;
+            /* Tạo ngữ cảnh stack riêng biệt */
+            z-index: 1;
         }
     </style>
 
@@ -1107,145 +1085,86 @@
         // =========== chart two end
 
         // =========== chart three start
-        const ctx3 = document.getElementById("Chart3").getContext("2d");
-        const chart3 = new Chart(ctx3, {
-            type: "line",
-            data: {
-                labels: [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                ],
-                datasets: [{
-                        label: "Revenue",
-                        backgroundColor: "transparent",
-                        borderColor: "#365CF5",
-                        data: [80, 120, 110, 100, 130, 150, 115, 145, 140, 130, 160, 210],
-                        pointBackgroundColor: "transparent",
-                        pointHoverBackgroundColor: "#365CF5",
-                        pointBorderColor: "transparent",
-                        pointHoverBorderColor: "#365CF5",
-                        pointHoverBorderWidth: 3,
-                        pointBorderWidth: 5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        fill: false,
-                        tension: 0.4,
-                    },
-                    {
-                        label: "Profit",
-                        backgroundColor: "transparent",
-                        borderColor: "#9b51e0",
-                        data: [
-                            120, 160, 150, 140, 165, 210, 135, 155, 170, 140, 130, 200,
-                        ],
-                        pointBackgroundColor: "transparent",
-                        pointHoverBackgroundColor: "#9b51e0",
-                        pointBorderColor: "transparent",
-                        pointHoverBorderColor: "#9b51e0",
-                        pointHoverBorderWidth: 3,
-                        pointBorderWidth: 5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        fill: false,
-                        tension: 0.4,
-                    },
-                    {
-                        label: "Order",
-                        backgroundColor: "transparent",
-                        borderColor: "#f2994a",
-                        data: [180, 110, 140, 135, 100, 90, 145, 115, 100, 110, 115, 150],
-                        pointBackgroundColor: "transparent",
-                        pointHoverBackgroundColor: "#f2994a",
-                        pointBorderColor: "transparent",
-                        pointHoverBorderColor: "#f2994a",
-                        pointHoverBorderWidth: 3,
-                        pointBorderWidth: 5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        fill: false,
-                        tension: 0.4,
-                    },
-                ],
-            },
-            options: {
-                plugins: {
-                    tooltip: {
-                        intersect: false,
-                        backgroundColor: "#fbfbfb",
-                        titleColor: "#8F92A1",
-                        bodyColor: "#272727",
-                        titleFont: {
-                            size: 16,
-                            family: "Plus Jakarta Sans",
-                            weight: "400",
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartContainer = document.getElementById('chartContainer');
+            const canvas = document.getElementById('brandChart');
+            const errorDiv = document.getElementById('chartError');
+
+            fetch('{{ route('admin.dashboard.brandStats') }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                    }
+                    return data;
+                })
+                .then(result => {
+                    if (!result.success) {
+                        throw new Error(result.message || 'Không có dữ liệu');
+                    }
+
+                    const data = result.data;
+                    if (!data || data.length === 0) {
+                        throw new Error('Không có dữ liệu thương hiệu');
+                    }
+
+                    // Create chart with data
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.map(item => item.brand_name),
+                            datasets: [{
+                                data: data.map(item => item.percentage),
+                                backgroundColor: [
+                                    '#8901dc',
+                                    '#01dc8c',
+                                    '#ebf15b',
+                                    '#ADC2FD',
+                                    '#0139dc'
+                                ],
+                                borderWidth: 1
+                            }]
                         },
-                        bodyFont: {
-                            family: "Plus Jakarta Sans",
-                            size: 16,
-                        },
-                        multiKeyBackground: "transparent",
-                        displayColors: false,
-                        padding: {
-                            x: 30,
-                            y: 15,
-                        },
-                        borderColor: "rgba(143, 146, 161, .1)",
-                        borderWidth: 1,
-                        enabled: true,
-                    },
-                    title: {
-                        display: false,
-                    },
-                    legend: {
-                        display: false,
-                    },
-                },
-                layout: {
-                    padding: {
-                        top: 0,
-                    },
-                },
-                responsive: true,
-                // maintainAspectRatio: false,
-                legend: {
-                    display: false,
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            display: false,
-                            drawTicks: false,
-                            drawBorder: false,
-                        },
-                        ticks: {
-                            padding: 35,
-                        },
-                        max: 350,
-                        min: 50,
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            color: "rgba(143, 146, 161, .1)",
-                            drawTicks: false,
-                            zeroLineColor: "rgba(143, 146, 161, .1)",
-                        },
-                        ticks: {
-                            padding: 20,
-                        },
-                    },
-                },
-            },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const item = data[context.dataIndex];
+                                            return `${item.brand_name}: ${item.percentage}% (${item.total_sales} đơn)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorDiv.style.display = 'block';
+                    errorDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <p>Không thể tải dữ liệu biểu đồ</p>
+                <small>${error.message}</small>
+            </div>
+        `;
+                });
         });
         // =========== chart three end
 

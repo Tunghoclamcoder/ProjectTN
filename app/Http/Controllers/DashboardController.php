@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Traits\PreventBackHistory;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Models\Product;
 use Elastic\Elasticsearch\Client;
 use App\Traits\Searchable;
-
+use App\Models\OrderDetail;
+use App\Models\Brand;
 
 class DashboardController extends Controller
 {
@@ -240,6 +242,54 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             Log::error('Search suggestions error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getBrandSalesStats(): JsonResponse
+    {
+        try {
+            Log::info('Starting getBrandSalesStats...');
+
+            // First get total orders
+            $totalOrders = DB::table('order_details')->count();
+            Log::info('Total orders found: ' . $totalOrders);
+
+            if ($totalOrders === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có dữ liệu đơn hàng'
+                ]);
+            }
+
+            $brandStats = DB::table('brands as b')
+                ->join('products as p', 'b.brand_id', '=', 'p.brand_id')
+                ->join('order_details as od', 'p.product_id', '=', 'od.product_id')
+                ->select(
+                    'b.brand_name',
+                    DB::raw('COUNT(od.product_id) as total_sales'),
+                    DB::raw("ROUND((COUNT(od.product_id) * 100.0 / $totalOrders), 2) as percentage")
+                )
+                ->groupBy('b.brand_id', 'b.brand_name')
+                ->orderByDesc('total_sales')
+                ->limit(5)
+                ->get();
+
+            Log::info('Brand stats retrieved:', ['data' => $brandStats]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $brandStats
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getBrandSalesStats: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi server: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

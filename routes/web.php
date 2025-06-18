@@ -17,7 +17,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\AdminController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -120,9 +120,18 @@ Route::prefix('admin')->group(function () {
         Route::get('/search', [DashboardController::class, 'search'])
             ->name('admin.search');
 
+        Route::get('/dashboard/brand-stats', [DashboardController::class, 'getBrandSalesStats'])
+            ->name('admin.dashboard.brandStats');
+
+        Route::get('/profile', [AdminController::class, 'show'])
+            ->name('admin.profile.show');
+        Route::put('/profile/update', [AdminController::class, 'update'])
+            ->name('admin.profile.update');
+
         Route::get('/search/suggestions', [DashboardController::class, 'searchSuggestions'])
             ->name('admin.search.suggestions');
-        Route::post('/logout', [OwnerController::class, 'logout'])->name('admin.logout');
+        Route::post('/logout', [AdminController::class, 'logout'])
+            ->name('admin.logout');
 
         // Routes quản lý nhân viên
         Route::prefix('employees')->group(function () {

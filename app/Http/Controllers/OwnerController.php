@@ -53,17 +53,17 @@ class OwnerController extends Controller
         return $this->preventBackHistory($response);
     }
 
-    public function logout(Request $request)
-    {
-        Auth::guard('owner')->logout();
-        Auth::guard('employee')->logout();
+    // public function logout(Request $request)
+    // {
+    //     Auth::guard('owner')->logout();
+    //     Auth::guard('employee')->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    //     $request->session()->invalidate();
+    //     $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login')
-            ->with('success', 'Đăng xuất thành công!');
-    }
+    //     return redirect()->route('admin.login')
+    //         ->with('success', 'Đăng xuất thành công!');
+    // }
 
     // public function dashboard()
     // {
