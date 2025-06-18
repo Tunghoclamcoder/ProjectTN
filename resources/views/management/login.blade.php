@@ -22,7 +22,7 @@
             <div class="logo">
                 <img src="{{ asset('images/hacker.png') }}">
             </div>
-            <div class="welcome"><strong>Welcome,</strong> please login</div>
+            <div class="welcome"><strong>Xin chào,</strong> Vui lòng đăng nhập tài khoản Admin</div>
 
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -72,11 +72,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-success btn-lg w-100">Login</button>
-                </div>
-
-                <div class="forgot-password-container">
-                    <a class="forget" href="" title="forget">Forgot your password?</a>
+                    <button type="submit" class="btn btn-success btn-lg w-100">Đăng nhập</button>
                 </div>
             </form>
         </div>

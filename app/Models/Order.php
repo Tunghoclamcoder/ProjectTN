@@ -54,9 +54,15 @@ class Order extends Model
     }
 
     // Relationship with ShippingMethod
-    public function shippingMethod(): BelongsTo
+    public function shipping_method(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class, 'shipping_method_id', 'method_id');
+    }
+
+    // For admin panel (camelCase)
+    public function shippingMethod(): BelongsTo
+    {
+        return $this->shipping_method();
     }
 
     // Relationship with OrderDetails
@@ -93,9 +99,22 @@ class Order extends Model
 
     public function getTotalAmount()
     {
-        return $this->orderDetails->sum(function ($detail) {
-            return $detail->sold_quantity * $detail->sold_price;
+        // Calculate base total
+        $total = $this->orderDetails->sum(function ($detail) {
+            return $detail->sold_price * $detail->sold_quantity;
         });
+
+        // Use shipping_method() to support both naming conventions
+        if ($this->shipping_method) {
+            $total += $this->shipping_method->shipping_fee;
+        }
+
+        // Subtract voucher discount if exists
+        if ($this->voucher) {
+            $total -= $this->getDiscountAmount();
+        }
+
+        return $total;
     }
 
     public function getDiscountAmount()
@@ -115,10 +134,19 @@ class Order extends Model
 
     public function getFinalTotal()
     {
+        // Calculate products total
         $total = $this->orderDetails->sum(function ($detail) {
             return $detail->sold_price * $detail->sold_quantity;
         });
 
-        return $total - $this->getDiscountAmount();
+        // Add shipping fee if exists
+        if ($this->shipping_method) {
+            $total += $this->shipping_method->shipping_fee;
+        }
+
+        // Subtract discount amount if voucher exists
+        $total -= $this->getDiscountAmount();
+
+        return $total;
     }
 }

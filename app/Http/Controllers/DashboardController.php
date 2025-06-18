@@ -23,6 +23,14 @@ class DashboardController extends Controller
     use PreventBackHistory, Searchable;
     public function index()
     {
+        $statusClasses = [
+            'pending' => 'warning',
+            'confirmed' => 'info',
+            'shipping' => 'primary',
+            'completed' => 'success',
+            'cancelled' => 'danger'
+        ];
+
         $latestOrders = Order::with(['customer'])
             ->orderBy('order_date', 'desc')
             ->take(5)
@@ -138,7 +146,8 @@ class DashboardController extends Controller
                 'last7Days',
                 'dailyRevenue',
                 'topSellingProducts',
-                'latestOrders'
+                'latestOrders',
+                'statusClasses'
             ));
         } catch (\Exception $e) {
             Log::error('Dashboard Error: ' . $e->getMessage());

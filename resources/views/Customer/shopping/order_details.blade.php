@@ -48,7 +48,7 @@
             <h3>Thông tin đơn hàng</h3>
             <div class="summary-item">
                 <span class="label">Ngày đặt hàng:</span>
-                <span class="value">{{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y - H:i') }}</span>
+                <span class="value">{{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y') }}</span>
             </div>
             <div class="summary-item">
                 <span class="label">Người nhận:</span>
@@ -68,7 +68,9 @@
             </div>
             <div class="summary-item">
                 <span class="label">Phương thức vận chuyển:</span>
-                <span class="value">{{ $order->shippingMethod->method_name }}</span>
+                <span class="value">
+                    {{ $order->shippingMethod ? $order->shippingMethod->method_name : 'Không có thông tin' }}
+                </span>
             </div>
         </div>
 
@@ -163,23 +165,43 @@
         <div class="totals-section">
             <div class="total-item">
                 <span class="label">Tạm tính:</span>
-                <span
-                    class="value">{{ number_format(
+                <span class="value">
+                    {{ number_format(
                         $order->orderDetails->sum(function ($detail) {
                             return $detail->sold_price * $detail->sold_quantity;
                         }),
                     ) }}
-                    VNĐ</span>
+                    VNĐ
+                </span>
             </div>
+
+            <!-- Add shipping fee display -->
+            <div class="total-item">
+                <span class="label">Phí vận chuyển ({{ $order->shippingMethod->method_name }}):</span>
+                <span class="value">{{ number_format($order->shippingMethod->shipping_fee) }} VNĐ</span>
+            </div>
+
+            <!-- Show discount if voucher exists -->
             @if ($order->voucher)
                 <div class="total-item discount">
                     <span class="label">Giảm giá ({{ $order->voucher->code }}):</span>
                     <span class="value">-{{ number_format($order->getDiscountAmount()) }} VNĐ</span>
                 </div>
             @endif
+
+            <!-- Update grand total to include shipping fee -->
             <div class="total-item grand-total">
                 <span class="label">Tổng cộng:</span>
-                <span class="value">{{ number_format($order->getFinalTotal()) }} VNĐ</span>
+                <span class="value">
+                    {{ number_format(
+                        $order->orderDetails->sum(function ($detail) {
+                            return $detail->sold_price * $detail->sold_quantity;
+                        }) +
+                            $order->shippingMethod->shipping_fee -
+                            ($order->voucher ? $order->getDiscountAmount() : 0),
+                    ) }}
+                    VNĐ
+                </span>
             </div>
         </div>
     </div>

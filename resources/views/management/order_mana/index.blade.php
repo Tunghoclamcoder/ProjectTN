@@ -156,14 +156,7 @@
                                             </a>
 
                                             @if ($order->order_status == 'pending')
-                                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
-                                                    title="Không thể thay đổi trạng thái đơn hàng đã được xác nhận">
-                                                    <button class="btn btn-sm btn-secondary"
-                                                        style="pointer-events: none" disabled>
-                                                        <i class="material-icons">block</i>
-                                                    </button>
-                                                </span>
-
+                                                {{-- Show confirm and cancel buttons for pending orders --}}
                                                 <form
                                                     action="{{ route('admin.order.update-status', $order->order_id) }}"
                                                     method="POST" style="display:inline">
@@ -177,7 +170,6 @@
                                                     </button>
                                                 </form>
 
-                                                {{-- Chỉ hiển thị nút hủy khi đơn hàng đang ở trạng thái chờ xác nhận --}}
                                                 <form
                                                     action="{{ route('admin.order.update-status', $order->order_id) }}"
                                                     method="POST" style="display:inline">
@@ -190,6 +182,15 @@
                                                         <i class="material-icons">clear</i>
                                                     </button>
                                                 </form>
+                                            @elseif ($order->order_status == 'confirmed')
+                                                {{-- Show block button for confirmed orders --}}
+                                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
+                                                    title="Không thể thay đổi trạng thái đơn hàng đã được xác nhận">
+                                                    <button class="btn btn-sm btn-secondary"
+                                                        style="pointer-events: none" disabled>
+                                                        <i class="material-icons">block</i>
+                                                    </button>
+                                                </span>
                                             @endif
                                         </div>
                                     </td>
@@ -301,11 +302,11 @@
             <td>
                 ${formatCurrency(order.total_amount)}
                 ${order.voucher ? `
-                        <br>
-                        <small class="text-success">
-                            Đã áp dụng voucher: ${order.voucher.code}
-                        </small>
-                    ` : ''}
+                            <br>
+                            <small class="text-success">
+                                Đã áp dụng voucher: ${order.voucher.code}
+                            </small>
+                        ` : ''}
             </td>
             <td>
                 <span class="badge ${getStatusBadgeClass(order.order_status)}">

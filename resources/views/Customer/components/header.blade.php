@@ -65,6 +65,9 @@
                                     <a href="{{ route('customer.orders') }}" class="dropdown-item">
                                         <i class="lni lni-shopping-basket"></i> Đơn hàng của tôi
                                     </a>
+                                    <a href="{{ route('customer.change-password') }}" class="dropdown-item">
+                                        <i class="lni lni-lock"></i> Đổi mật khẩu
+                                    </a>
                                     <form action="{{ route('customer.logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item">
@@ -83,53 +86,53 @@
 </header>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchForm = document.getElementById('searchForm');
-    const suggestionsContainer = document.getElementById('searchSuggestions');
-    let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+        const suggestionsContainer = document.getElementById('searchSuggestions');
+        let searchTimeout;
 
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
 
-        if (query.length < 2) {
-            suggestionsContainer.style.display = 'none';
-            return;
-        }
+            if (query.length < 2) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
 
-        searchTimeout = setTimeout(() => {
-            fetch(`/search-suggestions?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(suggestions => {
-                    suggestionsContainer.innerHTML = '';
+            searchTimeout = setTimeout(() => {
+                fetch(`/search-suggestions?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(suggestions => {
+                        suggestionsContainer.innerHTML = '';
 
-                    if (suggestions.length > 0) {
-                        suggestions.forEach(suggestion => {
-                            const div = document.createElement('div');
-                            div.className = 'suggestion-item';
-                            div.textContent = suggestion;
-                            div.addEventListener('click', () => {
-                                searchInput.value = suggestion;
-                                searchForm.submit();
+                        if (suggestions.length > 0) {
+                            suggestions.forEach(suggestion => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.textContent = suggestion;
+                                div.addEventListener('click', () => {
+                                    searchInput.value = suggestion;
+                                    searchForm.submit();
+                                });
+                                suggestionsContainer.appendChild(div);
                             });
-                            suggestionsContainer.appendChild(div);
-                        });
-                        suggestionsContainer.style.display = 'block';
-                    } else {
-                        suggestionsContainer.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Search error:', error);
-                });
-        }, 300);
-    });
+                            suggestionsContainer.style.display = 'block';
+                        } else {
+                            suggestionsContainer.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                    });
+            }, 300);
+        });
 
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchForm.contains(e.target)) {
-            suggestionsContainer.style.display = 'none';
-        }
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchForm.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
     });
-});
 </script>

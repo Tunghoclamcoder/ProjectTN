@@ -122,8 +122,19 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>Tạm tính:</strong></td>
-                                <td>{{ number_format($order->getTotalAmount()) }} VNĐ</td>
+                                <td colspan="3" class="text-right"><strong>Tổng tiền sản phẩm:</strong></td>
+                                <td>{{ number_format(
+                                    $order->orderDetails->sum(function ($detail) {
+                                        return $detail->sold_price * $detail->sold_quantity;
+                                    }),
+                                ) }}
+                                    VNĐ</td>
+                            </tr>
+
+                            <!-- Phí vận chuyển -->
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Phí vận chuyển:</strong></td>
+                                <td>{{ number_format($order->shippingMethod->shipping_fee ?? 0) }} VNĐ</td>
                             </tr>
 
                             <!-- Thông tin voucher -->
@@ -151,13 +162,7 @@
                                 <tr>
                                     <td colspan="3" class="text-right"><strong>Số tiền giảm:</strong></td>
                                     <td class="text-danger">
-                                        -
-                                        {{ number_format(
-                                            $order->voucher->discount_percentage
-                                                ? ($order->getTotalAmount() * $order->voucher->discount_percentage) / 100
-                                                : $order->voucher->discount_amount,
-                                        ) }}
-                                        VNĐ
+                                        -{{ number_format($order->getDiscountAmount()) }} VNĐ
                                     </td>
                                 </tr>
                             @endif
@@ -184,9 +189,7 @@
                                 <i class="material-icons">check</i> Xác nhận đơn hàng
                             </button>
                         </form>
-                    @endif
 
-                    @if ($order->order_status != 'completed' && $order->order_status != 'cancelled')
                         <form action="{{ route('admin.order.update-status', $order->order_id) }}" method="POST"
                             class="d-inline">
                             @csrf

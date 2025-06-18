@@ -17,6 +17,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Middleware\CustomerAuthentication;
 use App\Http\Controllers\AdminController;
 
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,30 @@ Route::middleware('guest:customer')->group(function () {
     Route::get('/customer/login', [CustomerController::class, 'showLoginForm'])->name('customer.login');
     Route::post('/customer/login', [CustomerController::class, 'login'])->name('customer.login.submit');
 });
+// Quên mật khẩu
+Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPasswordForm'])
+    ->name('customer.forgot-password');
+
+// Xử lý submit form quên mật khẩu
+Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLinkEmail'])
+    ->name('customer.forgot-password.submit');
+
+    //reset mật khẩu
+Route::get('customer/reset-password/{token}', [\App\Http\Controllers\CustomerController::class, 'showResetPasswordForm'])
+    ->name('customer.reset_password');
+// Xử lý submit form reset mật khẩu
+    Route::post('customer/reset-password', [\App\Http\Controllers\CustomerController::class, 'resetPassword'])
+    ->name('customer.reset-password.submit');
+
+Route::get('customer/change-password', [CustomerController::class, 'showChangePasswordForm'])
+    ->middleware(CustomerAuthentication::class)
+    ->name('customer.change-password');
+
+Route::post('customer/change-password', [CustomerController::class, 'changePassword'])
+    ->middleware(CustomerAuthentication::class)
+    ->name('customer.change-password.update');
+
+Route::get('/product/{product}', [ProductController::class, 'show'])->name('shop.product.show');
 
 Route::middleware('auth:customer')->group(function () {
     Route::get('/customer/profile', [CustomerController::class, 'profile'])->name('customer.profile');
@@ -56,7 +81,7 @@ Route::middleware('auth:customer')->group(function () {
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
     Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
-    Route::get('/product/{product}', [ProductController::class, 'show'])->name('shop.product.show');
+
 });
 
 //Search cho trang chủ của Customer
@@ -72,16 +97,6 @@ Route::get('/categories/{id}', [CategoryController::class, 'show'])->name('categ
 //Trang hiển thị thương hiệu sản phẩm
 Route::get('/brands', [BrandController::class, 'brandList'])->name('brands.list');
 Route::get('/brands/{id}', [BrandController::class, 'show'])->name('brands.show');
-
-// Quên mật khẩu
-Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPasswordForm'])->name('customer.forgot_password');
-Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLinkEmail'])->name('customer.send_reset_link');
-Route::get('customer/reset-password/{token}', [CustomerController::class, 'showResetPasswordForm'])->name('customer.reset_password');
-Route::post('customer/reset-password', [CustomerController::class, 'resetPassword'])->name('customer.update_password');
-
-// Đổi mật khẩu (cần đăng nhập)
-Route::get('customer/change-password', [CustomerController::class, 'showChangePasswordForm'])->middleware('auth:customer')->name('customer.change_password');
-Route::post('customer/change-password', [CustomerController::class, 'changePassword'])->middleware('auth:customer')->name('customer.update_change_password');
 
 Route::get('/product/{product_id}/reviews', [FeedbackController::class, 'showProductReviews'])->name('product.reviews');
 

@@ -89,6 +89,7 @@
                             <tr>
                                 <th scope="col">Mã đơn hàng</th>
                                 <th scope="col">Ngày đặt</th>
+                                <th scope="col">Phí Ship</th>
                                 <th scope="col">Tổng tiền</th>
                                 <th scope="col">Trạng thái</th>
                                 <th scope="col">Thao tác</th>
@@ -102,6 +103,9 @@
                                     </td>
                                     <td>
                                         <div>{{ $order->order_date->format('d/m/Y') }}</div>
+                                    </td>
+                                    <td>
+                                        <span> {{ number_format($order->shipping_method->shipping_fee) }}đ</span>
                                     </td>
                                     <td>
                                         <span class="fw-bold">{{ number_format($order->getFinalTotal()) }} VNĐ</span>

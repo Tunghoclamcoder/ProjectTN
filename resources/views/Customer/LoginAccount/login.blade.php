@@ -1,264 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập</title>
-    <link href="https://fonts.googleapis.com/css?family=Vibur" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ asset('js/alert.js') }}"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Đăng nhập - {{ config('app.name', 'Shop') }}</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ asset('css/customer_login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Đăng nhập vào tài khoản của bạn để mua sắm và quản lý đơn hàng">
+    <meta name="keywords" content="đăng nhập, login, tài khoản, shop">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 </head>
 
 <body>
-    <div class="alerts-container">
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <div class="login-container">
+        <!-- Left Side - Welcome Section -->
+        <div class="login-left">
+            <div class="welcome-icon">
+                <i class="fas fa-shopping-bag"></i>
             </div>
-        @endif
+            <h2>Chào mừng trở lại!</h2>
+            <p>Đăng nhập để tiếp tục mua sắm và trải nghiệm những sản phẩm tuyệt vời nhất từ chúng tôi.</p>
+        </div>
 
-        @if (session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-    </div>
-
-
-    <div class="login-form">
-        <h1>N & T</h1>
-        <form method="POST" action="{{ route('customer.login.submit') }}">
-            @csrf
-
-            <div class="form-group">
-                <input type="email" name="email" class="form-control @error('email') wrong-entry @enderror"
-                    placeholder="Email" value="{{ old('email') }}" required>
-                <i class="fa fa-user"></i>
-                @error('email')
-                    <span class="alert">{{ $message }}</span>
-                @enderror
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <div class="login-header">
+                <h3>Đăng nhập</h3>
+                <p>Nhập thông tin của bạn để đăng nhập</p>
             </div>
 
-            <div class="form-group log-status">
-                <input type="password" name="password" class="form-control @error('password') wrong-entry @enderror"
-                    placeholder="Mật khẩu" required>
-                <i class="fa fa-lock"></i>
-                @error('password')
-                    <span class="alert">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                <label for="remember">Ghi nhớ đăng nhập</label>
-            </div>
-
-            @if (session('error'))
-                <span class="alert">{{ session('error') }}</span>
+            <!-- Display Success Messages -->
+            @if(session('success'))
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ session('success') }}
+                </div>
             @endif
 
-            {{-- <a class="link" href="{{ route('customer.password.request') }}">Quên mật khẩu?</a> --}}
+            <!-- Display Error Messages -->
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
 
-            <button type="submit" class="log-btn">Đăng nhập</button>
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    @foreach($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
 
-            <div style="text-align: center; margin-top: 15px;">
-                <span>Chưa có tài khoản? </span>
-                <a href="{{ route('customer.register') }}">Đăng ký tại đây</a>
-            </div>
+            <!-- Login Form -->
+            <form id="loginForm" method="POST" action="{{ route('customer.login.submit') }}">
+                @csrf
 
-            <div style="display: flex; align-items: center; justify-content: center; margin-top: 10px;">
-                <a href="{{ route('customer.forgot_password') }}">Quên mật khẩu?</a>
-            </div>
-        </form>
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control @error('email') is-invalid @enderror"
+                        placeholder="Nhập địa chỉ email của bạn"
+                        value="{{ old('email') }}"
+                        required
+                        autocomplete="email"
+                        autofocus
+                    >
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Mật khẩu
+                    </label>
+                    <div style="position: relative;">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control @error('password') is-invalid @enderror"
+                            placeholder="Nhập mật khẩu của bạn"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <span class="password-toggle">
+                            <i class="fas fa-eye-slash"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Form Options -->
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label for="remember" style="color: #fff">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="{{ route('customer.forgot-password') }}" class="forgot-password">
+                        Quên mật khẩu?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Đăng nhập
+                </button>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>hoặc</span>
+                </div>
+
+                <!-- Register Link -->
+                <div class="register-link">
+                    Chưa có tài khoản?
+                    <a href="{{ route('customer.register') }}">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <!-- JavaScript Files -->
+    <script src="{{ asset('js/customer_login.js') }}"></script>
+
+    <!-- Additional Scripts -->
+    <script>
+        // Add any additional JavaScript here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on first input if no errors
+            @if(!$errors->any() && !session('error'))
+                document.getElementById('email').focus();
+            @endif
+
+            // Auto-fill demo credentials (remove in production)
+            @if(config('app.env') === 'local')
+                const demoBtn = document.createElement('button');
+                demoBtn.type = 'button';
+                demoBtn.className = 'btn-demo';
+                demoBtn.innerHTML = '<i class="fas fa-user-cog"></i> Demo Account';
+                demoBtn.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 10px 15px;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    z-index: 1000;
+                `;
+
+                demoBtn.addEventListener('click', function() {
+                    document.getElementById('email').value = 'demo@example.com';
+                    document.getElementById('password').value = 'password';
+                });
+
+                document.body.appendChild(demoBtn);
+            @endif
+        });
+    </script>
 </body>
-
-<style>
-    @import "compass/css3";
-    @import url(https://fonts.googleapis.com/css?family=Vibur);
-
-    <style> {
-        box-sizing: border-box;
-        foFnt-family: arial;
-    }
-
-    body {
-        background: #FF9000;
-    }
-
-    h1 {
-        color: #ccc;
-        text-align: center;
-        font-family: 'Vibur', cursive;
-        font-size: 50px;
-    }
-
-    .login-form {
-        width: 350px;
-        padding: 40px 30px;
-        background: #eee;
-        border-radius: 4px;
-        margin: auto;
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .form-control {
-        width: 93%;
-        height: 50px;
-        border: none;
-        padding: 5px 7px 5px 15px;
-        background: #fff;
-        color: #666;
-        border: 2px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .form-control:focus,
-    .form-control:focus+.fa {
-        border-color: #10CE88;
-        color: #10CE88;
-    }
-
-    .log-status.wrong-entry {
-        animation: wrong-log 0.3s;
-    }
-
-    .log-btn {
-        background: #0AC986;
-        display: inline-block;
-        width: 100%;
-        font-size: 16px;
-        height: 50px;
-        color: #fff;
-        text-decoration: none;
-        border: none;
-        border-radius: 4px;
-    }
-
-    .link {
-        text-decoration: none;
-        color: #C6C6C6;
-        float: right;
-        font-size: 12px;
-        margin-bottom: 15px;
-    }
-
-    .link:hover {
-        text-decoration: underline;
-        color: #8C918F;
-    }
-
-    .alerts-container {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: 80%;
-        max-width: 400px;
-    }
-
-    .alert {
-        display: none;
-        /* Ẩn mặc định */
-        margin-bottom: 10px;
-        padding: 15px;
-        border-radius: 4px;
-        text-align: center;
-    }
-
-    .alert-danger {
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-    }
-
-    .alert-success {
-        color: #155724;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-    }
-
-    .form-group .alert {
-        position: absolute;
-        bottom: -20px;
-        left: 0;
-        width: 100%;
-        font-size: 12px;
-        background: none;
-        border: none;
-        padding: 0;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-        position: relative;
-    }
-
-    .fa {
-        position: absolute;
-        right: 15px;
-        top: 17px;
-        color: #999;
-    }
-
-    .wrong-entry {
-        border-color: #f00 !important;
-    }
-</style>
-<script>
-    $(document).ready(function() {
-        // Xóa sự kiện click cũ
-        $('.log-btn').off('click');
-
-        // Xử lý form submission
-        $('form').on('submit', function(e) {
-            // Reset trạng thái
-            $('.log-status').removeClass('wrong-entry');
-            $('.alert').hide();
-
-            // Kiểm tra validation phía client
-            let hasError = false;
-            $('.form-control').each(function() {
-                if (!$(this).val()) {
-                    hasError = true;
-                    $(this).closest('.form-group').addClass('wrong-entry');
-                }
-            });
-        });
-
-        // Xử lý khi nhập vào input
-        $('.form-control').on('input', function() {
-            $(this).closest('.form-group').removeClass('wrong-entry');
-            $(this).closest('.form-group').find('.alert').fadeOut('slow');
-        });
-
-        // Hiển thị alert message nếu có
-        @if (session('error'))
-            $('.alert-danger').fadeIn(500).delay(3000).fadeOut('slow');
-        @endif
-
-        @if (session('success'))
-            $('.alert-success').fadeIn(500).delay(3000).fadeOut('slow');
-        @endif
-    });
-</script>
 
 </html>

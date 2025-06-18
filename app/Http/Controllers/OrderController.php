@@ -48,7 +48,7 @@ class OrderController extends Controller
                     'receiver_address' => $order->receiver_address,
                     'order_date' => $order->order_date,
                     'order_status' => $order->order_status,
-                    'total_amount' => $order->getTotalAmount(), // Sử dụng method getTotalAmount()
+                    'total_amount' => $order->getTotalAmount(),
                     'voucher' => $order->voucher ? [
                         'code' => $order->voucher->code,
                         'discount_amount' => $order->voucher->discount_amount
@@ -71,7 +71,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = Order::with(['customer', 'voucher', 'orderDetails.product'])
+        $orders = Order::with(['orderDetails', 'shippingMethod', 'voucher'])
             ->orderBy('order_date', 'desc')
             ->paginate(10);
 
@@ -514,23 +514,27 @@ class OrderController extends Controller
     {
         $customer = auth('customer')->user();
 
-        // Lấy danh sách đơn hàng
-        $orders = Order::where('customer_id', $customer->customer_id)
+        $orders = Order::with([
+            'orderDetails',
+            'shipping_method',
+            'voucher'
+        ])
+            ->where('customer_id', $customer->customer_id)
             ->where('order_status', '!=', 'cart')
             ->orderBy('order_date', 'desc')
             ->paginate(10);
 
-        // Tính các thông số thống kê
         $totalOrders = Order::where('customer_id', $customer->customer_id)
             ->where('order_status', '!=', 'cart')
             ->count();
 
-        // Sửa phần tính tổng chi tiêu
+        // Calculate total spent including shipping fees
         $totalSpent = Order::where('customer_id', $customer->customer_id)
             ->where('order_status', '!=', 'cart')
+            ->with('shipping_method') // Eager load shipping method
             ->get()
             ->sum(function ($order) {
-                return $order->getFinalTotal();
+                return $order->getFinalTotal() + ($order->shipping_method ? $order->shipping_method->shipping_fee : 0);
             });
 
         $completedOrders = Order::where('customer_id', $customer->customer_id)
@@ -547,12 +551,18 @@ class OrderController extends Controller
 
     public function orderDetails(Order $order)
     {
-        // Kiểm tra xem đơn hàng có thuộc về customer hiện tại không
+        // Check if order belongs to current customer
         if ($order->customer_id !== auth('customer')->id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        return view('Customer.shopping.order_details', compact('order'));
+        // Eager load shipping method
+        $order->load(['shippingMethod', 'paymentMethod', 'orderDetails.product']);
+
+        // Calculate total with shipping
+        $totalWithShipping = $order->getFinalTotal() + ($order->shipping_method ? $order->shipping_method->shipping_fee : 0);
+
+        return view('Customer.shopping.order_details', compact('order', 'totalWithShipping'));
     }
 
     public function cancelOrder(Order $order)

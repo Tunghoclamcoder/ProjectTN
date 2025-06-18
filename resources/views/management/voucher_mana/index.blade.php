@@ -74,8 +74,8 @@
                                     <input type="text" class="form-control" id="searchInput"
                                         placeholder="Tìm kiếm theo mã voucher...">
                                 </div>
-                                <div class="status-filter" style="min-width: 150px;">
-                                    <select class="form-select" id="statusFilter">
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="statusFilter">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="1">Đang kích hoạt</option>
                                         <option value="0">Đã hết hạn</option>

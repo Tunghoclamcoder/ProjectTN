@@ -416,7 +416,7 @@
                                         <th>
                                             <h6 class="text-sm text-medium">Sản phẩm
                                         </th>
-                                        <th style="width: 50px">
+                                        <th style="width: 180px">
                                             <h6 class="text-sm text-medium">Danh mục</h6>
                                         </th>
                                         <th class="min-width">
@@ -619,8 +619,14 @@
                                                     </p>
                                                 </td>
                                                 <td>
-                                                    <p class="text-sm">{{ number_format($order->getTotalAmount()) }}
-                                                        VNĐ</p>
+                                                    <p class="text-sm">
+                                                        {{ number_format($order->getTotalAmount()) }} VNĐ
+                                                        @if ($order->voucher)
+                                                            <br>
+                                                            <small class="text-success">
+                                                                <i class="bi bi-tag-fill"></i> Đã áp dụng giảm giá
+                                                            </small>
+                                                        @endif
                                                     </p>
                                                 </td>
                                                 <td>
@@ -640,8 +646,9 @@
                                                             'cancelled' => 'Đã hủy',
                                                         ];
                                                     @endphp
-                                                    <span class="badge bg-{{ $statusClasses[$order->order_status] }}">
-                                                        {{ $statusLabels[$order->order_status] }}
+                                                    <span
+                                                        class="badge bg-{{ $statusClasses[$order->order_status] ?? 'secondary' }}">
+                                                        {{ $order->getStatusLabel() }}
                                                     </span>
                                                 </td>
                                                 <td>
