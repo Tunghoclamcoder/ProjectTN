@@ -8,6 +8,7 @@ use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -107,5 +108,50 @@ class AdminController extends Controller
 
         return redirect()->route('login')
             ->with('success', 'Đăng xuất thành công!');
+    }
+
+    public function showChangePasswordForm()
+    {
+        return view('management.change_password');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (Auth::guard('owner')->check()) {
+            $user = Auth::guard('owner')->user();
+            $model = Owner::find($user->owner_id);
+            $redirectTo = 'owner.login';
+        } elseif (Auth::guard('employee')->check()) {
+            $user = Auth::guard('employee')->user();
+            $model = Employee::find($user->employee_id);
+            $redirectTo = 'employee.login';
+        } else {
+            return redirect()->back()->with('error', 'Không xác định được tài khoản.');
+        }
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->with('error', 'Mật khẩu hiện tại không đúng.');
+        }
+
+        try {
+            $model->password = bcrypt($request->new_password);
+            $model->save();
+
+            // Đăng xuất admin sau khi đổi mật khẩu
+            Auth::guard($user instanceof Owner ? 'owner' : 'employee')->logout();
+
+            // Chuyển hướng đến đăng nhập với thông báo thành công
+            return redirect()
+                ->route('admin.login')
+                ->with('success', 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.');
+        }
     }
 }

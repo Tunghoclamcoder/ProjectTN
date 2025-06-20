@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     <div class="alerts-container">
         @if ($errors->any())

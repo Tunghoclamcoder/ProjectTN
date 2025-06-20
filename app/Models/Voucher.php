@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Voucher extends Model
 {
@@ -24,22 +25,26 @@ class Voucher extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'expiry_date' => 'date',
+        'start_date' => 'datetime:Y-m-d H:i:s',
+        'expiry_date' => 'datetime:Y-m-d H:i:s',
+        'status' => 'boolean',
+        'minimum_purchase_amount' => 'decimal:2',
+        'maximum_purchase_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'discount_percentage' => 'decimal:2',
-        'maximum_purchase_amount' => 'decimal:0',
-        'minimum_purchase_amount' => 'decimal:0',
-        'status' => 'boolean'
+        'usage_count' => 'integer',
+        'max_usage_count' => 'integer'
     ];
 
-    // Kiểm tra voucher có còn hiệu lực không
-    public function isValid()
+    public function isValidForUse($total)
     {
-        $now = now();
-        return $this->status
-            && $now->between($this->start_date, $this->expiry_date)
-            && ($this->max_usage_count === null || $this->usage_count < $this->max_usage_count);
+        $now = Carbon::now();
+
+        return $this->status &&
+            $now->between($this->start_date, $this->expiry_date) &&
+            $total >= $this->minimum_purchase_amount &&
+            ($this->maximum_purchase_amount === null || $total <= $this->maximum_purchase_amount) &&
+            ($this->max_usage_count === null || $this->usage_count < $this->max_usage_count);
     }
 
     // Tính toán số tiền giảm giá

@@ -12,8 +12,10 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <script src="{{ asset('js/alert.js') }}"></script>
+
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
+
     {{-- Thông báo  --}}
     <div class="alerts-container">
         @if ($errors->any())

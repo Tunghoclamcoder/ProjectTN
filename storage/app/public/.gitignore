@@ -1,8 +1,4 @@
 # Cho phép lưu ảnh trong storage
-!storage/
-!storage/app/
-!storage/app/public/
-!storage/app/public/images/
-!storage/app/public/images/**
-!storage/app/public/brands/
-!storage/app/public/brands/**
+/storage/*
+!/storage/app/public/
+!/storage/app/public/**/*

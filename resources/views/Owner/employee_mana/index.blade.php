@@ -18,8 +18,7 @@
 </head>
 
 <body>
-    <!-- Include sidebar và header của dashboard -->
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

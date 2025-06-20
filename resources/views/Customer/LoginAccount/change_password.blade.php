@@ -523,7 +523,7 @@
                             <i class="fas fa-save me-2"></i>
                             Cập nhật mật khẩu
                         </button>
-                        <a href="{{ route('customer.profile') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('shop.home') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-2"></i>
                             Hủy bỏ
                         </a>

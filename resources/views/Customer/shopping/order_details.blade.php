@@ -38,6 +38,10 @@
                     @case('cancelled')
                         Đã hủy
                     @break
+
+                    @case('returned')
+                        Đã hoàn trả
+                    @break
                 @endswitch
             </span>
         </div>
@@ -77,7 +81,8 @@
         <div class="order-timeline">
             <h3>Trạng thái đơn hàng</h3>
             <div class="timeline">
-                <div class="timeline-item {{ $order->order_status == 'pending' ? 'active' : 'completed' }}">
+                <div
+                    class="timeline-item {{ $order->order_status == 'pending' ? 'active' : ($order->order_status == 'cancelled' ? '' : 'completed') }}">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Đặt hàng</h4>
@@ -85,31 +90,77 @@
                     </div>
                 </div>
                 <div
-                    class="timeline-item {{ in_array($order->order_status, ['confirmed', 'shipping', 'completed']) ? 'active' : '' }}">
+                    class="timeline-item {{ in_array($order->order_status, ['confirmed', 'shipping', 'completed', 'cancelled', 'returned']) ? 'active' : '' }}">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Xác nhận</h4>
-                        <p>{{ $order->order_status == 'confirmed' ? 'Đang xử lý' : ($order->order_status != 'pending' ? 'Đã xác nhận' : 'Chờ xác nhận') }}
+                        <p>
+                            @if ($order->order_status == 'confirmed')
+                                Đang xử lý
+                            @elseif(in_array($order->order_status, ['shipping', 'completed', 'returned']))
+                                Đã xác nhận
+                            @elseif($order->order_status == 'cancelled')
+                                Đã xác nhận trước khi hủy
+                            @else
+                                Chờ xác nhận
+                            @endif
                         </p>
                     </div>
                 </div>
                 <div
-                    class="timeline-item {{ in_array($order->order_status, ['shipping', 'completed']) ? 'active' : '' }}">
+                    class="timeline-item {{ in_array($order->order_status, ['shipping', 'completed', 'returned']) ? 'active' : '' }}">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Vận chuyển</h4>
-                        <p>{{ $order->order_status == 'shipping' ? 'Đang giao hàng' : ($order->order_status == 'completed' ? 'Đã giao hàng' : 'Chưa giao hàng') }}
+                        <p>
+                            @if ($order->order_status == 'shipping')
+                                Đang giao hàng
+                            @elseif(in_array($order->order_status, ['completed', 'returned']))
+                                Đã giao hàng
+                            @elseif($order->order_status == 'cancelled')
+                                Không giao hàng
+                            @else
+                                Chưa giao hàng
+                            @endif
                         </p>
                     </div>
                 </div>
-                <div class="timeline-item {{ $order->order_status == 'completed' ? 'active' : '' }}">
+                <div
+                    class="timeline-item {{ in_array($order->order_status, ['completed', 'returned']) ? 'active' : '' }}">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <h4>Hoàn thành</h4>
-                        <p>{{ $order->order_status == 'completed' ? 'Đã giao hàng thành công' : 'Chưa hoàn thành' }}
+                        <p>
+                            @if ($order->order_status == 'completed')
+                                Đã giao hàng thành công
+                            @elseif($order->order_status == 'returned')
+                                Đã giao hàng trước khi hoàn trả
+                            @else
+                                Chưa hoàn thành
+                            @endif
                         </p>
                     </div>
                 </div>
+                {{-- Đơn hàng đã bị hủy --}}
+                @if ($order->order_status == 'cancelled')
+                    <div class="timeline-item active cancelled">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Đơn hàng đã bị hủy</h4>
+                            <p>Đơn hàng đã bị hủy bởi khách hàng hoặc hệ thống.</p>
+                        </div>
+                    </div>
+                @endif
+                {{-- Đơn hàng đã được hoàn trả --}}
+                @if ($order->order_status == 'returned')
+                    <div class="timeline-item active returned">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4>Đơn hàng đã được hoàn trả</h4>
+                            <p>Đơn hàng đã được hoàn trả thành công.</p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -218,6 +269,17 @@
                 <button type="submit" class="btn btn-danger"
                     onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
                     <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                </button>
+            </form>
+        @endif
+
+        @if ($order->order_status == 'completed' && !$order->isReturned())
+            <form action="{{ route('customer.orders.return', $order->order_id) }}" method="POST" class="d-inline">
+                @csrf
+                @method('POST')
+                <button type="submit" class="btn btn-warning btn-return-order"
+                    onclick="return confirm('Bạn có chắc chắn muốn hoàn trả đơn hàng này?')">
+                    <i class="bi bi-arrow-counterclockwise"></i> Hoàn trả đơn hàng
                 </button>
             </form>
         @endif

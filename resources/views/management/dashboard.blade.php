@@ -247,7 +247,7 @@
     <!-- ======== main-wrapper start =========== -->
     <main class="main-wrapper">
 
-        @include('components.admin-header')
+        @include('management.components.admin-header')
 
         <!-- ========== section start ========== -->
         <section class="section">
@@ -624,7 +624,8 @@
                                                         @if ($order->voucher)
                                                             <br>
                                                             <small class="text-success">
-                                                                <i class="bi bi-tag-fill"></i> Đã áp dụng giảm giá
+                                                                <i class="bi bi-tag-fill"></i> Đã áp dụng voucher giảm
+                                                                giá
                                                             </small>
                                                         @endif
                                                     </p>
@@ -637,6 +638,7 @@
                                                             'shipping' => 'primary',
                                                             'completed' => 'success',
                                                             'cancelled' => 'danger',
+                                                            'returned' => 'secondary',
                                                         ];
                                                         $statusLabels = [
                                                             'pending' => 'Chờ xác nhận',
@@ -644,11 +646,12 @@
                                                             'shipping' => 'Đang giao hàng',
                                                             'completed' => 'Đã hoàn thành',
                                                             'cancelled' => 'Đã hủy',
+                                                            'returned' => 'Đã hoàn trả',
                                                         ];
                                                     @endphp
                                                     <span
                                                         class="badge bg-{{ $statusClasses[$order->order_status] ?? 'secondary' }}">
-                                                        {{ $order->getStatusLabel() }}
+                                                        {{ $statusLabels[$order->order_status] ?? $order->order_status }}
                                                     </span>
                                                 </td>
                                                 <td>

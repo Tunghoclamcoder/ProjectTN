@@ -18,6 +18,10 @@
         <div class="search-header">
             <h2>Kết quả tìm kiếm cho: "{{ $query }}"</h2>
             <p class="results-count">Tìm thấy {{ $products->total() }} sản phẩm</p>
+
+            <a href="{{ route('shop.home') }}" class="view-product-btn" style="width: 200px">
+                Quay về Homepage
+            </a>
         </div>
 
         @if ($products->count() > 0)
@@ -40,7 +44,7 @@
                             @endif
                         </div>
                         <div class="product-info">
-                            <h3>{{ $product->product_name }}</h3>
+                            <h3 style="min-height: 85px">{{ $product->product_name }}</h3>
                             <p class="product-brand">{{ $product->brand->brand_name ?? 'N/A' }}</p>
                             <p class="product-price">${{ number_format($product->price, 2) }}</p>
                             <a href="{{ route('shop.product.show', $product->product_id) }}" class="view-product-btn">

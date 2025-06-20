@@ -62,7 +62,7 @@
                         </div>
                         <div class="contact-item">
                             <i class="fa fa-envelope"></i>
-                            <p>support@fashionstore.com<br>info@fashionstore.com</p>
+                            <p>support@sportnt.com<br>info@sportnt.com</p>
                         </div>
                         <div class="contact-item">
                             <i class="fa fa-phone"></i>

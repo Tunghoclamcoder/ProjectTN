@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     {{-- Thông báo  --}}
     <div class="alerts-container">
@@ -87,4 +87,5 @@
         }
     }
 </script>
+
 </html>

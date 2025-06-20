@@ -16,8 +16,7 @@
 </head>
 
 <body>
-    <!-- Include sidebar và header của dashboard -->
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     <div class="container mt-3">
         @if ($errors->any())
@@ -84,6 +83,7 @@
                                 @case('shipping') bg-primary @break
                                 @case('completed') bg-success @break
                                 @case('cancelled') bg-danger @break
+                                @case('returned') bg-secondary @break
                             @endswitch">
                                 {{ $order->getStatusLabel() }}
                             </span>

@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -76,23 +77,6 @@ class OrderController extends Controller
             ->paginate(10);
 
         return view('management.order_mana.index', compact('orders'));
-    }
-
-    public function create()
-    {
-        $customers = Customer::all();
-        $employees = Employee::all();
-        $vouchers = Voucher::all();
-        $paymentMethods = PaymentMethod::all();
-        $shippingMethods = ShippingMethod::all();
-
-        return view('management.order_mana.create', compact(
-            'customers',
-            'employees',
-            'vouchers',
-            'paymentMethods',
-            'shippingMethods'
-        ));
     }
 
     public function store(Request $request)
@@ -291,66 +275,81 @@ class OrderController extends Controller
     {
         try {
             $customer = Auth::guard('customer')->user();
+            $today = now()->format('Y-m-d'); // Format as date string
 
-            // Get active cart
+            // Debug current date
+            Log::info('Current date:', ['today' => $today]);
+
+            // Get cart order and total
             $cartOrder = Order::where([
                 'customer_id' => $customer->customer_id,
                 'order_status' => 'cart'
-            ])->with(['orderDetails.product'])->first();
+            ])->with(['orderDetails.product'])->firstOrFail();
 
-            if (!$cartOrder || $cartOrder->orderDetails->isEmpty()) {
-                return redirect()->route('cart.view')
-                    ->with('error', 'Giỏ hàng của bạn đang trống');
-            }
-
-            // Get cart items and calculate total
-            $cartItems = $cartOrder->orderDetails;
             $total = $cartOrder->getTotalAmount();
 
-            // Apply voucher discount if exists
-            if (session()->has('voucher')) {
-                $voucherData = session('voucher');
-                if (isset($voucherData['discount_amount'])) {
-                    $total = max(0, $total - $voucherData['discount_amount']);
-                } elseif (isset($voucherData['discount_percentage'])) {
-                    $discount = ($total * $voucherData['discount_percentage']) / 100;
-                    $total = max(0, $total - $discount);
-                }
-            }
-
-            // Get all payment and shipping methods
-            $paymentMethods = PaymentMethod::all();
-            $shippingMethods = ShippingMethod::all();
-
-            // Lấy danh sách voucher_id đã được khách hàng sử dụng
+            // Get used vouchers
             $usedVoucherIds = Order::where('customer_id', $customer->customer_id)
                 ->whereNotNull('voucher_id')
-                ->pluck('voucher_id')
-                ->toArray();
+                ->pluck('voucher_id');
 
-            // Get active vouchers excluding used ones
-            $activeVouchers = Voucher::where('status', true)
-                ->where('start_date', '<=', now())
-                ->where('expiry_date', '>=', now())
+            // Query active vouchers using direct SQL comparison
+            $activeVouchersQuery = DB::table('vouchers')
+                ->select('*')
+                ->where('status', true)
+                ->whereRaw("STR_TO_DATE(start_date, '%Y-%m-%d') <= ?", [$today])
+                ->whereRaw("STR_TO_DATE(expiry_date, '%Y-%m-%d') >= ?", [$today])
+                ->where('minimum_purchase_amount', '<=', $total)
                 ->where(function ($query) use ($total) {
-                    $query->whereNull('minimum_purchase_amount')
-                        ->orWhere('minimum_purchase_amount', '<=', $total);
+                    $query->whereNull('maximum_purchase_amount')
+                        ->orWhere('maximum_purchase_amount', '>=', $total);
                 })
                 ->where(function ($query) {
                     $query->whereNull('max_usage_count')
-                        ->orWhereRaw('usage_count < max_usage_count');
+                        ->orWhere('usage_count', '<', DB::raw('max_usage_count'));
                 })
-                ->whereNotIn('id', $usedVoucherIds) // Loại bỏ voucher đã sử dụng
-                ->get();
+                ->whereNotIn('id', $usedVoucherIds);
+
+            // Debug query
+            Log::info('Voucher Query:', [
+                'sql' => $activeVouchersQuery->toSql(),
+                'bindings' => $activeVouchersQuery->getBindings(),
+                'total' => $total
+            ]);
+
+            // Convert query results to Voucher models
+            $activeVouchers = Voucher::hydrate($activeVouchersQuery->get()->toArray());
+
+            // Debug found vouchers
+            Log::info('Found Vouchers:', [
+                'count' => $activeVouchers->count(),
+                'vouchers' => $activeVouchers->map(function ($v) {
+                    return [
+                        'code' => $v->code,
+                        'start_date' => $v->start_date,
+                        'expiry_date' => $v->expiry_date,
+                        'min_amount' => $v->minimum_purchase_amount
+                    ];
+                })->toArray()
+            ]);
+
+            // Get other required data
+            $paymentMethods = PaymentMethod::all();
+            $shippingMethods = ShippingMethod::all();
 
             return view('Customer.shopping.checkout', compact(
-                'cartItems',
+                'cartOrder',
                 'total',
                 'paymentMethods',
                 'shippingMethods',
                 'activeVouchers'
             ));
         } catch (\Exception $e) {
+            Log::error('Checkout Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('cart.view')
                 ->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
@@ -599,6 +598,24 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra khi hủy đơn hàng: ' . $e->getMessage());
+        }
+    }
+
+    public function returnOrder(Order $order)
+    {
+        try {
+            if (!$order->canBeReturned()) {
+                return redirect()->back()
+                    ->with('error', 'Đơn hàng không thể hoàn trả.');
+            }
+
+            $order->processReturn();
+
+            return redirect()->back()
+                ->with('success', 'Đơn hàng đã được hoàn trả thành công.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Có lỗi xảy ra khi xử lý hoàn trả: ' . $e->getMessage());
         }
     }
 }

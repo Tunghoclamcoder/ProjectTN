@@ -20,11 +20,13 @@
             <div class="col-md-4 order-2">
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-primary">Giỏ hàng của bạn</span>
-                    <span class="badge bg-primary rounded-pill">{{ count($cartItems) }}</span>
+                    <span class="badge bg-primary rounded-pill">
+                        {{ $cartOrder->orderDetails->count() }}
+                    </span>
                 </h4>
 
                 <ul class="list-group mb-3">
-                    @foreach ($cartItems as $item)
+                    @foreach ($cartOrder->orderDetails as $item)
                         <li class="list-group-item d-flex justify-content-between lh-sm">
                             <div>
                                 <h6 class="my-0">{{ $item->product->product_name }}</h6>
@@ -66,25 +68,57 @@
                     @csrf
                     <div class="input-group">
                         <select class="form-select" name="voucher_code" id="voucher_select">
-                            <option value="">Chọn mã giảm giá</option>
+                            <option value="">Chọn mã voucher</option>
                             @foreach ($activeVouchers as $voucher)
-                                <option value="{{ $voucher->code }}" data-discount="{{ $voucher->discount_amount }}"
-                                    data-percentage="{{ $voucher->discount_percentage }}"
-                                    data-min="{{ $voucher->minimum_purchase_amount }}">
-                                    {{ $voucher->code }}
-                                    @if ($voucher->discount_percentage)
-                                        (Giảm {{ $voucher->discount_percentage }}%)
-                                    @else
-                                        (Giảm {{ number_format($voucher->discount_amount) }}đ)
-                                    @endif
-                                    @if ($voucher->minimum_purchase_amount)
-                                        - Đơn tối thiểu {{ number_format($voucher->minimum_purchase_amount) }}đ
-                                    @endif
-                                </option>
+                                @php
+                                    $today = now()->format('Y-m-d');
+                                    $startDate = $voucher->start_date->format('Y-m-d');
+                                    $expiryDate = $voucher->expiry_date->format('Y-m-d');
+                                    $isValid =
+                                        $voucher->status &&
+                                        $startDate <= $today &&
+                                        $expiryDate >= $today &&
+                                        $total >= $voucher->minimum_purchase_amount;
+                                @endphp
+
+                                @if ($isValid)
+                                    <option value="{{ $voucher->code }}" data-discount="{{ $voucher->discount_amount }}"
+                                        data-percentage="{{ $voucher->discount_percentage }}"
+                                        data-min="{{ $voucher->minimum_purchase_amount }}">
+                                        {{ $voucher->code }}
+                                        @if ($voucher->discount_percentage)
+                                            (Giảm {{ $voucher->discount_percentage }}%)
+                                        @else
+                                            (Giảm {{ number_format($voucher->discount_amount) }}đ)
+                                        @endif
+                                        @if ($voucher->minimum_purchase_amount)
+                                            - Đơn tối thiểu {{ number_format($voucher->minimum_purchase_amount) }}đ
+                                        @endif
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                         <button type="submit" class="btn btn-secondary">Áp dụng</button>
                     </div>
+
+                    {{-- Debug information --}}
+                    @if (config('app.debug'))
+                        <div class="mt-2 small text-muted">
+                            <p>Tổng đơn hàng: {{ number_format($total) }}đ</p>
+                            <p>Số voucher hợp lệ: {{ $activeVouchers->count() }}</p>
+                            @foreach ($activeVouchers as $voucher)
+                                <div class="border-top mt-1 pt-1">
+                                    <p>{{ $voucher->code }}:<br>
+                                        Ngày bắt đầu: {{ $voucher->start_date->format('Y-m-d') }}<br>
+                                        Ngày kết thúc: {{ $voucher->expiry_date->format('Y-m-d') }}<br>
+                                        Trạng thái: {{ $voucher->status ? 'Hoạt động' : 'Không hoạt động' }}<br>
+                                        Đơn tối thiểu: {{ number_format($voucher->minimum_purchase_amount) }}đ
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <div id="voucher-message" class="mt-2"></div>
                 </form>
             </div>
@@ -127,6 +161,7 @@
                         <div class="col-md-6">
                             <label for="shipping_method" class="form-label">Phương thức vận chuyển</label>
                             <select class="form-select" id="shipping_method" name="shipping_method_id" required>
+                                <option value="">-- Chọn phương thức vận chuyển --</option>
                                 @foreach ($shippingMethods as $method)
                                     <option value="{{ $method->method_id }}" data-fee="{{ $method->shipping_fee }}">
                                         {{ $method->method_name }} ({{ number_format($method->shipping_fee) }}đ)
@@ -151,65 +186,57 @@
         const shippingMethod = document.getElementById('shipping_method');
         const shippingFeeDisplay = document.getElementById('shipping-fee');
         const finalTotalDisplay = document.getElementById('final-total');
+        const discountRow = document.getElementById('discount-row');
+        const discountAmount = document.getElementById('discount-amount');
+        const voucherCodeDisplay = document.getElementById('voucher-code-display');
+        const discountDetails = document.getElementById('discount-details');
         let voucherDiscount = 0;
-        let baseTotal = 0;
+        let baseTotal = {{ $total }};
         let currentShippingFee = 0;
 
-        // Calculate product total (excluding shipping)
-        document.querySelectorAll('.list-group-item span.text-muted').forEach(item => {
-            if (!item.id || item.id !== 'shipping-fee') {
-                const amount = parseFloat(item.textContent.replace(/[^\d]/g, ''));
-                if (!isNaN(amount)) {
-                    baseTotal += amount;
-                }
+        function updateTotalDisplay() {
+            let total = baseTotal;
+            if (shippingMethod.value) {
+                total += currentShippingFee;
             }
-        });
-
-        function updateTotalDisplay(total) {
+            total -= voucherDiscount;
+            if (total < 0) total = 0;
             finalTotalDisplay.textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
         }
 
-        function calculateTotal() {
-            // Get current shipping fee
-            currentShippingFee = parseFloat(shippingMethod.options[shippingMethod.selectedIndex].dataset.fee) ||
-                15000;
+        shippingMethod.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (this.value) {
+                currentShippingFee = parseFloat(selectedOption.dataset.fee) || 0;
+                document.getElementById('shipping-method-name').textContent = selectedOption.text.split(
+                    ' (')[0];
+                shippingFeeDisplay.textContent = new Intl.NumberFormat('vi-VN').format(
+                    currentShippingFee) + 'đ';
+            } else {
+                currentShippingFee = 0;
+                document.getElementById('shipping-method-name').textContent = '';
+                shippingFeeDisplay.textContent = '0đ';
+            }
+            updateTotalDisplay();
+        });
 
-            // Update shipping fee display
-            shippingFeeDisplay.textContent = new Intl.NumberFormat('vi-VN').format(currentShippingFee) + 'đ';
-
-            // Calculate total with proper order
-            const subtotal = baseTotal; // Product total
-            const shipping = currentShippingFee; // Shipping fee
-            const discount = voucherDiscount; // Voucher discount
-
-            // Final calculation: (subtotal + shipping) - discount
-            const finalTotal = (subtotal + shipping) - discount;
-
-            // Update total display
-            updateTotalDisplay(finalTotal);
-
-            console.log('Calculation Details:', {
-                subtotal,
-                shipping,
-                discount,
-                finalTotal,
-                formula: `(${subtotal} + ${shipping}) - ${discount} = ${finalTotal}`
-            });
-
-            return finalTotal;
-        }
-
-        // Handle voucher application
+        // Khi áp dụng voucher
         document.getElementById('voucherForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
             const selectedOption = document.getElementById('voucher_select').options[
                 document.getElementById('voucher_select').selectedIndex
             ];
-
-            if (!selectedOption.value) return;
-
-            const formData = new FormData(this);
+            if (!selectedOption.value) {
+                document.getElementById('voucher-message').innerHTML =
+                    '<div class="alert alert-danger">Vui lòng chọn mã giảm giá</div>';
+                discountRow.style.display = 'none';
+                voucherDiscount = 0;
+                updateTotalDisplay();
+                return;
+            }
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('voucher_code', selectedOption.value);
 
             fetch('{{ route('voucher.apply') }}', {
                     method: 'POST',
@@ -221,32 +248,44 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Set voucher discount
-                        voucherDiscount = parseFloat(selectedOption.dataset.discount) || 0;
+                        // Lấy đúng số tiền giảm giá từ server (đã tính theo % hoặc số tiền)
+                        voucherDiscount = baseTotal - data.new_total;
+                        if (voucherDiscount < 0) voucherDiscount = 0;
 
-                        // Update discount display
-                        const discountRow = document.getElementById('discount-row');
-                        const discountAmount = document.getElementById('discount-amount');
+                        // Hiển thị dòng giảm giá
                         discountRow.style.display = 'flex';
                         discountAmount.textContent = '-' + new Intl.NumberFormat('vi-VN').format(
                             voucherDiscount) + 'đ';
 
-                        // Calculate new total with shipping included
-                        calculateTotal();
+                        // Hiển thị chi tiết voucher
+                        const isPercentage = selectedOption.dataset.percentage && parseFloat(
+                            selectedOption.dataset.percentage) > 0;
+                        discountDetails.textContent = isPercentage ?
+                            `Giảm ${selectedOption.dataset.percentage}%` :
+                            `Giảm ${new Intl.NumberFormat('vi-VN').format(selectedOption.dataset.discount)}đ`;
+                        voucherCodeDisplay.textContent = `Mã: ${selectedOption.value}`;
+
+                        document.getElementById('voucher-message').innerHTML =
+                            `<div class="alert alert-success">${data.message}</div>`;
+                    } else {
+                        discountRow.style.display = 'none';
+                        voucherDiscount = 0;
+                        document.getElementById('voucher-message').innerHTML =
+                            `<div class="alert alert-danger">${data.message}</div>`;
                     }
+                    updateTotalDisplay();
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    discountRow.style.display = 'none';
                     voucherDiscount = 0;
-                    calculateTotal();
+                    updateTotalDisplay();
+                    document.getElementById('voucher-message').innerHTML =
+                        '<div class="alert alert-danger">Có lỗi xảy ra khi áp dụng mã giảm giá</div>';
                 });
         });
 
-        // Update total when shipping method changes
-        shippingMethod.addEventListener('change', calculateTotal);
-
-        // Initial calculation
-        calculateTotal();
+        // Khởi tạo shipping fee và tổng tiền ban đầu
+        shippingMethod.dispatchEvent(new Event('change'));
     });
 
     // Xử lý khi thay đổi voucher để kiểm tra điều kiện
@@ -341,7 +380,7 @@
 
     document.getElementById('shipping_method').addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
-        const shippingFee = parseFloat(selectedOption.dataset.fee);
+        const shippingFee = parseFloat(selectedOption.dataset.fee) || 0;
         const methodName = selectedOption.text.split(' (')[0];
         const originalTotal = {{ $total }};
 
@@ -350,15 +389,17 @@
             new Intl.NumberFormat('vi-VN').format(shippingFee) + 'đ';
         document.getElementById('shipping-method-name').textContent = methodName;
 
-        // Calculate new total with shipping
-        let finalTotal = originalTotal + shippingFee;
-
-        // If there's a discount applied, subtract it
+        // Lấy số tiền giảm giá hiện tại (nếu có)
+        let discount = 0;
+        const discountRow = document.getElementById('discount-row');
         const discountAmount = document.getElementById('discount-amount');
-        if (discountAmount && discountAmount.style.display !== 'none') {
-            const discount = parseInt(discountAmount.textContent.replace(/[^\d]/g, ''));
-            finalTotal -= discount;
+        if (discountRow.style.display !== 'none' && discountAmount.textContent.trim() !== 'đ') {
+            discount = parseInt(discountAmount.textContent.replace(/[^\d]/g, '')) || 0;
         }
+
+        // Tính tổng cuối cùng: tổng sản phẩm + phí ship - giảm giá
+        let finalTotal = originalTotal + shippingFee - discount;
+        if (finalTotal < 0) finalTotal = 0;
 
         // Update final total
         document.getElementById('final-total').textContent =

@@ -210,9 +210,10 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#0"> <i class="lni lni-inbox"></i> Messages </a>
+                                <a class="dropdown-item" href="{{ route('admin.change-password') }}">
+                                    <i class="lni lni-key"></i> Đổi mật khẩu
+                                </a>
                             </li>
-                            <li class="divider"></li>
                             <li>
                                 <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
                                     @csrf

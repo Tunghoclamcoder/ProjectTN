@@ -16,8 +16,7 @@
 </head>
 
 <body>
-    <!-- Include sidebar và header của dashboard -->
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     <div class="container mt-3">
         @if ($errors->any())
@@ -56,15 +55,11 @@
                                 <i class="fa fa-arrow-left"></i>
                                 <span style="font-size: 12px; font-weight: 500;"> Quay lại</span>
                             </a>
+                            <h2>Quản lý <b>Đơn hàng</b></h2>
+
                         </div>
                         <div class="row">
-                            <div class="col-sm-6">
-                                <h2>Quản lý <b>Đơn hàng</b></h2>
-                                <a href="{{ route('admin.order.create') }}" class="btn btn-success mt-2 mb-4">
-                                    <i class="size-icons">&#xE147;</i>
-                                    <span>Thêm mới</span>
-                                </a>
-                            </div>
+
                             <div class="row mb-3">
                                 <div class="col-sm-6">
                                     <div class="search-box">
@@ -84,6 +79,7 @@
                                         <option value="processing">Đang xử lý</option>
                                         <option value="completed">Hoàn thành</option>
                                         <option value="cancelled">Đã hủy</option>
+                                        <option value="returned">Đã hoàn trả</option>
                                     </select>
                                 </div>
                             </div>
@@ -111,7 +107,7 @@
                                             Địa chỉ: {{ $order->receiver_address }}
                                         </small>
                                     </td>
-                                    <td>{{ $order->order_date->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $order->order_date->format('d/m/Y') }}</td>
                                     <td>{{ number_format($order->getTotalAmount()) }} VNĐ
                                         @if ($order->voucher)
                                             <br>
@@ -138,6 +134,9 @@
                                                     @break
                                                 @case('cancelled')
                                                     bg-danger
+                                                    @break
+                                                @case('refunded')
+                                                    bg-secondary
                                                     @break
                                             @endswitch">
                                             {{ $order->getStatusLabel() }}
@@ -302,11 +301,11 @@
             <td>
                 ${formatCurrency(order.total_amount)}
                 ${order.voucher ? `
-                            <br>
-                            <small class="text-success">
-                                Đã áp dụng voucher: ${order.voucher.code}
-                            </small>
-                        ` : ''}
+                                                <br>
+                                                <small class="text-success">
+                                                    Đã áp dụng voucher: ${order.voucher.code}
+                                                </small>
+                                            ` : ''}
             </td>
             <td>
                 <span class="badge ${getStatusBadgeClass(order.order_status)}">

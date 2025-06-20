@@ -14,7 +14,7 @@
     <script src="{{ asset('js/alert.js') }}"></script>
 
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
     {{-- Thông báo  --}}
     <div class="alerts-container">
         @if ($errors->any())

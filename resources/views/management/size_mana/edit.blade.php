@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
 
     {{-- Thông báo  --}}
     <div class="alerts-container">
@@ -46,8 +46,7 @@
                         <h4>Chỉnh sửa size sản phẩm</h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('admin.size.update', ['size' => $size->size_id]) }}"
-                            method="POST">
+                        <form action="{{ route('admin.size.update', ['size' => $size->size_id]) }}" method="POST">
                             @csrf
                             @method('PUT')
 

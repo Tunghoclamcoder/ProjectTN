@@ -9,7 +9,8 @@
 </head>
 
 <body>
-    @include('components.admin-header')
+    @include('management.components.admin-header')
+
     {{-- Thông báo  --}}
     <div class="container mt-3">
         @if ($errors->any())
@@ -109,7 +110,11 @@
                                     </option>
                                     <option value="cancelled"
                                         {{ $order->order_status == 'cancelled' ? 'selected' : '' }}>
-                                        Đã hủy
+                                        Hủy đơn
+                                    </option>
+                                    <option value="returned"
+                                        {{ $order->order_status == 'returned' ? 'selected' : '' }}>
+                                        Đã hoàn trả
                                     </option>
                                 </select>
                                 @error('order_status')

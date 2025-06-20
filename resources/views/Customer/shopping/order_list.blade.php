@@ -147,14 +147,33 @@
                                                     <i class="bi bi-x-circle me-1"></i>Đã hủy
                                                 </span>
                                             @break
+
+                                            @case('returned')
+                                                <span class="badge bg-secondary">
+                                                    <i class=" me-1"></i>Đã hoàn trả
+                                                </span>
+                                            @break
                                         @endswitch
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group d-flex flex-column" role="group">
                                             <a href="{{ route('customer.orders.detail', $order->order_id) }}"
-                                                class="btn btn-outline-primary btn-sm" title="Xem chi tiết">
+                                                class="btn btn-outline-primary btn-sm mb-2" title="Xem chi tiết">
                                                 <i class="bi bi-eye"></i> Xem chi tiết
                                             </a>
+
+                                            @if ($order->order_status === 'completed' && !$order->isReturned())
+                                                <form action="{{ route('customer.orders.return', $order->order_id) }}"
+                                                    style="display: flex; justify-content: center;" method="POST"
+                                                    onsubmit="return confirm('Bạn có chắc chắn muốn hoàn trả đơn hàng này ?');">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="btn btn-warning btn-sm"
+                                                        title="Hoàn trả đơn hàng">
+                                                        <i class="bi bi-arrow-return-left"></i> Hoàn trả đơn hàng
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -175,9 +194,7 @@
                     <!-- Phân trang -->
                     @if ($orders->hasPages())
                         <nav aria-label="Order history pagination" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                {{ $orders->links() }}
-                            </ul>
+                            {{ $orders->links('pagination::bootstrap-5') }}
                         </nav>
                     @endif
 
@@ -202,7 +219,7 @@
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <h5 class="card-title text-info">Đơn hàng thành công</h5>
+                                    <h5 class="card-title text-info">Đơn hàng đã giao thành công</h5>
                                     <h2 class="text-info">{{ $completedOrders }}</h2>
                                 </div>
                             </div>
@@ -214,5 +231,31 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
+    <style>
+        .pagination {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .pagination .page-item .page-link {
+            padding: 8px 16px;
+            color: #666;
+            border-radius: 4px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #999;
+            pointer-events: none;
+            background-color: #f8f9fa;
+        }
+    </style>
 
     </html>

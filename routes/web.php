@@ -43,11 +43,11 @@ Route::get('customer/forgot-password', [CustomerController::class, 'showForgotPa
 Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLinkEmail'])
     ->name('customer.forgot-password.submit');
 
-    //reset mật khẩu
+//reset mật khẩu
 Route::get('customer/reset-password/{token}', [\App\Http\Controllers\CustomerController::class, 'showResetPasswordForm'])
     ->name('customer.reset_password');
 // Xử lý submit form reset mật khẩu
-    Route::post('customer/reset-password', [\App\Http\Controllers\CustomerController::class, 'resetPassword'])
+Route::post('customer/reset-password', [\App\Http\Controllers\CustomerController::class, 'resetPassword'])
     ->name('customer.reset-password.submit');
 
 Route::get('customer/change-password', [CustomerController::class, 'showChangePasswordForm'])
@@ -78,10 +78,11 @@ Route::middleware('auth:customer')->group(function () {
         ->name('customer.orders.detail');
     Route::put('/orders/{order}/cancel', [OrderController::class, 'cancelOrder'])
         ->name('customer.orders.cancel');
+    Route::post('/orders/{order}/return', [OrderController::class, 'returnOrder'])
+        ->name('customer.orders.return');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
     Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
-
 });
 
 //Search cho trang chủ của Customer
@@ -147,6 +148,11 @@ Route::prefix('admin')->group(function () {
             ->name('admin.search.suggestions');
         Route::post('/logout', [AdminController::class, 'logout'])
             ->name('admin.logout');
+
+        Route::get('/change-password', [AdminController::class, 'showChangePasswordForm'])
+            ->name('admin.change-password');
+        Route::post('/change-password', [AdminController::class, 'changePassword'])
+            ->name('admin.change-password.update');
 
         // Routes quản lý nhân viên
         Route::prefix('employees')->group(function () {
@@ -277,7 +283,6 @@ Route::prefix('admin')->group(function () {
         // Routes quản lý orders
         Route::prefix('orders')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('admin.order');
-            Route::get('/create', [OrderController::class, 'create'])->name(name: 'admin.order.create');
             Route::post('/', [OrderController::class, 'store'])->name('admin.order.store');
             Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('admin.order.edit');
             Route::get('/{order}/show', [OrderController::class, 'show'])->name('admin.order.show');

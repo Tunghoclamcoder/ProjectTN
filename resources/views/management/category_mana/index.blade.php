@@ -19,8 +19,8 @@
 <body>
 
 
-    <!-- Include sidebar và header của dashboard -->
-    @include('components.admin-header')
+    <!-- Include header của dashboard -->
+    @include('management.components.admin-header')
 
     <div class="alerts-container">
         @if ($errors->any())

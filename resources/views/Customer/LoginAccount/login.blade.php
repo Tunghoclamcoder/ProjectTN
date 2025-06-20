@@ -24,7 +24,9 @@
         <!-- Left Side - Welcome Section -->
         <div class="login-left">
             <div class="welcome-icon">
+                <a href="{{ route('shop.home') }}">
                 <i class="fas fa-shopping-bag"></i>
+                </a>
             </div>
             <h2>Chào mừng trở lại!</h2>
             <p>Đăng nhập để tiếp tục mua sắm và trải nghiệm những sản phẩm tuyệt vời nhất từ chúng tôi.</p>
@@ -172,7 +174,7 @@
 
                 demoBtn.addEventListener('click', function() {
                     document.getElementById('email').value = 'demo@example.com';
-                    document.getElementById('password').value = 'password';
+                    document.getElementById('password').value = 'password1@';
                 });
 
                 document.body.appendChild(demoBtn);

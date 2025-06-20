@@ -11,6 +11,8 @@
 </head>
 
 <body>
+    @include('management.components.admin-header')
+
     @section('title', 'Kết quả tìm kiếm')
 
     <div class="container-fluid">
@@ -20,6 +22,13 @@
             </div>
             <div class="search-meta">
                 Tìm thấy {{ $products->count() }} sản phẩm
+            </div>
+
+            <div class="come-back-button">
+                <a href="{{ route('admin.dashboard') }}" class="btn back-btn">
+                    <i class="fa fa-arrow-left"></i>
+                    <span style="font-size: 12px; font-weight: 500;"> Quay lại Dashboard</span>
+                </a>
             </div>
         </div>
 
@@ -36,12 +45,21 @@
                         </div>
                         <h3 class="product-name">{{ $product->product_name }}</h3>
                         <div class="product-brand">
-                            <i class="fas fa-tag me-1"></i>
+                            Thương hiệu:
                             {{ $product->brand?->brand_name ?? 'Không có thương hiệu' }}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <div class="product-price">
-                                {{ number_format($product->price) }} VNĐ
+                                @if ($product->discount > 0)
+                                    <span class="original-price text-decoration-line-through text-muted">
+                                        {{ number_format($product->price) }} VNĐ
+                                    </span>
+                                    <span class="discounted-price text-danger">
+                                        {{ number_format($product->price * (1 - $product->discount / 100)) }} VNĐ
+                                    </span>
+                                @else
+                                    <span>{{ number_format($product->price) }} VNĐ</span>
+                                @endif
                             </div>
                             <span class="product-status {{ $product->status ? 'status-active' : 'status-inactive' }}">
                                 {{ $product->status ? 'Đang bán' : 'Ngừng bán' }}
@@ -85,6 +103,23 @@
         color: #718096;
         font-size: 0.9rem;
         margin-top: 5px;
+    }
+
+    .come-back-button {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        color: #000000;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.3s ease;
     }
 
     .product-grid {
@@ -132,6 +167,7 @@
 
     .product-details {
         padding: 1.25rem;
+        min-height: 280px
     }
 
     .product-category {
@@ -147,6 +183,7 @@
         color: #2d3748;
         margin: 0.5rem 0;
         line-height: 1.4;
+        min-height: 100px
     }
 
     .product-brand {
@@ -159,6 +196,16 @@
         font-size: 1.25rem;
         font-weight: 700;
         color: #48bb78;
+        max-width: 200px;
+    }
+
+    .original-price {
+        font-size: 0.9em;
+        margin-right: 10px;
+    }
+
+    .discounted-price {
+        font-weight: bold;
     }
 
     .product-status {

@@ -12,12 +12,10 @@
 </head>
 
 <body>
-
     @section('title', 'Danh mục sản phẩm')
 
     <div class="category-list-container">
         <!-- Hero Banner -->
-
 
         <!-- Categories Section -->
         <div class="categories-section">
