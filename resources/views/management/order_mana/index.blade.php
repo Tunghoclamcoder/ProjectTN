@@ -226,6 +226,15 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
 
+        function nextPage() {
+            const currentPage = {{ $orders->currentPage() }};
+            const totalPages = {{ $orders->lastPage() }};
+
+            if (currentPage < totalPages) {
+                window.location.href = "{{ $orders->url($orders->currentPage() + 1) }}";
+            }
+        }
+
         //Khởi tạo tooltip thông báo
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('#orderSearch');
@@ -301,11 +310,11 @@
             <td>
                 ${formatCurrency(order.total_amount)}
                 ${order.voucher ? `
-                                                <br>
-                                                <small class="text-success">
-                                                    Đã áp dụng voucher: ${order.voucher.code}
-                                                </small>
-                                            ` : ''}
+                                                    <br>
+                                                    <small class="text-success">
+                                                        Đã áp dụng voucher: ${order.voucher.code}
+                                                    </small>
+                                                ` : ''}
             </td>
             <td>
                 <span class="badge ${getStatusBadgeClass(order.order_status)}">

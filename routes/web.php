@@ -80,9 +80,7 @@ Route::middleware('auth:customer')->group(function () {
         ->name('customer.orders.cancel');
     Route::post('/orders/{order}/return', [OrderController::class, 'returnOrder'])
         ->name('customer.orders.return');
-    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-    Route::put('/feedback/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');
-    Route::delete('/feedback/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.delete');
+    Route::post('/orders/{order}/review', [FeedbackController::class, 'submitReview'])->name('order.review');
 });
 
 //Search cho trang chủ của Customer
@@ -136,6 +134,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/search', [DashboardController::class, 'search'])
             ->name('admin.search');
 
+        Route::get('/charts', [DashboardController::class, 'charts'])->name('admin.charts');
+
         Route::get('/dashboard/brand-stats', [DashboardController::class, 'getBrandSalesStats'])
             ->name('admin.dashboard.brandStats');
 
@@ -143,6 +143,8 @@ Route::prefix('admin')->group(function () {
             ->name('admin.profile.show');
         Route::put('/profile/update', [AdminController::class, 'update'])
             ->name('admin.profile.update');
+
+        Route::delete('/admin/feedback/{id}', [FeedbackController::class, 'destroy'])->name('admin.feedback.delete');
 
         Route::get('/search/suggestions', [DashboardController::class, 'searchSuggestions'])
             ->name('admin.search.suggestions');

@@ -8,7 +8,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/order_details.css') }}">
+    <script src="{{ asset('js/alert.js') }}"></script>
+
 </head>
+<div class="alerts-container" style="display: flex; justify-content: center;">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+</div>
 
 <div class="order-details-container">
     <div class="order-header">
@@ -282,6 +307,9 @@
                     <i class="bi bi-arrow-counterclockwise"></i> Hoàn trả đơn hàng
                 </button>
             </form>
+            <button type="button" class="btn btn-success" onclick="openReviewModal()">
+                <i class="bi bi-star"></i> Đánh giá đơn hàng
+            </button>
         @endif
     </div>
 </div>
@@ -290,13 +318,13 @@
 <div id="reviewModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Write Order Review</h3>
+            <h3>Viết đánh giá đơn hàng</h3>
             <span class="close" onclick="closeReviewModal()">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="reviewForm" action="{{-- {{ route('order.review') }} --}} #" method="POST">
+            <form id="reviewForm" action="{{ route('order.review', $order->order_id) }}" method="POST">
                 @csrf
-                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                <input type="hidden" name="order_id" value="{{ $order->order_id }}">
 
                 <div class="form-group">
                     <label for="rating">Rating:</label>
@@ -315,13 +343,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="review_text">Review:</label>
-                    <textarea name="review_text" id="review_text" rows="4" placeholder="Share your experience with this order..."></textarea>
+                    <label for="review_text">Viết đánh giá:</label>
+                    <textarea name="review_text" id="review_text" rows="4"
+                        placeholder="Chia sẻ trải nghiệm của bạn với đơn hàng này..."></textarea>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeReviewModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
                 </div>
             </form>
         </div>

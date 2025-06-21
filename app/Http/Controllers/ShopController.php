@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\Product;
+use App\Models\Feedback;
 use Illuminate\Support\Facades\Log;
 
 class ShopController extends Controller
@@ -18,7 +19,16 @@ class ShopController extends Controller
             ->orderBy('product_id', 'desc')
             ->paginate(12);
 
-        return view('Customer.home', compact('products'));
+        // Lấy 3 đánh giá mới nhất của customer
+        $latestFeedbacks = Feedback::with(['customer', 'order.orderDetails.product'])
+            ->orderByDesc('feedback_id')
+            ->take(3)
+            ->get();
+
+        return view('Customer.home',  [
+            'products' => $products,
+            'latestFeedbacks' => $latestFeedbacks,
+        ]);
     }
 
     public function show($product_id)

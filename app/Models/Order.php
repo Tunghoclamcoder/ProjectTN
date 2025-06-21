@@ -72,6 +72,11 @@ class Order extends Model
         return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
     }
 
+    public function feedback()
+    {
+        return $this->hasOne(Feedback::class, 'order_id', 'order_id');
+    }
+
     // Helper method to get status label
     // Add constants for order statuses
     public const STATUS_PENDING = 'pending';

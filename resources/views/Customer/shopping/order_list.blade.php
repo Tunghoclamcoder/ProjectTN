@@ -7,6 +7,8 @@
     <title>Lịch sử đặt hàng</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="{{ asset('js/alert.js') }}"></script>
+
     <style>
         .order-status {
             font-weight: 500;
@@ -53,7 +55,29 @@
         }
     </style>
 </head>
+<div class="alerts-container" style="display: flex; justify-content: center;">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+</div>
 
 <body class="bg-light">
     <div class="container my-5">

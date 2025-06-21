@@ -102,7 +102,7 @@
                     </div>
 
                     {{-- Debug information --}}
-                    @if (config('app.debug'))
+                    {{-- @if (config('app.debug'))
                         <div class="mt-2 small text-muted">
                             <p>Tổng đơn hàng: {{ number_format($total) }}đ</p>
                             <p>Số voucher hợp lệ: {{ $activeVouchers->count() }}</p>
@@ -117,7 +117,7 @@
                                 </div>
                             @endforeach
                         </div>
-                    @endif
+                    @endif --}}
 
                     <div id="voucher-message" class="mt-2"></div>
                 </form>

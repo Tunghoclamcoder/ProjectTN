@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/x-icon" />
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
 
     <!-- ========== All CSS files linkup ========= -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
@@ -166,15 +168,11 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="invoice.html">
+                    <a href="{{ route('admin.charts') }}">
                         <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M3.33334 3.35442C3.33334 2.4223 4.07954 1.66666 5.00001 1.66666H15C15.9205 1.66666 16.6667 2.4223 16.6667 3.35442V16.8565C16.6667 17.5519 15.8827 17.9489 15.3333 17.5317L13.8333 16.3924C13.537 16.1673 13.1297 16.1673 12.8333 16.3924L10.5 18.1646C10.2037 18.3896 9.79634 18.3896 9.50001 18.1646L7.16668 16.3924C6.87038 16.1673 6.46298 16.1673 6.16668 16.3924L4.66668 17.5317C4.11731 17.9489 3.33334 17.5519 3.33334 16.8565V3.35442ZM4.79168 5.04218C4.79168 5.39173 5.0715 5.6751 5.41668 5.6751H10C10.3452 5.6751 10.625 5.39173 10.625 5.04218C10.625 4.69264 10.3452 4.40927 10 4.40927H5.41668C5.0715 4.40927 4.79168 4.69264 4.79168 5.04218ZM5.41668 7.7848C5.0715 7.7848 4.79168 8.06817 4.79168 8.41774C4.79168 8.76724 5.0715 9.05066 5.41668 9.05066H10C10.3452 9.05066 10.625 8.76724 10.625 8.41774C10.625 8.06817 10.3452 7.7848 10 7.7848H5.41668ZM4.79168 11.7932C4.79168 12.1428 5.0715 12.4262 5.41668 12.4262H10C10.3452 12.4262 10.625 12.1428 10.625 11.7932C10.625 11.4437 10.3452 11.1603 10 11.1603H5.41668C5.0715 11.1603 4.79168 11.4437 4.79168 11.7932ZM13.3333 4.40927C12.9882 4.40927 12.7083 4.69264 12.7083 5.04218C12.7083 5.39173 12.9882 5.6751 13.3333 5.6751H14.5833C14.9285 5.6751 15.2083 5.39173 15.2083 5.04218C15.2083 4.69264 14.9285 4.40927 14.5833 4.40927H13.3333ZM12.7083 8.41774C12.7083 8.76724 12.9882 9.05066 13.3333 9.05066H14.5833C14.9285 9.05066 15.2083 8.76724 15.2083 8.41774C15.2083 8.06817 14.9285 7.7848 14.5833 7.7848H13.3333C12.9882 7.7848 12.7083 8.06817 12.7083 8.41774ZM13.3333 11.1603C12.9882 11.1603 12.7083 11.4437 12.7083 11.7932C12.7083 12.1428 12.9882 12.4262 13.3333 12.4262H14.5833C14.9285 12.4262 15.2083 12.1428 15.2083 11.7932C15.2083 11.4437 14.9285 11.1603 14.5833 11.1603H13.3333Z" />
-                            </svg>
+                            <i class="lni lni-bar-chart" style="font-size: 1.3em;"></i>
                         </span>
-                        <span class="text">Invoice</span>
+                        <span class="text">Quản lý biểu đồ</span>
                     </a>
                 </li>
 
@@ -348,33 +346,53 @@
                 <!-- End Row -->
                 <div class="row">
                     <div class="col-lg-7">
-                        <div class="card-style mb-30">
-                            <div class="title d-flex flex-wrap justify-content-between">
+                        <div class="card-style mb-30" style="max-height: 420px; overflow-y: auto;">
+                            <div class="title d-flex flex-wrap justify-content-between align-items-center mb-3">
                                 <div class="left">
-                                    <h6 class="text-medium mb-10">Yearly Stats</h6>
-                                    <h3 class="text-bold">$245,479</h3>
+                                    <h6 class="text-medium mb-10">Tất cả đánh giá của khách hàng</h6>
                                 </div>
-                                <div class="right">
-                                    <div class="select-style-1">
-                                        <div class="select-position select-sm">
-                                            <select class="light-bg">
-                                                <option value="">Yearly</option>
-                                                <option value="">Monthly</option>
-                                                <option value="">Weekly</option>
-                                            </select>
+                            </div>
+                            <div>
+                                @forelse($allFeedbacks as $feedback)
+                                    <div
+                                        class="d-flex align-items-center justify-content-between border-bottom py-2 px-1">
+                                        <div>
+                                            <div class="fw-bold" style="color:#1a237e;">
+                                                {{ $feedback->customer->customer_name ?? 'Khách hàng' }}
+                                            </div>
+                                            <div class="small text-muted mb-1">
+                                                Đơn hàng #{{ $feedback->order_id }}
+                                            </div>
+                                            <div>
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <i
+                                                        class="fas fa-star{{ $i <= $feedback->rating ? ' text-warning' : ' text-secondary' }}"></i>
+                                                @endfor
+                                            </div>
+                                            <div class="fst-italic mt-1" style="color:#444;">
+                                                "{{ $feedback->comment }}"
+                                            </div>
                                         </div>
+                                        <form action="{{ route('admin.feedback.delete', $feedback->feedback_id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Bạn có chắc muốn xóa feedback này?')"
+                                            style="margin-left: 10px;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-link p-0" data-bs-toggle="tooltip"
+                                                title="Xóa feedback">
+                                                <i class="lni lni-trash-can text-danger"
+                                                    style="font-size: 1.3em;"></i>
+                                            </button>
+                                        </form>
                                     </div>
-                                    <!-- end select -->
-                                </div>
+                                @empty
+                                    <div class="text-center text-muted py-3">Chưa có feedback nào.</div>
+                                @endforelse
                             </div>
-                            <!-- End Title -->
-                            <div class="chart">
-                                <canvas id="Chart1"
-                                    style="width: 100%; height: 400px; margin-left: -35px;"></canvas>
-                            </div>
-                            <!-- End Chart -->
                         </div>
                     </div>
+
                     <!-- End Col -->
                     <div class="col-lg-5">
                         <div class="card-style mb-30">
@@ -881,121 +899,6 @@
                     .then(data => updateOrdersTable(data));
             });
         }
-
-        // =========== chart one start
-        const ctx1 = document.getElementById("Chart1").getContext("2d");
-        const chart1 = new Chart(ctx1, {
-            type: "line",
-            data: {
-                labels: [
-                    "Jan",
-                    "Fab",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                ],
-                datasets: [{
-                    label: "",
-                    backgroundColor: "transparent",
-                    borderColor: "#365CF5",
-                    data: [
-                        600, 800, 750, 880, 940, 880, 900, 770, 920, 890, 976, 1100,
-                    ],
-                    pointBackgroundColor: "transparent",
-                    pointHoverBackgroundColor: "#365CF5",
-                    pointBorderColor: "transparent",
-                    pointHoverBorderColor: "#fff",
-                    pointHoverBorderWidth: 5,
-                    borderWidth: 5,
-                    pointRadius: 8,
-                    pointHoverRadius: 8,
-                    cubicInterpolationMode: "monotone", // Add this line for curved line
-                }, ],
-            },
-            options: {
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            labelColor: function(context) {
-                                return {
-                                    backgroundColor: "#ffffff",
-                                    color: "#171717"
-                                };
-                            },
-                        },
-                        intersect: false,
-                        backgroundColor: "#f9f9f9",
-                        title: {
-                            fontFamily: "Plus Jakarta Sans",
-                            color: "#8F92A1",
-                            fontSize: 12,
-                        },
-                        body: {
-                            fontFamily: "Plus Jakarta Sans",
-                            color: "#171717",
-                            fontStyle: "bold",
-                            fontSize: 16,
-                        },
-                        multiKeyBackground: "transparent",
-                        displayColors: false,
-                        padding: {
-                            x: 30,
-                            y: 10,
-                        },
-                        bodyAlign: "center",
-                        titleAlign: "center",
-                        titleColor: "#8F92A1",
-                        bodyColor: "#171717",
-                        bodyFont: {
-                            family: "Plus Jakarta Sans",
-                            size: "16",
-                            weight: "bold",
-                        },
-                    },
-                    legend: {
-                        display: false,
-                    },
-                },
-                responsive: true,
-                maintainAspectRatio: false,
-                title: {
-                    display: false,
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            display: false,
-                            drawTicks: false,
-                            drawBorder: false,
-                        },
-                        ticks: {
-                            padding: 35,
-                            max: 1200,
-                            min: 500,
-                        },
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            color: "rgba(143, 146, 161, .1)",
-                            zeroLineColor: "rgba(143, 146, 161, .1)",
-                        },
-                        ticks: {
-                            padding: 20,
-                        },
-                    },
-                },
-            },
-        });
-        // =========== chart one end
-
         // =========== chart two start
         const ctx2 = document.getElementById("Chart2").getContext("2d");
         const chart2 = new Chart(ctx2, {
@@ -1271,5 +1174,50 @@
         // =========== chart four end
     </script>
 </body>
+<style>
+    .alert {
+        position: fixed;
+        top: -100px;
+        /* Start off-screen */
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 300px;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        opacity: 0;
+        transition: all 0.5s ease-in-out;
+        display: flex;
+        justify-content: center;
+    }
+
+    .alert.show {
+        top: 20px;
+        opacity: 1;
+    }
+
+    .alert.fade-out {
+        opacity: 0;
+        top: -100px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #fa0019;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .alert ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+</style>
 
 </html>

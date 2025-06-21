@@ -15,8 +15,8 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Product;
 use Elastic\Elasticsearch\Client;
 use App\Traits\Searchable;
-use App\Models\OrderDetail;
 use App\Models\Brand;
+use App\Models\Category;
 
 class DashboardController extends Controller
 {
@@ -60,26 +60,6 @@ class DashboardController extends Controller
             // 4. Số đơn hàng đang chờ xác nhận
             $pendingOrders = Order::where('order_status', 'pending')->count();
 
-            // 5. Doanh thu 7 ngày gần nhất
-            $revenueData = DB::table('order_details')
-                ->join('orders', 'orders.order_id', '=', 'order_details.order_id')
-                ->where('orders.order_status', 'completed')
-                ->whereBetween('orders.order_date', [
-                    Carbon::now()->subDays(6)->startOfDay(),
-                    Carbon::now()->endOfDay()
-                ])
-                ->select(
-                    DB::raw('DATE(orders.order_date) as date'),
-                    DB::raw('SUM(order_details.sold_price * order_details.sold_quantity) as daily_revenue')
-                )
-                ->groupBy('date')
-                ->orderBy('date', 'ASC')
-                ->get()
-                ->keyBy('date')
-                ->map(function ($item) {
-                    return $item->daily_revenue;
-                })
-                ->toArray();
 
             // Tạo mảng đủ 7 ngày với revenue = 0 nếu không có doanh thu
             $last7Days = [];
@@ -138,6 +118,8 @@ class DashboardController extends Controller
                 'products' => $topSellingProducts->toArray()
             ]);
 
+            $allFeedbacks = \App\Models\Feedback::with('customer')->orderByDesc('feedback_id')->get();
+
             return view('management.dashboard', compact(
                 'totalCustomers',
                 'completedOrders',
@@ -147,7 +129,8 @@ class DashboardController extends Controller
                 'dailyRevenue',
                 'topSellingProducts',
                 'latestOrders',
-                'statusClasses'
+                'statusClasses',
+                'allFeedbacks',
             ));
         } catch (\Exception $e) {
             Log::error('Dashboard Error: ' . $e->getMessage());
@@ -251,6 +234,163 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             Log::error('Search suggestions error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function charts()
+    {
+        $latestOrders = Order::with(['customer'])
+            ->orderBy('order_date', 'desc')
+            ->take(5)
+            ->get();
+
+        try {
+            // Kiểm tra auth
+            if (!Auth::guard('owner')->check() && !Auth::guard('employee')->check()) {
+                return redirect()->route('admin.login')
+                    ->with('error', 'Vui lòng đăng nhập để tiếp tục.');
+            }
+
+            Log::info('Starting dashboard data collection');
+
+            // 2. Số đơn hàng đã vận chuyển thành công
+            $completedOrders = Order::where('order_status', 'completed')->count();
+
+            // 3. Tổng doanh thu từ các đơn hàng đã hoàn thành
+            $totalRevenue = DB::table('order_details')
+                ->join('orders', 'orders.order_id', '=', 'order_details.order_id')
+                ->where('orders.order_status', 'completed')
+                ->sum(DB::raw('order_details.sold_price * order_details.sold_quantity'));
+
+            // Tạo mảng đủ 7 ngày với revenue = 0 nếu không có doanh thu
+            $last7Days = [];
+            $dailyRevenue = [];
+
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $last7Days[] = $date->format('d/m');
+
+                // Tính doanh thu theo ngày
+                $revenue = DB::table('order_details')
+                    ->join('orders', 'orders.order_id', '=', 'order_details.order_id')
+                    ->whereDate('orders.order_date', $date->format('Y-m-d'))
+                    ->where('orders.order_status', 'completed')
+                    ->sum(DB::raw('order_details.sold_price * order_details.sold_quantity'));
+
+                $dailyRevenue[] = (int)$revenue;
+            }
+
+            // biểu đồ so sánh số lượng đơn hàng hoàn thành và hủy trong 7 ngày qua
+            $orderChartLabels = [];
+            $completedCounts = [];
+            $canceledCounts = [];
+
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                $orderChartLabels[] = Carbon::now()->subDays($i)->format('d/m');
+                $completedCounts[] = Order::whereDate('order_date', $date)->where('order_status', 'completed')->count();
+                $canceledCounts[] = Order::whereDate('order_date', $date)->where('order_status', 'cancelled')->count();
+            }
+
+            $completedThisWeek = Order::where('order_status', 'completed')
+                ->whereDate('order_date', '>=', Carbon::now()->subDays(6)->startOfDay())
+                ->count();
+            $canceledThisWeek = Order::where('order_status', 'cancelled')
+                ->whereDate('order_date', '>=', Carbon::now()->subDays(6)->startOfDay())
+                ->count();
+
+            // Tuần trước (7 ngày liền kề trước đó)
+            $completedLastWeek = Order::where('order_status', 'completed')
+                ->whereBetween('order_date', [
+                    Carbon::now()->subDays(13)->startOfDay(),
+                    Carbon::now()->subDays(7)->endOfDay()
+                ])->count();
+            $canceledLastWeek = Order::where('order_status', 'cancelled')
+                ->whereBetween('order_date', [
+                    Carbon::now()->subDays(13)->startOfDay(),
+                    Carbon::now()->subDays(7)->endOfDay()
+                ])->count();
+
+            // Tính % khuynh hướng
+            $calcTrend = function ($now, $last) {
+                if ($last == 0) return $now > 0 ? 100 : 0;
+                return round((($now - $last) / $last) * 100, 2);
+            };
+            $completedTrend = $calcTrend($completedThisWeek, $completedLastWeek);
+            $canceledTrend = $calcTrend($canceledThisWeek, $canceledLastWeek);
+
+            // Biểu đồ hình đường đi uốn lượn show lượng voucher đã sử dụng trong 7 ngày qua
+            $voucherChartLabels = [];
+            $voucherUsageCounts = [];
+
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                $voucherChartLabels[] = Carbon::now()->subDays($i)->format('d/m');
+                // Đếm số đơn có sử dụng voucher trong ngày đó
+                $voucherUsageCounts[] = Order::whereDate('order_date', $date)
+                    ->whereNotNull('voucher_id') // hoặc điều kiện phù hợp với hệ thống của bạn
+                    ->count();
+            }
+
+            // Biểu đồ hình cột ngang show số lượng sản phẩm bán đc theo danh mục
+            $categorySales = \App\Models\Category::with(['products.orderDetails' => function ($q) {
+                $q->whereHas('order', function ($query) {
+                    $query->where('order_status', 'completed');
+                });
+            }])->get()->map(function ($cat) {
+                $total = 0;
+                foreach ($cat->products as $product) {
+                    $total += $product->orderDetails->sum('sold_quantity');
+                }
+                return [
+                    'name' => $cat->category_name,
+                    'total' => $total
+                ];
+            });
+            $categoryNames = $categorySales->pluck('name')->toArray();
+            $categoryTotals = $categorySales->pluck('total')->toArray();
+
+            // Biểu đồ hình cột dọc show số lượng sản phẩm bán đc theo thương hiệu
+            $brandSales = \App\Models\Brand::with(['products.orderDetails' => function ($q) {
+                $q->whereHas('order', function ($query) {
+                    $query->where('order_status', 'completed');
+                });
+            }])->get()->map(function ($brand) {
+                $total = 0;
+                foreach ($brand->products as $product) {
+                    $total += $product->orderDetails->sum('sold_quantity');
+                }
+                return [
+                    'name' => $brand->brand_name,
+                    'total' => $total
+                ];
+            });
+            $brandNames = $brandSales->pluck('name')->toArray();
+            $brandTotals = $brandSales->pluck('total')->toArray();
+
+            return view('management.charts', compact(
+                'completedOrders',
+                'totalRevenue',
+                'last7Days',
+                'dailyRevenue',
+                'latestOrders',
+                'orderChartLabels',
+                'completedCounts',
+                'canceledCounts',
+                'completedThisWeek',
+                'canceledThisWeek',
+                'completedTrend',
+                'canceledTrend',
+                'voucherChartLabels',
+                'voucherUsageCounts',
+                'categoryNames',
+                'categoryTotals',
+                'brandNames',
+                'brandTotals',
+            ));
+        } catch (\Exception $e) {
+            Log::error('Dashboard Error: ' . $e->getMessage());
+            return back()->with('error', 'Có lỗi xảy ra khi tải dữ liệu dashboard');
         }
     }
 

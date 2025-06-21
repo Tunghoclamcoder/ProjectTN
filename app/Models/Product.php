@@ -39,6 +39,11 @@ class Product extends Model
 
     public $timestamps = false;
 
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'product_id', 'product_id');
+    }
+
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 'category_product', 'product_id', 'category_id')
