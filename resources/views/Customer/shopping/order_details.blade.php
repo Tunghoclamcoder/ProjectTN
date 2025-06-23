@@ -311,6 +311,24 @@
                 <i class="bi bi-star"></i> Đánh giá đơn hàng
             </button>
         @endif
+
+        @if ($order->payment_method_id == 7 && $order->order_status == 'confirmed')
+            <form action="{{ route('vnpay.payment', $order->order_id) }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-credit-card"></i> Thanh toán <span style="color: #020046;">VNPay</span>
+                </button>
+            </form>
+        @endif
+
+        @if ($order->payment_method_id == 5 && $order->order_status == 'confirmed')
+            <form action="{{ route('momo.payment', $order->order_id) }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-wallet2"></i> Thanh toán <span style="color: #940059;">Momo</span>
+                </button>
+            </form>
+        @endif
     </div>
 </div>
 

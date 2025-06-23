@@ -529,6 +529,7 @@ footer {
     left: 50%;
     transform: translateX(-50%);
     min-width: 300px;
+    max-width: 500px;
     padding: 15px;
     border-radius: 4px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -537,6 +538,7 @@ footer {
     transition: all 0.5s ease-in-out;
     display: flex;
     justify-content: center;
+    background-color: gray;
 }
 
 .alert.show {

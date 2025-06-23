@@ -167,7 +167,6 @@ class CartController extends Controller
             ], 500);
         }
     }
-
     public function viewCart()
     {
         $customer = Auth::guard('customer')->user();
@@ -216,7 +215,6 @@ class CartController extends Controller
             ], 500);
         }
     }
-
     public function clearCart()
     {
         try {

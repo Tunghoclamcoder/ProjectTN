@@ -95,19 +95,25 @@
             </div>
 
             @if ($product->quantity > 0)
-                <form action="{{ route('cart.add-to-cart') }}" method="POST" class="product-form" id="addToCartForm">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                    <input type="hidden" name="size_id" id="selected_size_id">
-                    <div class="quantity">
-                        <label style="color: #000000">Số lượng:</label>
-                        <input type="number" name="quantity" value="1" min="1"
-                            max="{{ $product->quantity }}">
-                        <button type="submit" class="add-to-cart">
-                            <i class="lni lni-cart"></i> Thêm vào giỏ
-                        </button>
+                @auth('customer')
+                    <form action="{{ route('cart.add-to-cart') }}" method="POST" class="product-form" id="addToCartForm">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                        <input type="hidden" name="size_id" id="selected_size_id">
+                        <div class="quantity">
+                            <label style="color: #000000">Số lượng:</label>
+                            <input type="number" name="quantity" value="1" min="1"
+                                max="{{ $product->quantity }}">
+                            <button type="submit" class="add-to-cart">
+                                <i class="lni lni-cart"></i> Thêm vào giỏ
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-warning mt-2">
+                        Vui lòng <a href="{{ route('customer.login') }}">đăng nhập</a> để thêm sản phẩm vào giỏ hàng.
                     </div>
-                </form>
+                @endauth
             @else
                 <div class="out-of-stock-message">
                     <span class="text-danger">

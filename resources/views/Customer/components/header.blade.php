@@ -63,7 +63,7 @@
                                         <i class="lni lni-user"></i> Thông tin tài khoản
                                     </a>
                                     <a href="{{ route('customer.orders') }}" class="dropdown-item">
-                                        <i class="lni lni-shopping-basket"></i> Đơn hàng của tôi
+                                        <i class="lni lni-shopping-basket"></i> Lịch sử mua hàng
                                     </a>
                                     <a href="{{ route('customer.change-password') }}" class="dropdown-item">
                                         <i class="lni lni-lock"></i> Đổi mật khẩu

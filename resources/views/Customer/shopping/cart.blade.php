@@ -114,7 +114,7 @@
                 </div>
 
                 @if ($cartItems->count() > 0)
-                    <a href="{{ route('checkout') }}" class="btn btn-primary w-100">
+                    <a href="{{ route('checkout') }}" class="btn btn-primary w-100" id="checkoutBtn">
                         <i class="bi bi-cart-check me-2"></i>Tiến hành thanh toán
                     </a>
                 @else
@@ -130,6 +130,17 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function(e) {
+                    const confirmed = confirm(
+                        'Bạn có chắc chắn muốn tiến hành thanh toán đơn hàng này không?');
+                    if (!confirmed) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
             const quantityInputs = document.querySelectorAll('.quantity-input');
 
             quantityInputs.forEach(input => {
