@@ -31,7 +31,7 @@
         @endif
 
         @if (session('success'))
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-session">
                 {{ session('success') }}
             </div>
         @endif
@@ -111,7 +111,8 @@
         {{-- Hiển thị 3 feedback mới nhất --}}
         @if (isset($latestFeedbacks) && $latestFeedbacks->count())
             <div class="container mb-4 feedback-section">
-                <h2 class="text-center mb-4" style="font-weight:600; color:#1a237e;">Khách hàng nói gì về chúng tôi?</h2>
+                <h2 class="text-center mb-4" style="font-weight:600; color:#1a237e;">Khách hàng nói gì về chúng tôi?
+                </h2>
                 <div class="feedback-row">
                     @foreach ($latestFeedbacks as $feedback)
                         <div class="feedback-col">
@@ -155,6 +156,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             const cartButtons = document.querySelectorAll('.cart-button');
 
             cartButtons.forEach(button => {

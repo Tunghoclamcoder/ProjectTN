@@ -79,8 +79,11 @@
                                 <tr>
                                     <td>{{ $image->image_id }}</td>
                                     <td style="width: 100px;">
-                                        @if (Storage::disk('public')->exists($image->image_url))
-                                            <img src="{{ Storage::url($image->image_url) }}" alt="Image Preview"
+                                        @php
+                                            $filePath = str_replace('storage/', '', $image->image_url);
+                                        @endphp
+                                        @if (Storage::disk('public')->exists($filePath))
+                                            <img src="{{ asset($image->image_url) }}" alt="Image Preview"
                                                 style="max-width: 100px; max-height: 100px; object-fit: cover;">
                                         @else
                                             <span class="text-muted">No image</span>

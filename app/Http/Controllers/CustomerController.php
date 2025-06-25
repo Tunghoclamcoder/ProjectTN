@@ -79,6 +79,16 @@ class CustomerController extends Controller
             'password' => 'required'
         ]);
 
+        // Lấy user theo email
+        $customer = Customer::where('email', $credentials['email'])->first();
+
+        // Kiểm tra trạng thái tài khoản
+        if ($customer && $customer->status === 'inactive') {
+            return back()
+                ->withInput($request->only('email'))
+                ->with('error', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ với admin để được hỗ trợ.');
+        }
+
         // Clear any existing intended URL
         session()->forget('url.intended');
 
@@ -149,6 +159,7 @@ class CustomerController extends Controller
 
     public function toggleStatus(Customer $customer)
     {
+
         try {
             $newStatus = $customer->status == 'active' ? 'inactive' : 'active';
             $customer->update(['status' => $newStatus]);
@@ -181,22 +192,25 @@ class CustomerController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customer,email',
-            'phone_number' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-        ]);
-
         $authCustomer = Auth::guard('customer')->user();
         $customer = Customer::find($authCustomer->customer_id);
 
-        $customer->update([
-            'customer_name' => $request->customer_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-        ]);
+        $rules = [
+            'customer_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ];
+
+        // Nếu email thay đổi thì check unique
+        if ($request->email !== $customer->email) {
+            $rules['email'] = 'required|email|unique:customer,email';
+        } else {
+            $rules['email'] = 'required|email';
+        }
+
+        $validated = $request->validate($rules);
+
+        $customer->update($validated);
 
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
     }
@@ -291,7 +305,7 @@ class CustomerController extends Controller
             'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại',
             'new_password.required' => 'Vui lòng nhập mật khẩu mới',
             'new_password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự',
-            'new_password.regex' => 'Mật khẩu mới phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số',
+            'new_password.regex' => 'Mật khẩu mới phải chứa ít nhất 8 ký tự, 1 ký tự đặc biệt, 1 chữ số',
             'new_password.confirmed' => 'Xác nhận mật khẩu không khớp',
             'new_password_confirmation.required' => 'Vui lòng xác nhận mật khẩu mới'
         ]);
@@ -317,14 +331,14 @@ class CustomerController extends Controller
         // Update session dataAdd commentMore actions
         session(['customer' => $customer]);
 
-        return back()->with('success', 'Đổi mật khẩu thành công!');
+        return redirect()->route('customer.login')->with('success', 'Đổi mật khẩu thành công!');
     }
 
     public function submitForgotPasswordForm(Request $request)
     {
         // Validate email
         $request->validate([
-            'email' => 'required|email|exists:customer,email', // Đổi 'customers' thành tên bảng khách hàng của bạn
+            'email' => 'required|email|exists:customer,email',
         ], [
             'email.exists' => 'Email này không tồn tại trong hệ thống.',
         ]);
@@ -350,6 +364,8 @@ class CustomerController extends Controller
         $request->validate([
             'current_password' => 'required',
             'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.confirmed' => 'Mật khẩu xác nhận không khớp với mật khẩu mới.',
         ]);
 
         $authCustomer = Auth::guard('customer')->user();
@@ -359,9 +375,27 @@ class CustomerController extends Controller
             return back()->with('error', 'Mật khẩu hiện tại không đúng.');
         }
 
+        // Kiểm tra mật khẩu mới có trùng mật khẩu cũ không
+        if (Hash::check($request->new_password, $customer->password)) {
+            return back()->with('error', 'Mật khẩu mới không được trùng với mật khẩu hiện tại.');
+        }
+
         $customer->password = bcrypt($request->new_password);
         $customer->save();
 
-        return back()->with('success', 'Đổi mật khẩu thành công!');
+        Auth::guard('customer')->logout();
+
+        return redirect()->route('customer.login')->with('success', 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+    }
+
+    public function submitContact(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'message' => 'required|string|max:2000',
+        ]);
+
+        return back()->with('success', 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.');
     }
 }

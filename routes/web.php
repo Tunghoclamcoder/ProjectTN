@@ -44,10 +44,10 @@ Route::post('customer/forgot-password', [CustomerController::class, 'sendResetLi
     ->name('customer.forgot-password.submit');
 
 //reset mật khẩu
-Route::get('customer/reset-password/{token}', [\App\Http\Controllers\CustomerController::class, 'showResetPasswordForm'])
+Route::get('customer/reset-password/{token}', [CustomerController::class, 'showResetPasswordForm'])
     ->name('customer.reset_password');
 // Xử lý submit form reset mật khẩu
-Route::post('customer/reset-password', [\App\Http\Controllers\CustomerController::class, 'resetPassword'])
+Route::post('customer/reset-password', [CustomerController::class, 'resetPassword'])
     ->name('customer.reset-password.submit');
 
 Route::get('customer/change-password', [CustomerController::class, 'showChangePasswordForm'])
@@ -58,6 +58,8 @@ Route::post('customer/change-password', [CustomerController::class, 'changePassw
     ->middleware(CustomerAuthentication::class)
     ->name('customer.change-password.update');
 
+Route::get('/categories/{category}', [CategoryController::class, 'showCategoryProducts'])->name('categories.products');
+Route::get('/brands/{brand}', [BrandController::class, 'showBrandProducts'])->name('brands.products');
 Route::get('/product/{product}', [ProductController::class, 'show'])->name('shop.product.show');
 
 Route::middleware('auth:customer')->group(function () {
@@ -85,7 +87,13 @@ Route::middleware('auth:customer')->group(function () {
     Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::post('/momo/payment/{order}', [PaymentController::class, 'momo_payment'])->name('momo.payment');
     Route::post('/momo/return', [PaymentController::class, 'momoReturn'])->name('momo.return');
+    Route::get('/payment/bank-qr/{order}', [PaymentController::class, 'showBankPayment'])->name('bank-qr.payment');
 });
+
+Route::view('/contact', 'Customer.contact')->name('customer.contact');
+Route::post('/contact', [CustomerController::class, 'submitContact'])->name('contact.store');
+
+Route::view('/about', 'Customer.about')->name('customer.about');
 
 //Search cho trang chủ của Customer
 Route::get('/search-suggestions', [ShopController::class, 'searchSuggestions'])
@@ -121,6 +129,7 @@ Route::get('login', function () {
     // Default to customer login
     return redirect()->route('customer.login');
 })->name('login');
+
 
 
 // Routes xử lý cho Owner và đăng nhập đăng xuất Admin
@@ -174,7 +183,7 @@ Route::prefix('admin')->group(function () {
         Route::prefix('customer')->group(function () {
             Route::get('/', [CustomerController::class, 'index'])->name('admin.customer');
             Route::post('/', [CustomerController::class, 'store'])->name(name: 'admin.customer.store');
-            Route::patch('customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])
+            Route::patch('{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])
                 ->name('admin.customer.toggle-status');
             Route::get('/search', [CustomerController::class, 'search'])->name('admin.customer.search'); // Put search route before other routes
         });

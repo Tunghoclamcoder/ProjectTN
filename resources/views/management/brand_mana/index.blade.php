@@ -69,7 +69,7 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="size-icons">&#xE8B6;</i>
+                                <i class="material-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>
@@ -89,9 +89,12 @@
                                 <tr>
                                     <td>{{ $brand->brand_id }}</td>
                                     <td style="width: 120px; height: 100px">
-                                        @if ($brand->brand_image && Storage::disk('public')->exists($brand->brand_image))
-                                            <img src="{{ Storage::url($brand->brand_image) }}"
-                                                alt="{{ $brand->brand_name }}"
+                                        @php
+                                            $imagePath = str_replace('storage/', '', $brand->brand_image);
+                                        @endphp
+
+                                        @if ($brand->brand_image && Storage::disk('public')->exists($imagePath))
+                                            <img src="{{ asset($brand->brand_image) }}" alt="{{ $brand->brand_name }}"
                                                 style="width: 90px; height: 80px; object-fit: cover;">
                                         @else
                                             <img src="{{ asset('images/placeholder.png') }}" alt="Placeholder"

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý Chất liệu</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=size+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -59,13 +59,13 @@
                         <div class="col-sm-6">
                             <h2>Quản lý <b>Chất liệu</b></h2>
                             <a href="{{ route('admin.material.create') }}" class="btn btn-success mt-2 mb-4">
-                                <i class="size-icons">&#xE147;</i>
+                                <i class="material-icons">&#xE147;</i>
                                 <span>Thêm mới</span>
                             </a>
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="size-icons">&#xE8B6;</i>
+                                <i class="material-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>

@@ -489,6 +489,8 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
+                        <div id="confirm-password-feedback" class="invalid-feedback" style="display:none;"></div>
+
                         @error('new_password_confirmation')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -502,13 +504,9 @@
                                 <i class="fas fa-times"></i>
                                 Ít nhất 8 ký tự
                             </li>
-                            <li class="requirement" data-requirement="uppercase">
-                                <i class="fas fa-times"></i>
-                                Có ít nhất 1 chữ hoa
-                            </li>
                             <li class="requirement" data-requirement="lowercase">
                                 <i class="fas fa-times"></i>
-                                Có ít nhất 1 chữ thường
+                                Có ít nhất 1 ký tự đặc biệt
                             </li>
                             <li class="requirement" data-requirement="number">
                                 <i class="fas fa-times"></i>
@@ -557,6 +555,8 @@
 
             // Password strength checker
             const newPasswordInput = document.getElementById('new_password');
+            const confirmPasswordInput = document.getElementById('new_password_confirmation');
+            const confirmFeedback = document.getElementById('confirm-password-feedback');
             const strengthBar = document.querySelector('.strength-fill');
             const strengthText = document.querySelector('.strength-text');
             const requirements = document.querySelectorAll('.requirement');
@@ -575,6 +575,26 @@
                     updateRequirements(password);
                 });
             }
+
+            function checkPasswordMatch() {
+                if (confirmPasswordInput.value.length === 0) {
+                    confirmFeedback.style.display = 'none';
+                    confirmPasswordInput.classList.remove('is-invalid');
+                    return;
+                }
+                if (newPasswordInput.value !== confirmPasswordInput.value) {
+                    confirmFeedback.textContent = 'Mật khẩu xác nhận không khớp!';
+                    confirmFeedback.style.display = 'block';
+                    confirmPasswordInput.classList.add('is-invalid');
+                } else {
+                    confirmFeedback.textContent = '';
+                    confirmFeedback.style.display = 'none';
+                    confirmPasswordInput.classList.remove('is-invalid');
+                }
+            }
+
+            newPasswordInput.addEventListener('input', checkPasswordMatch);
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
 
             function checkPasswordStrength(password) {
                 let score = 0;

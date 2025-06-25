@@ -51,7 +51,7 @@ class VoucherController extends Controller
 
     public function index()
     {
-        $vouchers = Voucher::orderBy('id', 'desc')->paginate(10);
+        $vouchers = Voucher::orderBy('id', 'asc')->paginate(10);
         return view('management.voucher_mana.index', compact('vouchers'));
     }
 
@@ -197,7 +197,7 @@ class VoucherController extends Controller
     {
         try {
             $voucher->delete();
-            return redirect()->route('admin.vouchers.index')
+            return redirect()->route('admin.voucher')
                 ->with('success', 'Voucher đã được xóa thành công.');
         } catch (\Exception $e) {
             return back()->with('error', 'Có lỗi xảy ra khi xóa voucher.');

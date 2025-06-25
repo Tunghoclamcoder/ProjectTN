@@ -43,7 +43,7 @@
                 <div class="card mb-4">
                     <div class="card-body text-center">
                         <h5 class="my-3">{{ $customer->customer_name }}</h5>
-                        <p class="text-muted mb-4">{{ $customer->address }}</p>
+                        <p class="text-muted mb-4">{{ $customer->email }}</p>
                     </div>
                 </div>
             </div>

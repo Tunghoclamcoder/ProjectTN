@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Quản lý khách hàng</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -39,9 +39,7 @@
         @endif
 
         @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
+            <div class="alert alert-success">{{ session('success') }}</div>
         @endif
     </div>
 
@@ -131,6 +129,15 @@
 </body>
 
 <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionAlert = document.querySelector('.alert-session');
+        if (sessionAlert) {
+            setTimeout(() => {
+                sessionAlert.remove();
+            }, 3000);
+        }
+    });
+
     function nextPage() {
         const currentPage = {{ $customers->currentPage() }};
         const totalPages = {{ $customers->lastPage() }};
@@ -143,13 +150,15 @@
     function toggleStatus(customerId) {
         if (confirm('Bạn có chắc chắn muốn thay đổi trạng thái tài khoản này?')) {
             $.ajax({
-                url: `{{ url('admin/customers') }}/${customerId}/toggle-status`,
+                url: `{{ url('admin/customer') }}/${customerId}/toggle-status`,
                 type: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.success) {
+                        // Lưu thông báo vào localStorage
+                        localStorage.setItem('statusMessage', response.message);
                         location.reload();
                     } else {
                         alert('Có lỗi xảy ra khi thay đổi trạng thái');

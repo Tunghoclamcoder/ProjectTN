@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
@@ -121,6 +122,40 @@ class CategoryController extends Controller
         }])->findOrFail($id);
 
         $products = $category->products()->paginate(12);
+
+        return view('Customer.category.filter_product', compact('category', 'products'));
+    }
+
+    public function showCategoryProducts(Request $request, $categoryId)
+    {
+        $category = Category::findOrFail($categoryId);
+
+        $query = Product::whereHas('categories', function ($q) use ($categoryId) {
+            $q->where('categories.category_id', $categoryId);
+        });
+
+        // Xử lý sort
+        switch ($request->input('sort')) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('product_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('product_name', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('product_id', 'asc');
+        }
+
+        $products = $query->paginate(12);
 
         return view('Customer.category.filter_product', compact('category', 'products'));
     }

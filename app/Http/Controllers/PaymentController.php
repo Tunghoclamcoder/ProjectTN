@@ -69,7 +69,6 @@ class PaymentController extends Controller
 
         return redirect($vnp_Url);
     }
-
     public function vnpayReturn(Request $request)
     {
         $inputData = $request->all();
@@ -84,7 +83,6 @@ class PaymentController extends Controller
             return redirect()->route('customer.orders')->with('success', 'Thanh toán VNPay thành công!');
         }
     }
-
     public function momo_payment(Request $request, Order $order)
     {
         $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
@@ -157,6 +155,13 @@ class PaymentController extends Controller
         }
     }
 
+    public function showBankPayment($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $qrCodeUrl = $order->qr_code_url ?? asset('images/qr-tpbank.png');
+        $logoUrl = asset('images/logo.png');
+        return view('Customer.payment.bank_payment', compact('order', 'qrCodeUrl', 'logoUrl'));
+    }
 
     public function search(Request $request)
     {

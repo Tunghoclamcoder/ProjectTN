@@ -6,6 +6,7 @@ use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ImageController extends Controller
 {
@@ -33,10 +34,24 @@ class ImageController extends Controller
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $imageFile) {
                     if ($imageFile) {
-                        $path = $imageFile->store('images', 'public');
+                        $filename = time() . '_' . $imageFile->getClientOriginalName();
 
+                        // 1️⃣ Lưu vào storage/app/public/images
+                        $imageFile->storeAs('images', $filename, 'public');
+
+                        // 2️⃣ Copy vào public/storage/images
+                        $sourcePath = storage_path("app/public/images/{$filename}");
+                        $destinationPath = public_path("storage/images/{$filename}");
+
+                        if (!File::exists(public_path('storage/images'))) {
+                            File::makeDirectory(public_path('storage/images'), 0755, true);
+                        }
+
+                        File::copy($sourcePath, $destinationPath);
+
+                        // 3️⃣ Lưu đường dẫn chuẩn vào DB
                         Image::create([
-                            'image_url' => $path
+                            'image_url' => "storage/images/{$filename}"
                         ]);
 
                         $successCount++;
@@ -73,16 +88,33 @@ class ImageController extends Controller
 
         try {
             if ($request->hasFile('image')) {
-                // Delete old image
-                if (Storage::disk('public')->exists($image->image_url)) {
-                    Storage::disk('public')->delete($image->image_url);
+                $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+
+                // 1️⃣ Xóa ảnh cũ
+                if ($image->image_url) {
+                    $oldPathStorage = storage_path('app/public/' . str_replace('storage/', '', $image->image_url));
+                    $oldPathPublic = public_path($image->image_url);
+
+                    if (File::exists($oldPathStorage)) File::delete($oldPathStorage);
+                    if (File::exists($oldPathPublic)) File::delete($oldPathPublic);
                 }
 
-                // Store new image
-                $path = $request->file('image')->store('images', 'public');
+                // 2️⃣ Lưu ảnh mới
+                $request->file('image')->storeAs('images', $filename, 'public');
 
+                // 3️⃣ Copy ảnh thật ra public
+                $sourcePath = storage_path("app/public/images/{$filename}");
+                $destinationPath = public_path("storage/images/{$filename}");
+
+                if (!File::exists(public_path('storage/images'))) {
+                    File::makeDirectory(public_path('storage/images'), 0755, true);
+                }
+
+                File::copy($sourcePath, $destinationPath);
+
+                // 4️⃣ Cập nhật DB
                 $image->update([
-                    'image_url' => $path
+                    'image_url' => "storage/images/{$filename}"
                 ]);
 
                 return redirect()
@@ -96,7 +128,7 @@ class ImageController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Có lỗi xảy ra khi cập nhật hình ảnh.');
+                ->with('error', 'Có lỗi xảy ra khi cập nhật hình ảnh: ' . $e->getMessage());
         }
     }
 

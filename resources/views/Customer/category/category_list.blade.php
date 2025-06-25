@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Shop')</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Add search CSS -->
     <link rel="stylesheet" href="{{ asset('css/category_list.css') }}">
 </head>
 
 <body>
+    @include('Customer.components.header')
+
     @section('title', 'Danh mục sản phẩm')
 
     <div class="category-list-container">
@@ -69,7 +71,7 @@
                                         </div>
                                         <div class="image-overlay">
                                             <div class="overlay-content">
-                                                <i class="fas fa-arrow-right"></i>
+                                                <i class="fa fa-arrow-right"></i>
                                                 <span>Khám phá ngay</span>
                                             </div>
                                         </div>

@@ -35,7 +35,7 @@
             <div class="menu"><a href="#menu" class="openicon">☰</a>
                 <nav id="menu">
                     <ul>
-                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="{{ route(name: 'customer.about') }}">Giới thiệu</a></li>
                         @auth('customer')
                             <li>
                                 <a href="{{ route('cart.view') }}">
@@ -77,7 +77,7 @@
                                 </div>
                             </li>
                         @endguest
-                        <li><a href="#">Liên hệ với chúng tôi</a></li>
+                        <li><a href="{{ route('customer.contact') }}">Liên hệ với chúng tôi</a></li>
                     </ul>
                 </nav>
             </div>

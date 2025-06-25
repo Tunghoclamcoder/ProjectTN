@@ -412,11 +412,21 @@ class ProductController extends Controller
                 ->orderByPivot('image_order')
                 ->get();
 
+            if (!is_numeric($product) || (int)$product < 0) {
+                return redirect()->route('admin.product')->with('error', 'ID sản phẩm không hợp lệ!');
+            }
+
+            // Lấy sản phẩm theo id
+            $productModel = Product::find($product);
+            if (!$productModel) {
+                return redirect()->route('admin.product')->with('error', 'Sản phẩm không tồn tại!');
+            }
+
             return view('management.product_mana.detail', [
                 'product' => $product,
                 'mainImage' => $mainImage,
                 'subImages' => $subImages,
-                'shippingMethods' => \App\Models\ShippingMethod::all()
+                'shippingMethods' => ShippingMethod::all()
             ]);
         } catch (\Exception $e) {
             Log::error('Error in admin product show: ' . $e->getMessage());

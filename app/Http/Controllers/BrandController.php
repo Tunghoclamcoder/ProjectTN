@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 
 class BrandController extends Controller
 {
@@ -47,24 +48,35 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'brand_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'brand_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'brand_name'    => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'brand_image'   => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
         if ($request->hasFile('brand_image')) {
-            // Lưu ảnh vào storage/app/public/brands
-            $imagePath = $request->file('brand_image')->store('brands', 'public');
-            $validated['brand_image'] = $imagePath;
+            $image = $request->file('brand_image');
+            $filename = time() . '_' . $image->getClientOriginalName();
 
-            // Log để debug
-            Log::info('Brand Image Stored:', [
-                'path' => $imagePath,
-                'full_path' => Storage::disk('public')->path($imagePath)
-            ]);
+            // 1️⃣ Lưu vào storage/app/public/brands
+            $image->storeAs('brands', $filename, 'public');
+
+            // 2️⃣ Copy file thực tế sang public/storage/brands
+            $sourcePath = storage_path("app/public/brands/{$filename}");
+            $destinationPath = public_path("storage/brands/{$filename}");
+
+            // Đảm bảo thư mục public/storage/brands tồn tại
+            if (!File::exists(public_path('storage/brands'))) {
+                File::makeDirectory(public_path('storage/brands'), 0755, true);
+            }
+
+            File::copy($sourcePath, $destinationPath);
+
+            // Lưu đường dẫn relative trong DB
+            $validated['brand_image'] = "storage/brands/{$filename}";
         }
 
         Brand::create($validated);
+
         return redirect()->route('admin.brand')->with('success', 'Thêm thương hiệu thành công');
     }
 
@@ -83,17 +95,43 @@ class BrandController extends Controller
         ]);
 
         if ($request->hasFile('brand_image')) {
-            // Delete old image
+            $image = $request->file('brand_image');
+            $filename = time() . '_' . $image->getClientOriginalName();
+
+            // 1️⃣ Xóa ảnh cũ nếu có
             if ($brand->brand_image) {
-                Storage::delete('public/' . $brand->brand_image);
+                $oldPathInStorage = storage_path('app/public/' . str_replace('storage/', '', $brand->brand_image));
+                $oldPathInPublic = public_path($brand->brand_image);
+
+                if (File::exists($oldPathInStorage)) {
+                    File::delete($oldPathInStorage);
+                }
+
+                if (File::exists($oldPathInPublic)) {
+                    File::delete($oldPathInPublic);
+                }
             }
 
-            $imagePath = $request->file('brand_image')->store('public/brands');
-            // Remove 'public/' from path when saving to database
-            $validated['brand_image'] = str_replace('public/', '', $imagePath);
+            // 2️⃣ Lưu ảnh mới vào storage/app/public/brands
+            $image->storeAs('brands', $filename, 'public');
+
+            // 3️⃣ Copy sang public/storage/brands
+            $sourcePath = storage_path("app/public/brands/{$filename}");
+            $destinationPath = public_path("storage/brands/{$filename}");
+
+            // Tạo thư mục nếu chưa có
+            if (!File::exists(public_path('storage/brands'))) {
+                File::makeDirectory(public_path('storage/brands'), 0755, true);
+            }
+
+            File::copy($sourcePath, $destinationPath);
+
+            // 4️⃣ Lưu đường dẫn mới vào DB
+            $validated['brand_image'] = 'storage/brands/' . $filename;
         }
 
         $brand->update($validated);
+
         return redirect()->route('admin.brand')->with('success', 'Cập nhật thương hiệu thành công');
     }
     public function destroy(Brand $brand)
@@ -139,6 +177,36 @@ class BrandController extends Controller
             ->where('status', 'active')
             ->where('quantity', '>', 0)
             ->paginate(12);
+
+        return view('Customer.brand.brand_product', compact('brand', 'products'));
+    }
+
+    public function showBrandProducts(Request $request, $brandId)
+    {
+        $brand = Brand::findOrFail($brandId);
+        $query = Product::where('brand_id', $brandId);
+
+        switch ($request->input('sort')) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('product_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('product_name', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('product_id', 'asc');
+        }
+
+        $products = $query->paginate(12);
 
         return view('Customer.brand.brand_product', compact('brand', 'products'));
     }

@@ -85,11 +85,18 @@
                     <h2>Sản phẩm trong danh mục {{ $category->category_name }}</h2>
                     <div class="products-filter">
                         <select class="filter-select" onchange="sortProducts(this.value)">
-                            <option value="default">Sắp xếp mặc định</option>
-                            <option value="price_asc">Giá: Thấp đến cao</option>
-                            <option value="price_desc">Giá: Cao đến thấp</option>
-                            <option value="name_asc">Tên: A-Z</option>
-                            <option value="name_desc">Tên: Z-A</option>
+                            <option value="default" {{ request('sort') == 'default' ? 'selected' : '' }}>Sắp xếp mặc
+                                định</option>
+                            <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp
+                                đến cao</option>
+                            <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao
+                                đến thấp</option>
+                            <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Tên: A-Z
+                            </option>
+                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Tên: Z-A
+                            </option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -201,6 +208,7 @@
                     });
                 }
             });
+
         });
     </script>
 </body>

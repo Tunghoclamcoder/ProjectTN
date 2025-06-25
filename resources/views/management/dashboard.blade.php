@@ -180,60 +180,43 @@
                     <hr />
                 </span>
 
-                <li class="nav-item nav-item-has-children">
-                    <a href="#0" class="collapsed" data-bs-toggle="collapse" data-bs-target="#ddmenu_5"
-                        aria-controls="ddmenu_5" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M4.16666 3.33335C4.16666 2.41288 4.91285 1.66669 5.83332 1.66669H14.1667C15.0872 1.66669 15.8333 2.41288 15.8333 3.33335V16.6667C15.8333 17.5872 15.0872 18.3334 14.1667 18.3334H5.83332C4.91285 18.3334 4.16666 17.5872 4.16666 16.6667V3.33335ZM6.04166 5.00002C6.04166 5.3452 6.32148 5.62502 6.66666 5.62502H13.3333C13.6785 5.62502 13.9583 5.3452 13.9583 5.00002C13.9583 4.65485 13.6785 4.37502 13.3333 4.37502H6.66666C6.32148 4.37502 6.04166 4.65485 6.04166 5.00002ZM6.66666 6.87502C6.32148 6.87502 6.04166 7.15485 6.04166 7.50002C6.04166 7.8452 6.32148 8.12502 6.66666 8.12502H13.3333C13.6785 8.12502 13.9583 7.8452 13.9583 7.50002C13.9583 7.15485 13.6785 6.87502 13.3333 6.87502H6.66666ZM6.04166 10C6.04166 10.3452 6.32148 10.625 6.66666 10.625H9.99999C10.3452 10.625 10.625 10.3452 10.625 10C10.625 9.65485 10.3452 9.37502 9.99999 9.37502H6.66666C6.32148 9.37502 6.04166 9.65485 6.04166 10ZM9.99999 16.6667C10.9205 16.6667 11.6667 15.9205 11.6667 15C11.6667 14.0795 10.9205 13.3334 9.99999 13.3334C9.07949 13.3334 8.33332 14.0795 8.33332 15C8.33332 15.9205 9.07949 16.6667 9.99999 16.6667Z" />
-                            </svg>
-                        </span>
-                        <span class="text"> Forms </span>
-                    </a>
-                    <ul id="ddmenu_5" class="collapse dropdown-nav">
-                        <li>
-                            <a href="form-elements.html"> From Elements </a>
-                        </li>
-                    </ul>
+                <li class="nav-title mt-2 mb-1 text-uppercase text-muted d-flex justify-content-center  "
+                    style="font-size: 12px; letter-spacing: 1px;">
+                    Hỗ trợ & Thông tin
                 </li>
                 <li class="nav-item">
-                    <a href="tables.html">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M1.66666 4.16667C1.66666 3.24619 2.41285 2.5 3.33332 2.5H16.6667C17.5872 2.5 18.3333 3.24619 18.3333 4.16667V9.16667C18.3333 10.0872 17.5872 10.8333 16.6667 10.8333H3.33332C2.41285 10.8333 1.66666 10.0872 1.66666 9.16667V4.16667Z" />
-                                <path
-                                    d="M1.875 13.75C1.875 13.4048 2.15483 13.125 2.5 13.125H17.5C17.8452 13.125 18.125 13.4048 18.125 13.75C18.125 14.0952 17.8452 14.375 17.5 14.375H2.5C2.15483 14.375 1.875 14.0952 1.875 13.75Z" />
-                                <path
-                                    d="M2.5 16.875C2.15483 16.875 1.875 17.1548 1.875 17.5C1.875 17.8452 2.15483 18.125 2.5 18.125H17.5C17.8452 18.125 18.125 17.8452 18.125 17.5C18.125 17.1548 17.8452 16.875 17.5 16.875H2.5Z" />
-                            </svg>
-                        </span>
-                        <span class="text">Tables</span>
+                    <a href="#!" onclick="alert('Chức năng đang phát triển!')">
+                        <span class="icon"><i class="lni lni-question-circle"></i></span>
+                        <span class="text">Trợ giúp</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="#!" onclick="alert('Chức năng đang phát triển!')">
+                        <span class="icon"><i class="lni lni-book"></i></span>
+                        <span class="text">Tài liệu hướng dẫn</span>
+                    </a>
+                </li>
+
                 <span class="divider">
                     <hr />
                 </span>
 
                 <li class="nav-item">
-                    <a href="notification.html">
-                        <span class="icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M10.8333 2.50008C10.8333 2.03984 10.4602 1.66675 9.99999 1.66675C9.53975 1.66675 9.16666 2.03984 9.16666 2.50008C9.16666 2.96032 9.53975 3.33341 9.99999 3.33341C10.4602 3.33341 10.8333 2.96032 10.8333 2.50008Z" />
-                                <path
-                                    d="M17.5 5.41673C17.5 7.02756 16.1942 8.33339 14.5833 8.33339C12.9725 8.33339 11.6667 7.02756 11.6667 5.41673C11.6667 3.80589 12.9725 2.50006 14.5833 2.50006C16.1942 2.50006 17.5 3.80589 17.5 5.41673Z" />
-                                <path
-                                    d="M11.4272 2.69637C10.9734 2.56848 10.4947 2.50006 10 2.50006C7.10054 2.50006 4.75003 4.85057 4.75003 7.75006V9.20873C4.75003 9.72814 4.62082 10.2393 4.37404 10.6963L3.36705 12.5611C2.89938 13.4272 3.26806 14.5081 4.16749 14.9078C7.88074 16.5581 12.1193 16.5581 15.8326 14.9078C16.732 14.5081 17.1007 13.4272 16.633 12.5611L15.626 10.6963C15.43 10.3333 15.3081 9.93606 15.2663 9.52773C15.0441 9.56431 14.8159 9.58339 14.5833 9.58339C12.2822 9.58339 10.4167 7.71791 10.4167 5.41673C10.4167 4.37705 10.7975 3.42631 11.4272 2.69637Z" />
-                                <path
-                                    d="M7.48901 17.1925C8.10004 17.8918 8.99841 18.3335 10 18.3335C11.0016 18.3335 11.9 17.8918 12.511 17.1925C10.8482 17.4634 9.15183 17.4634 7.48901 17.1925Z" />
-                            </svg>
-                        </span>
-                        <span class="text">Notifications</span>
+                    <a href="#!" onclick="alert('Chức năng đang phát triển!')">
+                        <span class="icon"><i class="lni lni-envelope"></i></span>
+                        <span class="text">Liên hệ hỗ trợ</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#!" onclick="alert('Chức năng đang phát triển!')">
+                        <span class="icon"><i class="lni lni-crown"></i></span>
+                        <span class="text">Nâng cấp tài khoản</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#!" onclick="alert('Chức năng đang phát triển!')">
+                        <span class="icon"><i class="lni lni-star"></i></span>
+                        <span class="text">Đánh giá hệ thống</span>
                     </a>
                 </li>
             </ul>
@@ -516,15 +499,13 @@
                         <div class="card-style mb-30">
                             <div class="title d-flex flex-wrap align-items-center justify-content-between">
                                 <div class="left">
-                                    <h6 class="text-medium mb-2">Traffic</h6>
+                                    <h6 class="text-medium mb-2">Thống kê đơn hàng đã hoàn thành và bị hủy</h6>
                                 </div>
                                 <div class="right">
                                     <div class="select-style-1 mb-2">
                                         <div class="select-position select-sm">
                                             <select class="bg-ligh">
-                                                <option value="">Last 6 Months</option>
-                                                <option value="">Last 3 Months</option>
-                                                <option value="">Last Year</option>
+                                                <option value="">Last 7 days</option>
                                             </select>
                                         </div>
                                     </div>
@@ -537,14 +518,16 @@
                                     <ul class="legend3 d-flex flex-wrap gap-3 gap-sm-0 align-items-center mb-30">
                                         <li>
                                             <div class="d-flex">
-                                                <span class="bg-color primary-bg"> </span>
+                                                <span class="bg-color primary-bg"></span>
                                                 <div class="text">
-                                                    <p class="text-sm text-success">
-                                                        <span class="text-dark">Store Visits</span>
-                                                        +25.55%
-                                                        <i class="lni lni-arrow-up"></i>
+                                                    <p
+                                                        class="text-sm {{ $completedTrend >= 0 ? 'text-success' : 'text-danger' }}">
+                                                        <span class="text-dark">Đơn hoàn thành</span>
+                                                        {{ $completedTrend >= 0 ? '+' : '' }}{{ $completedTrend }}%
+                                                        <i
+                                                            class="lni {{ $completedTrend >= 0 ? 'lni-arrow-up' : 'lni-arrow-down' }}"></i>
                                                     </p>
-                                                    <h2>3456</h2>
+                                                    <h2>{{ $completedThisWeek }}</h2>
                                                 </div>
                                             </div>
                                         </li>
@@ -552,11 +535,14 @@
                                             <div class="d-flex">
                                                 <span class="bg-color danger-bg"></span>
                                                 <div class="text">
-                                                    <p class="text-sm text-danger">
-                                                        <span class="text-dark">Visitors</span> -2.05%
-                                                        <i class="lni lni-arrow-down"></i>
+                                                    <p
+                                                        class="text-sm {{ $canceledTrend >= 0 ? 'text-danger' : 'text-success' }}">
+                                                        <span class="text-dark">Đơn hủy</span>
+                                                        {{ $canceledTrend >= 0 ? '+' : '' }}{{ $canceledTrend }}%
+                                                        <i
+                                                            class="lni {{ $canceledTrend >= 0 ? 'lni-arrow-up' : 'lni-arrow-down' }}"></i>
                                                     </p>
-                                                    <h2>3456</h2>
+                                                    <h2>{{ $canceledThisWeek }}</h2>
                                                 </div>
                                             </div>
                                         </li>
@@ -1086,26 +1072,26 @@
         const chart4 = new Chart(ctx4, {
             type: "bar",
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                labels: @json($orderChartLabels),
                 datasets: [{
-                        label: "",
+                        label: "Đơn hoàn thành",
                         backgroundColor: "#365CF5",
                         borderColor: "transparent",
                         borderRadius: 20,
                         borderWidth: 5,
                         barThickness: 20,
                         maxBarThickness: 20,
-                        data: [600, 700, 1000, 700, 650, 800],
+                        data: @json($completedCounts),
                     },
                     {
-                        label: "",
+                        label: "Đơn hủy",
                         backgroundColor: "#d50100",
                         borderColor: "transparent",
                         borderRadius: 20,
                         borderWidth: 5,
                         barThickness: 20,
                         maxBarThickness: 20,
-                        data: [690, 740, 720, 1120, 876, 900],
+                        data: @json($canceledCounts),
                     },
                 ],
             },
@@ -1121,7 +1107,7 @@
                             size: 16,
                         },
                         multiKeyBackground: "transparent",
-                        displayColors: false,
+                        displayColors: true,
                         padding: {
                             x: 30,
                             y: 10,
@@ -1131,7 +1117,7 @@
                         enabled: true,
                     },
                     legend: {
-                        display: false,
+                        display: true,
                     },
                 },
                 layout: {
@@ -1153,7 +1139,6 @@
                         },
                         ticks: {
                             padding: 35,
-                            max: 1200,
                             min: 0,
                         },
                     },

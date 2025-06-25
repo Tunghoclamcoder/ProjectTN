@@ -120,6 +120,45 @@ class DashboardController extends Controller
 
             $allFeedbacks = \App\Models\Feedback::with('customer')->orderByDesc('feedback_id')->get();
 
+            // biểu đồ so sánh số lượng đơn hàng hoàn thành và hủy trong 7 ngày qua
+            $orderChartLabels = [];
+            $completedCounts = [];
+            $canceledCounts = [];
+
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                $orderChartLabels[] = Carbon::now()->subDays($i)->format('d/m');
+                $completedCounts[] = Order::whereDate('order_date', $date)->where('order_status', 'completed')->count();
+                $canceledCounts[] = Order::whereDate('order_date', $date)->where('order_status', 'cancelled')->count();
+            }
+
+            $completedThisWeek = Order::where('order_status', 'completed')
+                ->whereDate('order_date', '>=', Carbon::now()->subDays(6)->startOfDay())
+                ->count();
+            $canceledThisWeek = Order::where('order_status', 'cancelled')
+                ->whereDate('order_date', '>=', Carbon::now()->subDays(6)->startOfDay())
+                ->count();
+
+            // Tuần trước (7 ngày liền kề trước đó)
+            $completedLastWeek = Order::where('order_status', 'completed')
+                ->whereBetween('order_date', [
+                    Carbon::now()->subDays(13)->startOfDay(),
+                    Carbon::now()->subDays(7)->endOfDay()
+                ])->count();
+            $canceledLastWeek = Order::where('order_status', 'cancelled')
+                ->whereBetween('order_date', [
+                    Carbon::now()->subDays(13)->startOfDay(),
+                    Carbon::now()->subDays(7)->endOfDay()
+                ])->count();
+
+            // Tính % khuynh hướng
+            $calcTrend = function ($now, $last) {
+                if ($last == 0) return $now > 0 ? 100 : 0;
+                return round((($now - $last) / $last) * 100, 2);
+            };
+            $completedTrend = $calcTrend($completedThisWeek, $completedLastWeek);
+            $canceledTrend = $calcTrend($canceledThisWeek, $canceledLastWeek);
+
             return view('management.dashboard', compact(
                 'totalCustomers',
                 'completedOrders',
@@ -131,6 +170,13 @@ class DashboardController extends Controller
                 'latestOrders',
                 'statusClasses',
                 'allFeedbacks',
+                'orderChartLabels',
+                'completedCounts',
+                'canceledCounts',
+                'completedThisWeek',
+                'canceledThisWeek',
+                'completedTrend',
+                'canceledTrend',
             ));
         } catch (\Exception $e) {
             Log::error('Dashboard Error: ' . $e->getMessage());

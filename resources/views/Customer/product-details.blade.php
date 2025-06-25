@@ -67,6 +67,8 @@
         <div class="product-info">
             <h3 style="color: #000000">{{ $product->product_name }}</h3>
 
+
+
             <div class="price-info">
                 @if ($product->discount > 0)
                     <h5>Giá: {{ number_format($product->price * (1 - $product->discount / 100)) }}đ
@@ -81,6 +83,8 @@
             <div class="product-details">
                 <p><strong style="color: #000000">Thương hiệu:</strong> {{ $product->brand->brand_name }}</p>
                 <p><strong style="color: #000000">Chất liệu:</strong> {{ $product->material->material_name }}</p>
+                <p><strong style="color: #000000">Số lượng còn:</strong> {{ $product->quantity }}</p>
+
                 <p>{{ $product->description }}</p>
             </div>
 
@@ -200,6 +204,16 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                // Lấy số lượng khách chọn
+                const quantity = form.querySelector('input[name="quantity"]').value;
+
+                // Hiển thị hộp thoại xác nhận trước khi gửi request
+                if (!confirm(`Bạn có chắc chắn muốn thêm ${quantity} sản phẩm này vào giỏ hàng?`)) {
+                    // Nếu khách chọn Cancel thì không gửi request, không reload
+                    return;
+                }
+
+                // Nếu khách xác nhận, mới gửi request
                 fetch(this.action, {
                         method: 'POST',
                         body: new FormData(this),
@@ -213,15 +227,14 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Cập nhật số lượng giỏ hàng
                             const cartCountElement = document.querySelector('.cart-count');
                             if (cartCountElement && data.cartCount) {
                                 cartCountElement.textContent = data.cartCount;
                             }
-                            // Hiển thị thông báo thành công
+                            // Thông báo thành công và reload
                             alert(data.message);
+                            window.location.reload();
                         } else {
-                            // Xử lý khi có lỗi
                             if (data.redirect) {
                                 window.location.href = data.redirect;
                             } else {

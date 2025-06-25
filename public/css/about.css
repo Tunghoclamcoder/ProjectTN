@@ -1,0 +1,129 @@
+.about-section {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    color: #fff;
+    padding: 60px 0 40px 0;
+}
+
+.about-title {
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.about-subtitle {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #e0e0e0;
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.about-card {
+    background: rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(50, 50, 90, 0.1);
+    margin-bottom: 32px;
+    padding: 40px 32px;
+    transition: transform 0.23s;
+}
+
+.about-card:hover {
+    transform: translateY(-6px) scale(1.02);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #ffe082;
+}
+
+.about-list {
+    margin: 12px 0 0 16px;
+    list-style: disc;
+}
+
+.about-team .team-member img {
+    max-width: 140px;
+    border-radius: 50%;
+    box-shadow: 0 6px 24px rgba(60, 60, 120, 0.18);
+}
+
+.about-team {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 38px;
+    margin-top: 15px;
+    justify-content: center;
+    overflow: auto;
+}
+
+.team-member {
+    background: rgba(255, 255, 255, 0.07);
+    padding: 18px 12px 10px 12px;
+    border-radius: 14px;
+    min-width: 170px;
+    max-width: 220px;
+    text-align: center;
+    margin-bottom: 10px;
+    flex: 1 1 0;
+}
+
+.team-name {
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin: 10px 0 2px 0;
+    color: #fff9c4;
+}
+
+.team-role {
+    font-size: 0.94rem;
+    color: #e1bee7;
+}
+
+.about-faq {
+    margin-top: 30px;
+}
+
+.question {
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: #8ae9ff;
+}
+
+.answer {
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.about-footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 1rem;
+    color: #eee;
+}
+
+.about-team-main-img {
+    width: 100%;
+    height: 50%;
+    max-width: 600px;
+    display: block;
+    margin: 0 auto 24px auto;
+    border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(60, 60, 120, 0.18);
+}
+
+@media (max-width: 800px) {
+    .about-team {
+        flex-direction: column;
+        gap: 0;
+    }
+}

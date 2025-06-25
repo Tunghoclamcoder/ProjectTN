@@ -329,6 +329,12 @@
                 </button>
             </form>
         @endif
+
+        @if ($order->payment_method_id == 4 && $order->order_status == 'confirmed')
+            <a href="{{ route('bank-qr.payment', $order->order_id) }}" class="btn btn-primary">
+                <i class="bi bi-wallet2"></i> Thanh toán qua <span style="color: #dfdfdf;">Bank</span>
+            </a>
+        @endif
     </div>
 </div>
 
