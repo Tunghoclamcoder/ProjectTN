@@ -251,12 +251,7 @@ class ProductController extends Controller
             'product_name' => 'required|string|max:150',
             'status' => 'boolean',
             'quantity' => 'required|integer|min:0',
-            'price' => [
-                'required',
-                'numeric',
-                'min:1000',
-                'max:1000000000',
-            ],
+            'price' => ['required', 'numeric', 'min:1000', 'max:1000000000'],
             'discount' => 'nullable|numeric|min:0|max:100',
             'description' => 'nullable|string',
             'brand_id' => 'required|exists:brands,brand_id',
@@ -275,7 +270,7 @@ class ProductController extends Controller
 
             $price = (int) str_replace([',', '.'], '', $request->price);
 
-            // Update basic product information
+            // Cập nhật thông tin cơ bản
             $product->update([
                 'product_name' => $request->product_name,
                 'status' => $request->status ?? true,
@@ -283,14 +278,14 @@ class ProductController extends Controller
                 'price' => $price,
                 'discount' => $request->discount,
                 'description' => $request->description,
-                'size_id' => $request->size_id,
+                'brand_id' => $request->brand_id,
                 'material_id' => $request->material_id,
                 'NumberOfSize' => count($request->size_ids),
                 'NumberOfCategory' => count($request->category_ids),
                 'NumberOfImage' => count(array_merge([$request->main_image_id], $request->sub_image_ids ?? [])),
             ]);
 
-            // Update categories - Xóa cũ, thêm mới
+            // Cập nhật danh mục
             CategoryProduct::where('product_id', $product->product_id)->delete();
             foreach ($request->category_ids as $index => $categoryId) {
                 CategoryProduct::create([
@@ -301,16 +296,17 @@ class ProductController extends Controller
                 ]);
             }
 
-            SizeProduct::where('size_id', $product->size_id)->delete();
+            // Cập nhật size
+            SizeProduct::where('product_id', $product->product_id)->delete();
             foreach ($request->size_ids as $index => $sizeId) {
-                CategoryProduct::create([
+                SizeProduct::create([
                     'product_id' => $product->product_id,
                     'size_id' => $sizeId,
                     'size_order' => $index,
                 ]);
             }
 
-            // Update images - Xóa cũ, thêm mới
+            // Cập nhật ảnh
             ImageProduct::where('product_id', $product->product_id)->delete();
 
             // Thêm ảnh chính
@@ -321,7 +317,7 @@ class ProductController extends Controller
                 'image_role' => 'main'
             ]);
 
-            // Thêm ảnh phụ nếu có
+            // Thêm ảnh phụ
             if ($request->sub_image_ids) {
                 foreach ($request->sub_image_ids as $index => $imageId) {
                     ImageProduct::create([
@@ -412,16 +408,6 @@ class ProductController extends Controller
                 ->orderByPivot('image_order')
                 ->get();
 
-            if (!is_numeric($product) || (int)$product < 0) {
-                return redirect()->route('admin.product')->with('error', 'ID sản phẩm không hợp lệ!');
-            }
-
-            // Lấy sản phẩm theo id
-            $productModel = Product::find($product);
-            if (!$productModel) {
-                return redirect()->route('admin.product')->with('error', 'Sản phẩm không tồn tại!');
-            }
-
             return view('management.product_mana.detail', [
                 'product' => $product,
                 'mainImage' => $mainImage,
@@ -439,8 +425,13 @@ class ProductController extends Controller
         try {
             DB::beginTransaction();
 
+            // Xóa các bản ghi liên quan
             CategoryProduct::where('product_id', $product->product_id)->delete();
             ImageProduct::where('product_id', $product->product_id)->delete();
+            SizeProduct::where('product_id', $product->product_id)->delete(); // Thêm dòng này
+
+            // Thêm các bảng liên quan khác nếu có, ví dụ:
+            // OrderDetail::where('product_id', $product->product_id)->delete();
 
             $product->delete();
 
@@ -451,7 +442,8 @@ class ProductController extends Controller
                 ->with('success', 'Xóa sản phẩm thành công');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Có lỗi xảy ra khi xóa sản phẩm');
+            Log::error($e);
+            return back()->with('error', 'Có lỗi xảy ra khi xóa sản phẩm: ' . $e->getMessage());
         }
     }
 }

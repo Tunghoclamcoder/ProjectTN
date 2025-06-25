@@ -441,7 +441,7 @@
                                                 <div class="product">
                                                     <div class="image">
                                                         @if ($product->image_url)
-                                                            <img src="{{ Storage::url($product->image_url) }}"
+                                                            <img src="{{ asset($product->image_url) }}"
                                                                 alt="{{ $product->product_name }}"
                                                                 style="width: 60px; height: 60px; object-fit: cover;" />
                                                         @else
@@ -450,6 +450,7 @@
                                                                 style="width: 60px; height: 60px; object-fit: cover;" />
                                                         @endif
                                                     </div>
+
                                                     <p class="text-sm">{{ $product->product_name }}</p>
                                                 </div>
                                             </td>

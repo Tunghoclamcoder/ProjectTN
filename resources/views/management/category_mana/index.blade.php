@@ -17,8 +17,6 @@
 </head>
 
 <body>
-
-
     <!-- Include header của dashboard -->
     @include('management.components.admin-header')
 
@@ -68,7 +66,7 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="size-icons">&#xE8B6;</i>
+                                <i class="material-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>

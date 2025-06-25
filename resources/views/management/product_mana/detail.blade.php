@@ -63,7 +63,7 @@
                         <div class="main-image-container mb-3">
                             <h5>Ảnh chính</h5>
                             @if ($mainImage = $product->getMainImage())
-                                <img src="{{ Storage::url($mainImage->image_url) }}" alt="Ảnh chính"
+                                <img src="{{ asset($mainImage->image_url) }}" alt="Ảnh chính"
                                     class="main-product-image">
                             @else
                                 <div class="no-image-placeholder">
@@ -77,7 +77,7 @@
                             <h5>Ảnh phụ</h5>
                             <div class="sub-images-grid">
                                 @forelse($product->getSubImages() as $subImage)
-                                    <img src="{{ Storage::url($subImage->image_url) }}" alt="Ảnh phụ"
+                                    <img src="{{ asset($subImage->image_url) }}" alt="Ảnh phụ"
                                         class="sub-product-image">
                                 @empty
                                     <div class="no-image-placeholder">

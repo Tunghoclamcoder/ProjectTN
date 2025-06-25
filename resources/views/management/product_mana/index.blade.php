@@ -145,14 +145,19 @@
                             <tr>
                                 <td>{{ $product->product_id }}</td>
                                 <td style="width: 100px; height: 100px">
-                                    @if ($product->getMainImage() && Storage::disk('public')->exists($product->getMainImage()->image_url))
-                                        <img src="{{ Storage::url($product->getMainImage()->image_url) }}"
+                                    @php
+                                        $mainImage = $product->getMainImage();
+                                    @endphp
+
+                                    @if ($mainImage && Storage::disk('public')->exists(str_replace('storage/', '', $mainImage->image_url)))
+                                        <img src="{{ asset($mainImage->image_url) }}"
                                             alt="{{ $product->product_name }}"
                                             style="width: 80px; height: 80px; object-fit: cover;">
                                     @else
                                         <img src="{{ asset('images/placeholder.png') }}" alt="Placeholder"
                                             style="width: 80px; height: 80px; object-fit: cover;">
                                     @endif
+
                                     <small class="d-block text-muted">
                                         ({{ $product->NumberOfImage }} ảnh)
                                     </small>

@@ -206,7 +206,7 @@
                                             <option value="">Chọn ảnh chính</option>
                                             @foreach ($images as $image)
                                                 <option value="{{ $image->image_id }}"
-                                                    data-url="{{ Storage::url($image->image_url) }}"
+                                                    data-url="{{ asset($image->image_url) }}"
                                                     {{ old('main_image_id') == $image->image_id ? 'selected' : '' }}>
                                                     {{ $image->image_url }}
                                                 </option>
@@ -216,14 +216,25 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="main-image-preview mt-2">
-                                            <img id="mainImagePreview" src="" alt="Ảnh chính"
-                                                style="max-width: 150px; max-height: 150px; display: none; border: 2px solid #28a745;">
-                                            <div id="mainImagePlaceholder" class="text-muted">
-                                                <small>Chưa chọn ảnh chính</small>
-                                            </div>
+                                            @if (isset($product) && ($mainImage = $product->getMainImage()))
+                                                <img id="mainImagePreview" src="{{ asset($mainImage->image_url) }}"
+                                                    alt="Ảnh chính"
+                                                    style="max-width: 150px; max-height: 150px; border: 2px solid #28a745;">
+                                                <div id="mainImagePlaceholder" class="text-muted"
+                                                    style="display: none;">
+                                                    <small>Chưa chọn ảnh chính</small>
+                                                </div>
+                                            @else
+                                                <img id="mainImagePreview" src="" alt="Ảnh chính"
+                                                    style="max-width: 150px; max-height: 150px; display: none; border: 2px solid #28a745;">
+                                                <div id="mainImagePlaceholder" class="text-muted">
+                                                    <small>Chưa chọn ảnh chính</small>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label>Ảnh phụ (tối đa 3 ảnh)</label>
@@ -232,7 +243,7 @@
                                             multiple>
                                             @foreach ($images as $image)
                                                 <option value="{{ $image->image_id }}"
-                                                    data-url="{{ Storage::url($image->image_url) }}"
+                                                    data-url="{{ asset($image->image_url) }}"
                                                     {{ in_array($image->image_id, old('sub_image_ids', [])) ? 'selected' : '' }}>
                                                     {{ $image->image_url }}
                                                 </option>
@@ -241,10 +252,18 @@
                                         @error('sub_image_ids')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="sub-images-preview mt-2 d-flex gap-2 flex-wrap">
-                                            <div id="subImagesPlaceholder" class="text-muted">
-                                                <small>Chưa chọn ảnh phụ</small>
-                                            </div>
+                                        <div class="sub-images-preview mt-2 d-flex gap-2 flex-wrap"
+                                            id="subImagesPreviewContainer">
+                                            @if (isset($product) && $product->getSubImages()->count())
+                                                @foreach ($product->getSubImages() as $subImage)
+                                                    <img src="{{ asset($subImage->image_url) }}" alt="Ảnh phụ"
+                                                        style="max-width: 100px; max-height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;">
+                                                @endforeach
+                                            @else
+                                                <div id="subImagesPlaceholder" class="text-muted">
+                                                    <small>Chưa chọn ảnh phụ</small>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -48,17 +48,18 @@
         <!-- Left side - Product Images -->
         <div class="img-card" style="min-width: 35%;">
             @if ($mainImage)
-                <img src="{{ Storage::url($mainImage->image_url) }}" alt="{{ $product->product_name }}"
-                    id="featured-image">
+                <img src="{{ asset($mainImage->image_url) }}" alt="{{ $product->product_name }}" id="featured-image">
+            @else
+                <img src="{{ asset('images/no-image.png') }}" alt="No image" id="featured-image">
             @endif
 
-            <div class="small-Card">
+            <div class="small-Card mt-2 d-flex gap-2 flex-wrap">
                 @if ($mainImage)
-                    <img src="{{ Storage::url($mainImage->image_url) }}" alt="Main" class="small-Img active">
+                    <img src="{{ asset($mainImage->image_url) }}" alt="Main" class="small-Img active">
                 @endif
 
                 @foreach ($subImages as $image)
-                    <img src="{{ Storage::url($image->image_url) }}" alt="Sub image" class="small-Img">
+                    <img src="{{ asset($image->image_url) }}" alt="Sub image" class="small-Img">
                 @endforeach
             </div>
         </div>
@@ -66,9 +67,6 @@
         <!-- Right side - Product Info -->
         <div class="product-info">
             <h3 style="color: #000000">{{ $product->product_name }}</h3>
-
-
-
             <div class="price-info">
                 @if ($product->discount > 0)
                     <h5>Giá: {{ number_format($product->price * (1 - $product->discount / 100)) }}đ

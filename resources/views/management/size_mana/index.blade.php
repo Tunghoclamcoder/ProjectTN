@@ -59,13 +59,13 @@
                         <div class="col-sm-6">
                             <h2>Quản lý <b>Size sản phẩm</b></h2>
                             <a href="{{ route('admin.size.create') }}" class="btn btn-success mt-2 mb-4">
-                                <i class="size-icons">&#xE147;</i>
+                                <i class="material-icons">&#xE147;</i>
                                 <span>Thêm mới</span>
                             </a>
                         </div>
                         <div class="col-sm-6">
                             <div class="search-box">
-                                <i class="size-icons">&#xE8B6;</i>
+                                <i class="material-icons">&#xE8B6;</i>
                                 <input type="text" class="form-control" placeholder="Tìm kiếm...">
                             </div>
                         </div>

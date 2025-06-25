@@ -64,10 +64,14 @@
                                 <div class="row cart-item mb-3">
                                     <div class="col-md-3">
                                         @if ($detail->product->getMainImage())
-                                            <img src="{{ Storage::url($detail->product->getMainImage()->image_url) }}"
+                                            <img src="{{ asset($detail->product->getMainImage()->image_url) }}"
                                                 alt="{{ $detail->product->product_name }}" class="img-fluid rounded">
+                                        @else
+                                            <img src="{{ asset('images/no-image.png') }}" alt="No image available"
+                                                class="img-fluid rounded">
                                         @endif
                                     </div>
+
                                     <div class="col-md-5">
                                         <h5>{{ $detail->product->product_name }}</h5>
                                         <p>Đơn giá: {{ number_format($detail->sold_price) }} VNĐ</p>

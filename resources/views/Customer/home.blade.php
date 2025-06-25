@@ -50,24 +50,29 @@
         <div class="product-grid">
             @forelse($products as $product)
                 <div class="pro">
-                    <div class="product-image-container">
+                    <div class="product-image-container position-relative">
                         @if ($mainImage = $product->getMainImage())
-                            <img src="{{ Storage::url($mainImage->image_url) }}" class="w-100"
+                            <img src="{{ asset($mainImage->image_url) }}" class="w-100"
                                 alt="{{ $product->product_name }}">
+
                             @if ($product->discount > 0)
-                                <div class="discount-label">
+                                <div
+                                    class="discount-label position-absolute top-0 start-0 bg-danger text-white px-2 py-1">
                                     SALE {{ $product->discount }}%
                                 </div>
                             @endif
+
                             @if ($product->quantity <= 0)
-                                <div class="out-of-stock-overlay">
-                                    <span>Đã bán hết</span>
+                                <div class="out-of-stock-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                                    style="background-color: rgba(0, 0, 0, 0.5); color: white;">
+                                    <span class="fw-bold">Đã bán hết</span>
                                 </div>
                             @endif
                         @else
                             <img src="{{ asset('images/no-image.png') }}" class="w-100" alt="No image available">
                         @endif
                     </div>
+
 
                     <p class="prd-name">{{ $product->product_name }}</p>
                     <p>
