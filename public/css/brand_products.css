@@ -3,10 +3,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-size: 1.6rem;
 }
 
 body {
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #2d3748;
     background-color: #f7fafc;
@@ -52,7 +53,11 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+    background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.8),
+        rgba(118, 75, 162, 0.8)
+    );
 }
 
 .banner-content {
@@ -66,12 +71,11 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 2rem;
     font-size: 0.9rem;
 }
 
 .breadcrumb a {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -84,11 +88,11 @@ body {
 }
 
 .separator {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .current {
-    color: white;
+    color: rgb(134, 0, 147);
     font-weight: 600;
 }
 
@@ -430,7 +434,7 @@ body {
 
 .product-brand {
     color: #667eea;
-    font-size: 0.85rem;
+    font-size: 1.6rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
@@ -439,7 +443,7 @@ body {
 
 .product-name {
     margin: 0 0 0.75rem 0;
-    font-size: 1.1rem;
+    font-size: 1.7rem;
     font-weight: 600;
     line-height: 1.4;
     min-height: 100px;
@@ -457,7 +461,7 @@ body {
 
 .product-description {
     color: #718096;
-    font-size: 0.9rem;
+    font-size: 1.6rem;
     line-height: 1.5;
     margin-bottom: 1rem;
     display: -webkit-box;
@@ -471,33 +475,35 @@ body {
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    font-size: 1.6rem;
 }
 
 .stars {
     color: #fbbf24;
-    font-size: 0.9rem;
+    font-size: 1.6rem;
 }
 
 .rating-text {
     color: #718096;
-    font-size: 0.85rem;
+    font-size: 1.6rem;
 }
 
 .product-price {
     margin-bottom: 1rem;
+    font-size: 1.6rem;
 }
 
 .original-price {
     color: #a0aec0;
     text-decoration: line-through;
-    font-size: 0.9rem;
+    font-size: 1.6rem;
     margin-right: 0.5rem;
 }
 
 .current-price {
     color: #e53e3e;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.6rem;
 }
 
 .product-meta {
@@ -508,7 +514,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.85rem;
+    font-size: 1.6rem;
     font-weight: 600;
 }
 
@@ -535,7 +541,7 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 1.6rem;
     cursor: pointer;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -630,7 +636,7 @@ body {
 
 /* Ripple Effect */
 .cart-button::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -649,7 +655,7 @@ body {
 
 /* Shimmer Effect */
 .cart-button::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -679,7 +685,7 @@ body {
 }
 
 .cart-button.loading::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -698,8 +704,12 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Pulse Animation for Out of Stock */
@@ -708,7 +718,8 @@ body {
 }
 
 @keyframes pulse-disabled {
-    0%, 100% {
+    0%,
+    100% {
         box-shadow: 0 2px 8px rgba(160, 174, 192, 0.2);
     }
     50% {
@@ -723,7 +734,11 @@ body {
 }
 
 @keyframes successBounce {
-    0%, 20%, 50%, 80%, 100% {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
         transform: translateY(0);
     }
     40% {
@@ -779,7 +794,6 @@ body {
         border: 2px solid #444444;
     }
 }
-
 
 /* No Products */
 .no-products {

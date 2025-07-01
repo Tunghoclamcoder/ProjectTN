@@ -191,6 +191,7 @@
 </style>
 
 <script>
+
     function debounce(func, wait) {
         let timeout;
         return function(...args) {
@@ -216,7 +217,7 @@
                     div.className = 'suggestion-item';
                     div.innerHTML = `
                     <div class="d-flex align-items-center">
-                        <img src="${product.image}" alt="${product.name}" class="suggestion-image">
+                        <img src="${product.image_url}" alt="${product.name}" class="suggestion-image">
                         <div class="suggestion-info">
                             <div class="suggestion-name">${product.name}</div>
                             <div class="suggestion-meta">

@@ -156,7 +156,7 @@
 
 .product-image {
     position: relative;
-    height: 220px;
+    min-height: auto;
     overflow: hidden;
 }
 

@@ -106,9 +106,9 @@
                         <div class="product-card">
                             <div class="product-image">
                                 @if ($mainImage = $product->getMainImage())
-                                    <img src="{{ Storage::url($mainImage->image_url) }}"
-                                        alt="{{ $product->product_name }}"
-                                        onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i></div>';">
+                                    <img src="{{ asset($mainImage->image_url) }}" alt="{{ $product->product_name }}"
+                                        onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i></div>';"
+                                        style="max-width: 100%; height: auto;">
                                 @else
                                     <div class="no-image">
                                         <i class="fas fa-image"></i>
@@ -117,7 +117,7 @@
                             </div>
 
                             <div class="product-info">
-                                <div class="product-brand">{{ $product->brand->brand_name ?? 'N/A' }}</div>
+                                <div class="product-brand">Thương hiệu: {{ $product->brand->brand_name ?? 'N/A' }}</div>
                                 <h3 class="product-name">
                                     <a href="{{ route('shop.product.show', $product->product_id) }}">
                                         {{ $product->product_name }}

@@ -36,7 +36,7 @@
                             @endphp
 
                             @if ($mainImage)
-                                <img src="{{ Storage::url($mainImage->image_url) }}" class="w-100"
+                                <img src="{{ asset($mainImage->image_url) }}" class="w-100"
                                     alt="{{ $product->product_name }}"
                                     onerror="this.src='{{ asset('images/no-image.png') }}'; this.onerror=null;">
                             @else
@@ -45,9 +45,16 @@
                         </div>
                         <div class="product-info">
                             <h3 style="min-height: 85px">{{ $product->product_name }}</h3>
-                            <p class="product-brand">{{ $product->brand->brand_name ?? 'N/A' }}</p>
-                            <p class="product-price">${{ number_format($product->price, 2) }}</p>
-                            <a href="{{ route('shop.product.show', $product->product_id) }}" class="view-product-btn">
+                            <p class="product-brand">Thương hiệu: {{ $product->brand->brand_name ?? 'N/A' }}</p>
+                            @if ($product->discount > 0)
+                                <p class="product-price">
+                                    {{ number_format($product->price * (1 - $product->discount / 100)) }}đ
+                                    <del style="color: gray; font-size: 14px">{{ number_format($product->price) }}đ</del>
+                                </p>
+                            @else
+                                <p class="product-price">{{ number_format($product->price) }}đ</p>
+                            @endif <a
+                                href="{{ route('shop.product.show', $product->product_id) }}" class="view-product-btn">
                                 Xem chi tiết
                             </a>
                         </div>

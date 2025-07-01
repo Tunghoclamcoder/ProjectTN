@@ -269,8 +269,8 @@ class DashboardController extends Controller
                         'name' => $product->product_name,
                         'category' => $product->getPrimaryCategory()?->category_name ?? 'N/A',
                         'price' => number_format($product->price) . ' VNĐ',
-                        'image' => $product->getMainImage()?->image_url
-                            ? asset('storage/' . $product->getMainImage()->image_url)
+                        'image_url' => $product->getMainImage()?->image_url
+                            ? asset( $product->getMainImage()->image_url)
                             : asset('images/no-image.png'),
                         'url' => route('admin.product.edit', $product->product_id)
                     ];
@@ -379,7 +379,7 @@ class DashboardController extends Controller
             }
 
             // Biểu đồ hình cột ngang show số lượng sản phẩm bán đc theo danh mục
-            $categorySales = \App\Models\Category::with(['products.orderDetails' => function ($q) {
+            $categorySales = Category::with(['products.orderDetails' => function ($q) {
                 $q->whereHas('order', function ($query) {
                     $query->where('order_status', 'completed');
                 });
@@ -397,7 +397,7 @@ class DashboardController extends Controller
             $categoryTotals = $categorySales->pluck('total')->toArray();
 
             // Biểu đồ hình cột dọc show số lượng sản phẩm bán đc theo thương hiệu
-            $brandSales = \App\Models\Brand::with(['products.orderDetails' => function ($q) {
+            $brandSales = Brand::with(['products.orderDetails' => function ($q) {
                 $q->whereHas('order', function ($query) {
                     $query->where('order_status', 'completed');
                 });

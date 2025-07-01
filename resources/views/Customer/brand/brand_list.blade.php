@@ -69,14 +69,16 @@
 
                                         @if ($displayImage)
                                             @if ($imageType === 'brand')
-                                                <img src="{{ Storage::url($brand->brand_image) }}"
+                                                <img src="{{ asset($brand->brand_image) }}"
                                                     alt="{{ $brand->brand_name }}" class="brand-logo"
                                                     onerror="this.parentElement.innerHTML='<div class=\'brand-placeholder\'><i class=\'fas fa-building\'></i><span>{{ substr($brand->brand_name, 0, 2) }}</span></div>';">
                                             @else
-                                                <img src="{{ Storage::url($displayImage) }}"
-                                                    alt="{{ $brand->brand_name }}" class="brand-product-img"
+                                                <img src="{{ asset($displayImage) }}" alt="{{ $brand->brand_name }}"
+                                                    class="brand-product-img"
                                                     onerror="this.parentElement.innerHTML='<div class=\'brand-placeholder\'><i class=\'fas fa-building\'></i><span>{{ substr($brand->brand_name, 0, 2) }}</span></div>';">
                                             @endif
+
+
                                             <div class="image-type-badge {{ $imageType }}">
                                                 @if ($imageType === 'brand')
                                                     <i class="fas fa-certificate"></i>

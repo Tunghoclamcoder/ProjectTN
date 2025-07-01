@@ -58,7 +58,7 @@
                             <h3 class="section-title">Thông Tin Liên Hệ</h3>
                             <p class="section-subtitle">Liên hệ trực tiếp với chúng tôi qua các kênh sau:</p>
 
-                            <div class="contact-item">
+                            <div class="contact-item-container">
                                 <div class="contact-icon">
                                     <i class="fas fa-map-marker-alt"></i>
                                 </div>
@@ -68,7 +68,7 @@
                                 </div>
                             </div>
 
-                            <div class="contact-item">
+                            <div class="contact-item-container">
                                 <div class="contact-icon">
                                     <i class="fas fa-phone"></i>
                                 </div>
@@ -79,7 +79,7 @@
                                 </div>
                             </div>
 
-                            <div class="contact-item">
+                            <div class="contact-item-container">
                                 <div class="contact-icon">
                                     <i class="fas fa-envelope"></i>
                                 </div>
@@ -90,7 +90,7 @@
                                 </div>
                             </div>
 
-                            <div class="contact-item">
+                            <div class="contact-item-container">
                                 <div class="contact-icon">
                                     <i class="fas fa-clock"></i>
                                 </div>

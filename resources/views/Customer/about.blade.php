@@ -101,6 +101,7 @@
                         <div>Chuyên gia quản lý chuỗi cung ứng</div>
                     </div>
                     <div class="team-member">
+                        <img src="{{ asset('images/face/Huy.jpg') }}" alt="COO Nguyễn Quốc Huy">
                         <div class="team-name">Nguyễn Quốc Huy</div>
                         <div class="team-role">Sales – Bán hàng</div>
                         <div>Chuyên gia bán hàng khủng</div>

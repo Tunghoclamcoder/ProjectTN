@@ -160,7 +160,8 @@ class EmployeeController extends Controller
             Employee::create($validated);
 
             return redirect()
-                ->route('admin.employee');
+                ->route('admin.employee')
+                ->with('success', 'Thêm nhân viên thành công!');
         } catch (ValidationException $e) {
             return redirect()
                 ->back()

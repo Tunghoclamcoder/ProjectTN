@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Shop')</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/search-admin.css') }}" />
 
     <!-- Add search CSS -->
 </head>
@@ -26,8 +32,8 @@
 
             <div class="come-back-button">
                 <a href="{{ route('admin.dashboard') }}" class="btn back-btn">
-                    <i class="fa fa-arrow-left"></i>
-                    <span style="font-size: 12px; font-weight: 500;"> Quay lại Dashboard</span>
+                    <i class="fa fa-arrow-left" style="margin-right: 5px"></i>
+                    <span style="font-size: 12px; font-weight: 500"> Quay lại Dashboard</span>
                 </a>
             </div>
         </div>
@@ -36,7 +42,7 @@
             @forelse ($products as $product)
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{{ $product->getMainImage() ? asset('storage/' . $product->getMainImage()->image_url) : asset('images/no-image.png') }}"
+                        <img src="{{ $product->getMainImage() ? asset($product->getMainImage()->image_url) : asset('images/no-image.png') }}"
                             alt="{{ $product->product_name }}">
                     </div>
                     <div class="product-details">
@@ -68,9 +74,7 @@
                     </div>
                     <div class="product-actions">
                         <a href="{{ route('admin.product.edit', $product->product_id) }}"
-                            class="action-button edit-button">
-                            <i class="fas fa-edit me-1"></i>
-                            Chỉnh sửa
+                            class="action-button edit-button"> Chỉnh sửa
                         </a>
                     </div>
                 </div>
@@ -86,191 +90,5 @@
         </div>
     </div>
 </body>
-<style>
-    .search-results-header {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 25px;
-    }
-
-    .search-query {
-        color: #4361ee;
-        font-weight: 600;
-    }
-
-    .search-count {
-        color: #718096;
-        font-size: 0.9rem;
-        margin-top: 5px;
-    }
-
-    .come-back-button {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 20px;
-    }
-
-    .back-btn {
-        display: flex;
-        align-items: center;
-        background: #ffffff;
-        color: #000000;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: background 0.3s ease;
-    }
-
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-        padding: 1rem;
-    }
-
-    .product-card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .product-image {
-        position: relative;
-        padding-top: 75%;
-        /* 4:3 Aspect Ratio */
-        background: #f8f9fa;
-        overflow: hidden;
-    }
-
-    .product-image img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .product-card:hover .product-image img {
-        transform: scale(1.1);
-    }
-
-    .product-details {
-        padding: 1.25rem;
-        min-height: 280px
-    }
-
-    .product-category {
-        font-size: 0.85rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .product-name {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2d3748;
-        margin: 0.5rem 0;
-        line-height: 1.4;
-        min-height: 100px
-    }
-
-    .product-brand {
-        font-size: 0.9rem;
-        color: #4a5568;
-        margin-bottom: 0.5rem;
-    }
-
-    .product-price {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #48bb78;
-        max-width: 200px;
-    }
-
-    .original-price {
-        font-size: 0.9em;
-        margin-right: 10px;
-    }
-
-    .discounted-price {
-        font-weight: bold;
-    }
-
-    .product-status {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .status-active {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .status-inactive {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .product-actions {
-        padding: 1rem;
-        border-top: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .action-button {
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .edit-button {
-        background: #e9ecef;
-        color: #495057;
-    }
-
-    .edit-button:hover {
-        background: #dee2e6;
-        color: #212529;
-    }
-
-    .search-header {
-        background: linear-gradient(to right, #4a90e2, #63b3ed);
-        padding: 2rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        color: white;
-    }
-
-    .search-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .search-meta {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-</style>
 
 </html>

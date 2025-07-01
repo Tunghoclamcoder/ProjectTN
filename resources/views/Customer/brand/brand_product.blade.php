@@ -8,6 +8,10 @@
     <title>{{ $brand->brand_name }} - Sản phẩm</title>
     <link rel="stylesheet" href="{{ asset('css/brand_products.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 
@@ -27,7 +31,7 @@
                 <div class="banner-content">
                     <div class="container">
                         <!-- Breadcrumb -->
-                        <nav class="breadcrumb">
+                        <nav class="breadcrumb" style="color: black">
                             <a href="{{ route('shop.home') }}">
                                 <i class="fas fa-home"></i>
                                 Trang chủ
@@ -103,7 +107,7 @@
                                     <i class="fas fa-list"></i>
                                 </button>
                             </div>
-                            <div class="sort-options">
+                            <div class="sort-options" style="font-size: 1.6rem">
                                 <select class="sort-select" onchange="sortProducts(this.value)">
                                     <option value="default" {{ request('sort') == 'default' ? 'selected' : '' }}>Sắp
                                         xếp mặc định</option>
@@ -141,7 +145,7 @@
                                         @endphp
 
                                         @if ($mainImage && $mainImage->image_url)
-                                            <img src="{{ Storage::url($mainImage->image_url) }}"
+                                            <img src="{{ asset($mainImage->image_url) }}"
                                                 alt="{{ $product->product_name }}" loading="lazy"
                                                 onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><span>Không có ảnh</span></div>';">
                                         @else
@@ -245,12 +249,8 @@
                         <h3>Không có sản phẩm</h3>
                         <p>Thương hiệu {{ $brand->brand_name }} hiện chưa có sản phẩm nào.</p>
                         <div class="no-products-actions">
-                            <button type="button" class="btn-secondary" onclick="goBack()">
-                                <i class="fas fa-arrow-left"></i>
-                                Quay lại
-                            </button>
                             <a href="{{ route('brands.list') }}" class="btn-primary">
-                                <i class="fas fa-building"></i>
+                                <i class="fas fa-building" style="margin-right: 8px"></i>
                                 Xem thương hiệu khác
                             </a>
                         </div>

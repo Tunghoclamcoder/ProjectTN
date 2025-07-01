@@ -34,7 +34,7 @@ class OwnerController extends Controller
             }
 
             return back()->withErrors([
-                'email' => 'Invalid credentials.'
+                'email' => 'Thông tin đăng nhập không hợp lệ.'
             ]);
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());

@@ -113,7 +113,7 @@
                     </form>
                 @else
                     <div class="alert alert-warning mt-2">
-                        Vui lòng <a href="{{ route('customer.login') }}">đăng nhập</a> để thêm sản phẩm vào giỏ hàng.
+                        Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.
                     </div>
                 @endauth
             @else
