@@ -151,10 +151,6 @@
                 </div>
             </div>
         @endif
-        {{-- Phân trang --}}
-        <div class="pagination-container">
-            {{ $products->links() }}
-        </div>
     </div>
 
     @include('Customer.components.footer')

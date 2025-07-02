@@ -13,9 +13,36 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="{{ asset('js/alert.js') }}"></script>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
+    <div class="alerts-container" style="display: flex; justify-content: center;">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="alert alert-success alert-session">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
+
     <div class="brand-products-page">
         <!-- Brand Header Section -->
         <section class="brand-header">
@@ -159,7 +186,7 @@
                                     <!-- Discount Badge -->
                                     @if ($product->discount > 0)
                                         <div class="discount-badge">
-                                            -{{ $product->discount }}%
+                                            - {{ $product->discount }}%
                                         </div>
                                     @endif
                                 </div>
@@ -209,13 +236,12 @@
 
                                     <div class="product-actions-bottom">
                                         @auth('customer')
-                                            <form action="{{ route('cart.add-to-cart') }}" method="POST"
-                                                class="d-inline">
+                                            <form class="add-to-cart-form d-inline" style="display: flex; justify-content: center;"
+                                                data-product-id="{{ $product->product_id }}">
                                                 @csrf
                                                 <input type="hidden" name="product_id"
                                                     value="{{ $product->product_id }}">
-                                                <button
-                                                    class="cart-button {{ $product->quantity <= 0 ? 'disabled' : '' }}"
+                                                <button type="button" class="cart-button"
                                                     {{ $product->quantity <= 0 ? 'disabled' : '' }}>
                                                     <span
                                                         class="add-to-cart">{{ $product->quantity > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' }}</span>
@@ -291,18 +317,71 @@
                         'products-grid';
                 });
             });
+
+            const cartButtons = document.querySelectorAll('.cart-button');
+
+            cartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (button.disabled) return;
+
+                    const form = button.closest('.add-to-cart-form');
+                    const productId = form.dataset.productId;
+
+                    // Add clicked animation
+                    button.classList.add('clicked');
+
+                    // Send AJAX request
+                    fetch('{{ route('cart.add-to-cart') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update cart count if you have one
+                                if (data.cartCount) {
+                                    document.querySelector('.cart-count').textContent = data
+                                        .cartCount;
+                                }
+
+                                // Show success message
+                                showAlert('success', 'Sản phẩm đã được thêm vào giỏ hàng');
+                            } else {
+                                showAlert('error', data.message || 'Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('error', 'Có lỗi xảy ra khi thêm sản phẩm');
+                        })
+                        .finally(() => {
+                            // Remove clicked animation after 2 seconds
+                            setTimeout(() => {
+                                button.classList.remove('clicked');
+                            }, 2000);
+                        });
+                });
+            });
         });
 
-        function addToCart(button) {
-            if (!button.classList.contains('disabled')) {
-                button.classList.add('clicked');
-                setTimeout(() => {
-                    button.classList.remove('clicked');
-                }, 2000);
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
 
-                // Submit the form
-                button.closest('form').submit();
-            }
+            const alertsContainer = document.querySelector('.alerts-container');
+            alertsContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
         }
 
         // Functions
@@ -318,11 +397,6 @@
             const url = new URL(window.location);
             url.searchParams.set('sort', sortBy);
             window.location.href = url.toString();
-        }
-
-        function addToCart(productId) {
-            // Implement add to cart functionality
-            alert('Thêm sản phẩm vào giỏ hàng: ' + productId);
         }
 
         function scrollToTop() {

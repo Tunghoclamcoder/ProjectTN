@@ -5,14 +5,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Shop')</title>
-
+    <title>@yield('title', 'Danh sách sản phẩm')</title>
+    <script src="{{ asset('js/alert.js') }}"></script>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Add search CSS -->
     <link rel="stylesheet" href="{{ asset('css/category_products.css') }}">
 </head>
 
 <body>
     @section('title', content: $category->category_name)
+
+    <div class="alerts-container" style="display: flex; justify-content: center;">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="alert alert-success alert-session">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
 
     <div class="category-products-container">
         <!-- Category Header -->
@@ -117,28 +143,38 @@
                             </div>
 
                             <div class="product-info">
-                                <div class="product-brand">Thương hiệu: {{ $product->brand->brand_name ?? 'N/A' }}</div>
+                                <div class="product-brand">Thương hiệu: {{ $product->brand->brand_name ?? 'N/A' }}
+                                </div>
                                 <h3 class="product-name">
                                     <a href="{{ route('shop.product.show', $product->product_id) }}">
                                         {{ $product->product_name }}
                                     </a>
                                 </h3>
                                 <div class="product-price">
-                                    <span class="current-price">{{ number_format($product->price) }}đ</span>
+                                    @if ($product->discount > 0)
+                                        <span class="current-price">
+                                            {{ number_format($product->price * (1 - $product->discount / 100)) }}đ
+                                        </span>
+                                        <del class="old-price"
+                                            style="font-size: 14px; color: gray">{{ number_format($product->price) }}đ</del>
+                                    @else
+                                        <span class="current-price">{{ number_format($product->price) }}đ</span>
+                                    @endif
                                 </div>
 
                                 <div class="product-actions-bottom">
                                     @auth('customer')
-                                        <form action="{{ route('cart.add-to-cart') }}" method="POST" class="d-inline">
+                                        <form class="add-to-cart-form d-inline"
+                                            style="display: flex; justify-content: center;"
+                                            data-product-id="{{ $product->product_id }}">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                                            <button class="cart-button {{ $product->quantity <= 0 ? 'disabled' : '' }}"
+                                            <button type="button" class="cart-button"
                                                 {{ $product->quantity <= 0 ? 'disabled' : '' }}>
                                                 <span
                                                     class="add-to-cart">{{ $product->quantity > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' }}</span>
                                                 <span class="added">Đã thêm !</span>
                                                 <i class="fas fa-shopping-cart"></i>
-                                                <i class="fas fa-box"></i>
                                             </button>
                                         </form>
                                     @else
@@ -180,19 +216,72 @@
             window.location.href = url.toString();
         }
 
-        function addToCart(productId) {
-            // Implement add to cart functionality
-            alert('Thêm sản phẩm vào giỏ hàng: ' + productId);
-        }
+        document.addEventListener('DOMContentLoaded', function() {
 
-        function goBack() {
-            // Kiểm tra xem có trang trước trong history không
-            if (document.referrer && document.referrer.includes(window.location.host)) {
-                window.history.back();
-            } else {
-                // Nếu không có trang trước, chuyển về trang danh mục
-                window.location.href = "{{ route('categories.list') }}";
-            }
+            const cartButtons = document.querySelectorAll('.cart-button');
+
+            cartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (button.disabled) return;
+
+                    const form = button.closest('.add-to-cart-form');
+                    const productId = form.dataset.productId;
+
+                    // Add clicked animation
+                    button.classList.add('clicked');
+
+                    // Send AJAX request
+                    fetch('{{ route('cart.add-to-cart') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update cart count if you have one
+                                if (data.cartCount) {
+                                    document.querySelector('.cart-count').textContent = data
+                                        .cartCount;
+                                }
+
+                                // Show success message
+                                showAlert('success', 'Sản phẩm đã được thêm vào giỏ hàng');
+                            } else {
+                                showAlert('error', data.message || 'Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('error', 'Có lỗi xảy ra khi thêm sản phẩm');
+                        })
+                        .finally(() => {
+                            // Remove clicked animation after 2 seconds
+                            setTimeout(() => {
+                                button.classList.remove('clicked');
+                            }, 2000);
+                        });
+                });
+            });
+        });
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+
+            const alertsContainer = document.querySelector('.alerts-container');
+            alertsContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
         }
 
         // Smooth scroll to top when clicking navigation

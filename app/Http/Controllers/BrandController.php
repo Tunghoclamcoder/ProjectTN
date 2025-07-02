@@ -168,24 +168,16 @@ class BrandController extends Controller
     /**
      * Hiển thị sản phẩm trong một thương hiệu cụ thể
      */
-    public function show($id)
-    {
-        $brand = Brand::findOrFail($id);
-
-        $products = Product::where('brand_id', $id)
-            ->with(['brand', 'images'])
-            ->where('status', 'active')
-            ->where('quantity', '>', 0)
-            ->paginate(12);
-
-        return view('Customer.brand.brand_product', compact('brand', 'products'));
-    }
-
     public function showBrandProducts(Request $request, $brandId)
     {
         $brand = Brand::findOrFail($brandId);
-        $query = Product::where('brand_id', $brandId);
 
+        $query = Product::where('brand_id', $brandId)
+            ->with(['brand', 'images'])
+            ->where('status', 'active')
+            ->where('quantity', '>', 0);
+
+        // Xử lý sort nếu có
         switch ($request->input('sort')) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');

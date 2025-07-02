@@ -113,28 +113,24 @@ class CategoryController extends Controller
     /**
      * Hiển thị sản phẩm trong một danh mục cụ thể
      */
-    public function show($id)
+    public function showCategoryProducts(Request $request, $categoryId)
     {
+        // Lấy category và eager load products (active, còn hàng, kèm brand, images)
         $category = Category::with(['products' => function ($query) {
             $query->where('status', 'active')
                 ->where('quantity', '>', 0)
                 ->with(['brand', 'images']);
-        }])->findOrFail($id);
+        }])->findOrFail($categoryId);
 
-        $products = $category->products()->paginate(12);
-
-        return view('Customer.category.filter_product', compact('category', 'products'));
-    }
-
-    public function showCategoryProducts(Request $request, $categoryId)
-    {
-        $category = Category::findOrFail($categoryId);
-
+        // Query sản phẩm thuộc category này
         $query = Product::whereHas('categories', function ($q) use ($categoryId) {
             $q->where('categories.category_id', $categoryId);
-        });
+        })
+            ->where('status', 'active')
+            ->where('quantity', '>', 0)
+            ->with(['brand', 'images']);
 
-        // Xử lý sort
+        // Xử lý sort nếu có
         switch ($request->input('sort')) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');

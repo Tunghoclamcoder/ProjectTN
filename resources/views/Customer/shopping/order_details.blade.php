@@ -197,10 +197,11 @@
                 <div class="product-item">
                     <div class="product-image">
                         @if ($detail->product->getMainImage())
-                            <img src="{{ Storage::url($detail->product->getMainImage()->image_url) }}"
+                            <img src="{{ asset($detail->product->getMainImage()->image_url) }}"
                                 alt="{{ $detail->product->product_name }}" class="img-fluid rounded">
                         @else
-                            <div class="no-image">Không có ảnh</div>
+                            <img src="{{ asset('images/no-image.png') }}" alt="No image available"
+                                class="img-fluid rounded">
                         @endif
                     </div>
 

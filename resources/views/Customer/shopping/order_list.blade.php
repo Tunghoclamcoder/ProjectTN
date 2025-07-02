@@ -94,17 +94,7 @@
                         <i class="bi bi-clock-history me-2"></i>
                         Lịch sử đặt hàng
                     </h2>
-                    <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" style="width: auto;">
-                            <option>All Orders</option>
-                            <option>Last 30 Days</option>
-                            <option>Last 3 Months</option>
-                            <option>Last Year</option>
-                        </select>
-                        <button class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-funnel me-1"></i>Filter
-                        </button>
-                    </div>
+
                 </div>
 
                 <div class="table-responsive">

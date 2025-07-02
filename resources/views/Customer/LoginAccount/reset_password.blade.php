@@ -1,5 +1,6 @@
-<!DOCTYPE html>More actions
+<!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +18,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 </head>
+
 <body>
     <div class="auth-container">
         <!-- Header Section -->
@@ -44,24 +46,24 @@
             </div>
 
             <!-- Display Messages -->
-            @if(session('success'))
+            @if (session('success'))
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
                     {{ session('success') }}
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle"></i>
                     {{ session('error') }}
                 </div>
             @endif
 
-            @if($errors->any())
+            @if ($errors->any())
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle"></i>
-                    @foreach($errors->all() as $error)
+                    @foreach ($errors->all() as $error)
                         <div>{{ $error }}</div>
                     @endforeach
                 </div>
@@ -76,18 +78,12 @@
 
                 <!-- Email Field (readonly) -->
                 <div class="form-group">
-                <label>
+                    <label>
                         <i class="fas fa-envelope"></i>
                         Địa chỉ Email
                     </label>
-                    <input
-                        type="email"
-                        class="form-control"
-                        value="{{ $email ?? '' }}"
-                        readonly
-                        tabindex="-1"
-                        style="background: #f5f5f5;"
-                    >
+                    <input type="email" class="form-control" value="{{ $email ?? '' }}" readonly tabindex="-1"
+                        style="background: #f5f5f5;">
                 </div>
 
                 <!-- New Password Field -->
@@ -97,16 +93,9 @@
                         Mật khẩu mới
                     </label>
                     <div style="position: relative;">
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="form-control @error('password') is-invalid @enderror"
-                            placeholder="Nhập mật khẩu mới"
-                            required
-                            autocomplete="new-password"
-                            minlength="6"
-                        >
+                        <input type="password" id="password" name="password"
+                            class="form-control @error('password') is-invalid @enderror" placeholder="Nhập mật khẩu mới"
+                            required autocomplete="new-password" minlength="6">
                         <span class="password-toggle">
                             <i class="fas fa-eye-slash"></i>
                         </span>
@@ -131,16 +120,9 @@
                         Xác nhận mật khẩu
                     </label>
                     <div style="position: relative;">
-                        <input
-                            type="password"
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            class="form-control"
-                            placeholder="Nhập lại mật khẩu mới"
-                            required
-                            autocomplete="new-password"
-                            minlength="6"
-                        >
+                        <input type="password" id="password_confirmation" name="password_confirmation"
+                            class="form-control" placeholder="Nhập lại mật khẩu mới" required
+                            autocomplete="new-password" minlength="6">
                         <span class="password-toggle">
                             <i class="fas fa-eye-slash"></i>
                         </span>
@@ -202,11 +184,13 @@
             }
 
             function showMatchError() {
-                hideMatchError();
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message';
+                let errorDiv = confirmPasswordInput.parentNode.parentNode.querySelector('.error-message');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    confirmPasswordInput.parentNode.parentNode.appendChild(errorDiv);
+                }
                 errorDiv.innerHTML = '<i class="fas fa-times-circle"></i> Mật khẩu không khớp';
-                confirmPasswordInput.parentNode.parentNode.appendChild(errorDiv);
             }
 
             function hideMatchError() {

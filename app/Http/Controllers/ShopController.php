@@ -17,7 +17,8 @@ class ShopController extends Controller
         }])
             ->where('status', true)
             ->orderBy('product_id', 'desc')
-            ->paginate(12);
+            ->take(8)
+            ->get();
 
         // Lấy 3 đánh giá mới nhất của customer
         $latestFeedbacks = Feedback::with(['customer', 'order.orderDetails.product'])

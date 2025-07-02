@@ -106,7 +106,7 @@ class CartController extends Controller
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => 'Đã thêm sản phẩm vào giỏ hàng!',
                 'message' => 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng'
             ], 500);
         }

@@ -58,8 +58,6 @@ Route::post('customer/change-password', [CustomerController::class, 'changePassw
     ->middleware(CustomerAuthentication::class)
     ->name('customer.change-password.update');
 
-Route::get('/categories/{category}', [CategoryController::class, 'showCategoryProducts'])->name('categories.products');
-Route::get('/brands/{brand}', [BrandController::class, 'showBrandProducts'])->name('brands.products');
 Route::get('/product/{product}', [ProductController::class, 'show'])->name('shop.product.show');
 
 Route::middleware('auth:customer')->group(function () {
@@ -86,7 +84,7 @@ Route::middleware('auth:customer')->group(function () {
     Route::post('/vnpay/payment/{order}', [PaymentController::class, 'vn_payment'])->name('vnpay.payment');
     Route::get('/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::post('/momo/payment/{order}', [PaymentController::class, 'momo_payment'])->name('momo.payment');
-    Route::post('/momo/return', [PaymentController::class, 'momoReturn'])->name('momo.return');
+    Route::match(['get', 'post'], '/momo/return', [PaymentController::class, 'momoReturn'])->name('momo.return');
     Route::get('/payment/bank-qr/{order}', [PaymentController::class, 'showBankPayment'])->name('bank-qr.payment');
 });
 
@@ -103,11 +101,12 @@ Route::get('/search', [ShopController::class, 'search'])
 
 //Trang hiển thị danh mục sản phẩm
 Route::get('/categories', [CategoryController::class, 'categoryList'])->name('categories.list');
-Route::get('/categories/{id}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/categories/{category}', [CategoryController::class, 'showCategoryProducts'])->name('categories.show');
 
 //Trang hiển thị thương hiệu sản phẩm
 Route::get('/brands', [BrandController::class, 'brandList'])->name('brands.list');
-Route::get('/brands/{id}', [BrandController::class, 'show'])->name('brands.show');
+Route::get('/brands/{brand}', [BrandController::class, 'showBrandProducts'])->name('brands.show');
+
 
 Route::get('/product/{product_id}/reviews', [FeedbackController::class, 'showProductReviews'])->name('product.reviews');
 
@@ -159,7 +158,7 @@ Route::prefix('admin')->group(function () {
 
         Route::delete('/admin/feedback/{id}', [FeedbackController::class, 'destroy'])->name('admin.feedback.delete');
 
-        Route::get('/search/suggestions', [DashboardController::class, 'searchSuggestions'])
+        Route::get('/search/suggestions', [DashboardController::class, 'searchsearchSuggestions'])
             ->name('admin.search.suggestions');
         Route::post('/logout', [AdminController::class, 'logout'])
             ->name('admin.logout');
